@@ -294,9 +294,9 @@
 const ctx = canvas.getContext('2d', { willReadFrequently: true });
 
 let state = {
-    img: null, blocks: [], shred: 50, gyroG: 15, chaos: 1, 
-    bnc: 0.2, grav: 0.1, fric: 0.87, massS: 0.1, smear: 0.15, 
-    timeScale: 0.2,
+    img: null, blocks: [], shred: 32, gyroG: 40, chaos: 5, 
+    bnc: 0.2, grav: 0.1, fric: 0.98, massS: 0.6, smear: 0.15, 
+    timeScale: 1.0,
     g: { x: 0, y: 0 },
     mouse: { x: 0, y: 0 },
     isDown: false,
@@ -445,6 +445,9 @@ function draw() {
         });
     }
     requestAnimationFrame(draw);
+}
+draw();
+    ;
 }
 draw();
 </script>

@@ -291,139 +291,162 @@
 
 <script>
     const canvas = document.getElementById('vort');
-    const ctx = canvas.getContext('2d', { willReadFrequently: true });
-    
-    let state = {
-        img: null, blocks: [], shred: 32, gyroG: 40, chaos: 5, 
-        bnc: 0.2, grav: 0, fric: 0.98, massS: 0.6, smear: 0.1, 
-        timeScale: 1.0, // <-- Temporal control state
-        g: { x: 0, y: 0 }, active: false
-    };
+const ctx = canvas.getContext('2d', { willReadFrequently: true });
 
-    const bindDial = (id, key) => {
-        const el = document.getElementById(id);
-        if (el) {
-            el.oninput = (e) => {
-                state[key] = parseFloat(e.target.value);
-                if(key === 'shred' && state.img) process();
-            };
-        }
-    };
-    
-    bindDial('s-shred', 'shred');
-    bindDial('s-gyro', 'gyroG');
-    bindDial('s-chaos', 'chaos');
-    bindDial('s-bnc', 'bnc');
-    bindDial('s-grav', 'grav');
-    bindDial('s-fric', 'fric');
-    bindDial('s-mass', 'massS');
-    bindDial('s-smear', 'smear');
-    bindDial('s-time', 'timeScale'); // Bind new dial
+let state = {
+    img: null, blocks: [], shred: 50, gyroG: 15, chaos: 1, 
+    bnc: 0.2, grav: 0.1, fric: 0.87, massS: 0.1, smear: 0.15, 
+    timeScale: 0.2,
+    g: { x: 0, y: 0 },
+    mouse: { x: 0, y: 0 },
+    isDown: false,
+    active: false
+};
 
-    document.getElementById('boot').onclick = async () => {
-        if (typeof DeviceOrientationEvent?.requestPermission === 'function') {
-            try { await DeviceOrientationEvent.requestPermission(); } catch(e) {}
-        }
-        window.addEventListener('deviceorientation', e => {
-            state.g.x = (e.gamma || 0) * 0.1;
-            state.g.y = (e.beta || 0) * 0.1;
-        });
-        document.getElementById('boot').innerText = "VORTEX_LIVE";
-    };
-
-    document.getElementById('stir').onclick = () => {
-        state.blocks.forEach(bl => {
-            bl.vx += (Math.random()-0.5)*20;
-            bl.vy -= Math.random()*20;
-        });
-    };
-
-    document.getElementById('loader').onchange = (e) => {
-        const reader = new FileReader();
-        reader.onload = (ev) => {
-            state.img = new Image();
-            state.img.onload = process;
-            state.img.src = ev.target.result;
+// Dial logic
+const bindDial = (id, key) => {
+    const el = document.getElementById(id);
+    if (el) {
+        el.oninput = (e) => {
+            state[key] = parseFloat(e.target.value);
+            if(key === 'shred' && state.img) process();
         };
-        reader.readAsDataURL(e.target.files[0]);
+    }
+};
+
+['s-shred','s-gyro','s-chaos','s-bnc','s-grav','s-fric','s-mass','s-smear','s-time'].forEach(id => {
+    bindDial(id, id.split('-')[1] === 'time' ? 'timeScale' : id.split('-')[1]);
+});
+
+// Interaction
+const getPos = (e) => {
+    const rect = canvas.getBoundingClientRect();
+    const clientX = e.touches ? e.touches[0].clientX : e.clientX;
+    const clientY = e.touches ? e.touches[0].clientY : e.clientY;
+    state.mouse.x = (clientX - rect.left) * (canvas.width / rect.width);
+    state.mouse.y = (clientY - rect.top) * (canvas.height / rect.height);
+};
+
+canvas.addEventListener('mousedown', (e) => { state.isDown = true; getPos(e); });
+canvas.addEventListener('mousemove', (e) => { if(state.isDown) getPos(e); });
+window.addEventListener('mouseup', () => { state.isDown = false; });
+canvas.addEventListener('touchstart', (e) => { state.isDown = true; getPos(e); }, {passive: false});
+canvas.addEventListener('touchmove', (e) => { if(state.isDown) getPos(e); }, {passive: false});
+window.addEventListener('touchend', () => { state.isDown = false; });
+
+document.getElementById('boot').onclick = async () => {
+    if (typeof DeviceOrientationEvent?.requestPermission === 'function') {
+        try { await DeviceOrientationEvent.requestPermission(); } catch(e) {}
+    }
+    window.addEventListener('deviceorientation', e => {
+        state.g.x = (e.gamma || 0) * 0.1;
+        state.g.y = (e.beta || 0) * 0.1;
+    });
+    document.getElementById('boot').innerText = "VORTEX_LIVE";
+};
+
+document.getElementById('stir').onclick = () => {
+    state.blocks.forEach(bl => {
+        bl.vx += (Math.random()-0.5)*40;
+        bl.vy -= Math.random()*40;
+    });
+};
+
+// FIX: Improved Image Injector
+document.getElementById('loader').onchange = (e) => {
+    if (!e.target.files[0]) return;
+    const file = e.target.files[0];
+    const url = URL.createObjectURL(file); // Faster/More reliable than FileReader
+    
+    state.img = new Image();
+    state.img.crossOrigin = "anonymous"; 
+    state.img.onload = () => {
+        process();
+        URL.revokeObjectURL(url); // Clean up memory
     };
+    state.img.src = url;
+};
 
-    function process() {
-        const wrap = document.getElementById('canvas-wrap');
-        const maxW = wrap.clientWidth - 16;
-        const maxH = wrap.clientHeight - 16;
-        const imgRatio = state.img.width / state.img.height;
-        const wrapRatio = maxW / maxH;
-        
-        let canvasW, canvasH;
-        if (imgRatio > wrapRatio) { canvasW = maxW; canvasH = maxW / imgRatio; } 
-        else { canvasH = maxH; canvasW = maxH * imgRatio; }
-        
-        canvas.width = canvasW; canvas.height = canvasH;
-        ctx.drawImage(state.img, 0, 0, canvas.width, canvas.height);
-        const d = ctx.getImageData(0, 0, canvas.width, canvas.height).data;
-        state.blocks = [];
-        
-        function split(x, y, w, h, depth) {
-            let i = (Math.floor(y + h/2)*canvas.width + Math.floor(x + w/2)) * 4;
-            if (depth >= 9 || w <= 4 || (depth > 1 && Math.random()*100 > (100 - state.shred))) {
-                state.blocks.push({
-                    x, y, w, h, 
-                    vx: (Math.random()-0.5)*20, vy: (Math.random()-0.5)*20,
-                    m: (w * h) / 100 * state.massS, 
-                    c: `rgb(${d[i]},${d[i+1]},${d[i+2]})`
-                }); 
-                return;
+function process() {
+    if (!state.img) return;
+    const wrap = document.getElementById('canvas-wrap');
+    const maxW = wrap.clientWidth - 16;
+    const maxH = wrap.clientHeight - 16;
+    
+    let canvasW, canvasH;
+    const imgRatio = state.img.width / state.img.height;
+    if (imgRatio > maxW / maxH) { canvasW = maxW; canvasH = maxW / imgRatio; } 
+    else { canvasH = maxH; canvasW = maxH * imgRatio; }
+    
+    canvas.width = canvasW; canvas.height = canvasH;
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    ctx.drawImage(state.img, 0, 0, canvas.width, canvas.height);
+    
+    const d = ctx.getImageData(0, 0, canvas.width, canvas.height).data;
+    state.blocks = [];
+    
+    function split(x, y, w, h, depth) {
+        let i = (Math.floor(y + h/2)*canvas.width + Math.floor(x + w/2)) * 4;
+        if (depth >= 9 || w <= 4 || (depth > 1 && Math.random()*100 > (100 - state.shred))) {
+            state.blocks.push({
+                x, y, w, h, 
+                vx: (Math.random()-0.5)*5, vy: (Math.random()-0.5)*5,
+                m: (w * h) / 100 * state.massS, 
+                c: `rgb(${d[i]},${d[i+1]},${d[i+2]})`
+            }); 
+            return;
+        }
+        let hw=w/2, hh=h/2;
+        split(x,y,hw,hh,depth+1); split(x+hw,y,hw,hh,depth+1);
+        split(x,y+hh,hw,hh,depth+1); split(x+hw,y+hh,hw,hh,depth+1);
+    }
+    split(0, 0, canvas.width, canvas.height, 0);
+    document.getElementById('fc').innerText = state.blocks.length;
+    state.active = true;
+}
+
+function draw() {
+    ctx.fillStyle = `rgba(0,0,0,${state.smear})`;
+    ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+    if (state.active && state.blocks.length) {
+        let dt = state.timeScale; 
+
+        state.blocks.forEach(bl => {
+            if (dt > 0) {
+                if (state.isDown) {
+                    let dx = state.mouse.x - (bl.x + bl.w/2);
+                    let dy = state.mouse.y - (bl.y + bl.h/2);
+                    let dist = Math.sqrt(dx*dx + dy*dy);
+                    if (dist < 250) {
+                        let pull = (250 - dist) / 1000;
+                        bl.vx += dx * pull * dt;
+                        bl.vy += dy * pull * dt;
+                    }
+                }
+                bl.vx += (state.g.x * state.gyroG * 0.05) * dt;
+                bl.vy += (state.g.y * state.gyroG * 0.05 + (state.grav * bl.m)) * dt;
+                bl.vx += ((Math.random()-0.5) * state.chaos) * dt;
+                bl.vy += ((Math.random()-0.5) * state.chaos) * dt;
+                bl.vx *= Math.pow(state.fric, dt); 
+                bl.vy *= Math.pow(state.fric, dt);
+                bl.x += bl.vx * dt; 
+                bl.y += bl.vy * dt;
             }
-            let hw=w/2, hh=h/2;
-            split(x,y,hw,hh,depth+1); split(x+hw,y,hw,hh,depth+1);
-            split(x,y+hh,hw,hh,depth+1); split(x+hw,y+hh,hw,hh,depth+1);
-        }
-        split(0, 0, canvas.width, canvas.height, 0);
-        document.getElementById('fc').innerText = state.blocks.length;
-        state.active = true;
+
+            // Wall Collisions
+            if(bl.x < 0) { bl.x = 0; bl.vx *= -state.bnc; }
+            if(bl.x + bl.w > canvas.width) { bl.x = canvas.width - bl.w; bl.vx *= -state.bnc; }
+            if(bl.y < 0) { bl.y = 0; bl.vy *= -state.bnc; }
+            if(bl.y + bl.h > canvas.height) { bl.y = canvas.height - bl.h; bl.vy *= -(state.bnc * 0.5); }
+
+            ctx.fillStyle = bl.c;
+            ctx.fillRect(bl.x, bl.y, bl.w - 0.5, bl.h - 0.5);
+        });
     }
-
-    function draw() {
-        ctx.fillStyle = `rgba(0,0,0,${state.smear})`;
-        ctx.fillRect(0, 0, canvas.width, canvas.height);
-
-        if (state.active && state.blocks) {
-            let dt = state.timeScale; // Time distortion multiplier
-
-            state.blocks.forEach(bl => {
-                if (dt > 0) {
-                    // Scale all force applications by time
-                    bl.vx += (state.g.x * state.gyroG * 0.05) * dt;
-                    bl.vy += (state.g.y * state.gyroG * 0.05 + (state.grav * bl.m)) * dt;
-                    
-                    bl.vx += ((Math.random()-0.5) * state.chaos) * dt;
-                    bl.vy += ((Math.random()-0.5) * state.chaos) * dt;
-
-                    // Clever hack: pow() friction so it dampens correctly at low speeds and stops when paused
-                    bl.vx *= Math.pow(state.fric, dt); 
-                    bl.vy *= Math.pow(state.fric, dt);
-                    
-                    // Scale movement
-                    bl.x += bl.vx * dt; 
-                    bl.y += bl.vy * dt;
-                }
-
-                if(bl.x < 0) { bl.x = 0; bl.vx *= -state.bnc; }
-                if(bl.x + bl.w > canvas.width) { bl.x = canvas.width - bl.w; bl.vx *= -state.bnc; }
-                if(bl.y < 0) { bl.y = 0; bl.vy *= -state.bnc; }
-                if(bl.y + bl.h > canvas.height) { 
-                    bl.y = canvas.height - bl.h; 
-                    bl.vy *= -(state.bnc * 0.5); 
-                }
-
-                ctx.fillStyle = bl.c;
-                ctx.fillRect(bl.x, bl.y, bl.w - 0.5, bl.h - 0.5);
-            });
-        }
-        requestAnimationFrame(draw);
-    }
-    draw();
+    requestAnimationFrame(draw);
+}
+draw();
 </script>
 </body>
 </html>

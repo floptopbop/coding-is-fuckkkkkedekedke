@@ -1,105 +1,668 @@
 <!DOCTYPE html>
+
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>GOBLIN_OS_FINAL_STRIKE</title>
+    <title>HPTT // MICRON_FIELD :: CHAOS_SELECTOR</title>
     <style>
-        body { background: #1a1a1a; color: #F8EBD1; font-family: monospace; margin: 0; overflow: hidden; touch-action: none; }
-        #wrap { position: absolute; top: 10px; left: 10px; right: 10px; bottom: 80px; background: #000; border: 2px solid #F8EBD1; display: flex; align-items: center; justify-content: center; }
-        canvas { max-width: 100%; max-height: 100%; image-rendering: pixelated; }
-        #ui { position: fixed; bottom: 0; left: 0; right: 0; height: 70px; background: #000; border-top: 2px solid #F8EBD1; padding: 10px; display: flex; gap: 10px; align-items: center; }
-        .btn { background: #000; color: #F8EBD1; border: 1px solid #F8EBD1; padding: 10px; cursor: pointer; font-weight: bold; text-transform: uppercase; }
-        input[type="file"] { display: none; }
-    </style>
+        @import url('https://fonts.googleapis.com/css2?family=Share+Tech+Mono&display=swap');
+        :root {
+            --void: #020203;
+            --path: #8a9a8a;
+            --chaos: #d14d4d;
+            --data-blue: #4e88cd;
+            --ui-bg: rgba(4, 4, 6, 0.99);
+        }
+        * {
+            user-select: none;
+            -webkit-tap-highlight-color: transparent;
+        }
+        body, html {
+            margin: 0; padding: 0; width: 100%; height: 100%;
+            background: var(--void); color: var(--path);
+            font-family: 'Share Tech Mono', monospace; overflow: hidden;
+            touch-action: none;
+        }
+
+```
+    canvas {
+        display: block;
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        z-index: 1;
+    }
+
+    /* HUD - LEFT (system manifest) */
+    #ledger-hud {
+        position: absolute; top: 20px; left: 20px; z-index: 50;
+        background: rgba(0,0,0,0.75); padding: 12px 16px; border-left: 2px solid var(--chaos);
+        font-size: 10px; pointer-events: auto; line-height: 1.5;
+        backdrop-filter: blur(2px);
+        font-family: 'Share Tech Mono', monospace;
+        transition: max-height 0.3s ease, opacity 0.3s ease;
+        max-height: 200px;
+        opacity: 1;
+        overflow: hidden;
+    }
+    #ledger-hud.collapsed {
+        max-height: 24px;
+        opacity: 0.6;
+    }
+    .ledger-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        cursor: pointer;
+        font-weight: bold;
+        margin-bottom: 8px;
+    }
+    .ledger-header:hover {
+        color: var(--chaos);
+    }
+    .collapse-btn {
+        font-size: 12px;
+        width: 20px;
+        text-align: center;
+    }
+    .ledger-content {
+        transition: opacity 0.3s ease;
+    }
+    #ledger-hud.collapsed .ledger-content {
+        display: none;
+    }
+    .val-hl { color: var(--chaos); font-weight: bold; }
+
+    /* CONTROL PANEL (interactive overlay) */
+    #interactive-panel {
+        position: absolute; bottom: 70px; right: 16px; z-index: 200;
+        background: rgba(2,2,3,0.9);
+        backdrop-filter: blur(8px);
+        border: 1px solid #2a2a2a;
+        border-right: 2px solid var(--chaos);
+        padding: 12px 16px;
+        font-size: 10px;
+        width: 180px;
+        font-family: 'Share Tech Mono', monospace;
+        border-radius: 4px;
+        box-shadow: 0 4px 20px rgba(0,0,0,0.6);
+        pointer-events: auto;
+        transition: max-height 0.3s ease, opacity 0.3s ease;
+        max-height: 600px;
+        opacity: 1;
+    }
+    #interactive-panel.collapsed {
+        max-height: 24px;
+        opacity: 0.6;
+        overflow: hidden;
+        padding: 8px 16px;
+    }
+    .panel-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        cursor: pointer;
+        font-weight: bold;
+        margin-bottom: 8px;
+    }
+    .panel-header:hover {
+        color: var(--chaos);
+    }
+    .panel-header .collapse-btn {
+        font-size: 12px;
+        width: 20px;
+        text-align: center;
+    }
+    #interactive-panel.collapsed .panel-header {
+        margin-bottom: 0;
+    }
+    .panel-content {
+        transition: opacity 0.3s ease;
+    }
+    #interactive-panel.collapsed .panel-content {
+        display: none;
+    }
+    #interactive-panel .ctrl-row {
+        margin-bottom: 8px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+    #interactive-panel label {
+        color: var(--path);
+        letter-spacing: 1px;
+    }
+    input[type="range"] {
+        width: 100px;
+        background: #111;
+        height: 2px;
+        -webkit-appearance: none;
+    }
+    input[type="range"]:focus {
+        outline: none;
+    }
+    input[type="range"]::-webkit-slider-thumb {
+        -webkit-appearance: none;
+        width: 10px;
+        height: 10px;
+        background: var(--chaos);
+        border-radius: 0;
+        cursor: pointer;
+    }
+    button {
+        background: transparent;
+        border: 1px solid var(--chaos);
+        color: var(--chaos);
+        font-family: monospace;
+        font-size: 9px;
+        padding: 3px 8px;
+        cursor: pointer;
+        transition: 0.1s;
+    }
+    button:hover {
+        background: var(--chaos);
+        color: #000;
+    }
+    .highlight {
+        color: var(--chaos);
+    }
+    hr {
+        border-color: #222;
+        margin: 8px 0;
+    }
+    .follow-indicator {
+        font-size: 9px;
+        margin-top: 5px;
+        text-align: center;
+        color: #777;
+    }
+
+    /* MANIFEST OVERLAY (50+ variables) */
+    #manifest-overlay {
+        position: absolute; bottom: 0; left: 0; width: 100%; height: 500px;
+        background: var(--ui-bg); border-top: 1px solid #222;
+        z-index: 100; transform: translateY(460px);
+        transition: transform 0.2s cubic-bezier(0, 0, 0.2, 1);
+        display: flex; flex-direction: column;
+        box-shadow: 0 -10px 30px rgba(0,0,0,0.8);
+        pointer-events: auto;
+    }
+    #manifest-overlay.open { transform: translateY(0); }
+    #handle {
+        height: 40px; background: #111; color: var(--path);
+        display: flex; align-items: center; justify-content: space-between;
+        padding: 0 20px; font-size: 11px; cursor: pointer;
+        border-bottom: 1px solid #222;
+    }
+    #scroll-area { flex-grow: 1; overflow-y: auto; padding-bottom: 20px; }
+    table { width: 100%; border-collapse: collapse; font-size: 10px; }
+    th { 
+        position: sticky; top: 0; background: #080808; padding: 12px 10px; 
+        color: var(--chaos); text-align: left; border-bottom: 1px solid #222;
+    }
+    td { padding: 4px 10px; border-bottom: 1px solid #0d0d0d; }
+    input {
+        background: #000; border: 1px solid #1a1a1a; color: var(--path);
+        font-family: inherit; font-size: 11px; width: 90%; outline: none;
+        padding: 2px 5px;
+    }
+    input:focus { border-color: var(--chaos); color: #fff; }
+    .badge {
+        color: #4e88cd;
+    }
+</style>
+```
+
 </head>
 <body>
 
-<div id="wrap"><canvas id="c"></canvas></div>
-<div id="ui">
-    <label class="btn">INJECT IMAGE<input type="file" id="loader" accept="image/*"></label>
-    <button class="btn" id="stir">STIR</button>
-    <div style="font-size: 10px;">CLICK/DRAG TO PULL FRAGMENTS</div>
+```
+<div id="ledger-hud">
+    <div class="ledger-header" onclick="toggleLedger()">
+        <span>[ HPTT_FIELD_MANIFEST ]</span>
+        <span class="collapse-btn" id="ledger-collapse-btn">−</span>
+    </div>
+    <div class="ledger-content">
+        θ(t) = sin(t·f₁) + tan(t·f₂)·Amp<br>
+        ENTITIES: <span id="p-count">0</span> &nbsp;| Δt: <span id="dt-val" class="val-hl">0.000</span><br>
+        CHAOS_INTEGRAL: <span id="c-sum" class="val-hl">0.0</span><br>
+        ATTRACT: <span id="attract-status" class="badge">OFF</span> &nbsp;| FOLLOW: <span id="follow-status">OFF</span>
+    </div>
 </div>
 
+<div id="interactive-panel">
+    <div class="panel-header" onclick="togglePanel()">
+        <span>[ CONTROLS ]</span>
+        <span class="collapse-btn" id="panel-collapse-btn">−</span>
+    </div>
+    <div class="panel-content">
+        <div class="ctrl-row"><label>CHAOS (γ)</label><input type="range" id="sim-chaos-slider" min="0.2" max="5.0" step="0.01" value="2.0"></div>
+        <div class="ctrl-row"><label>SPEED (Δt)</label><input type="range" id="time-step-slider" min="0.005" max="0.08" step="0.002" value="0.02"></div>
+        <div class="ctrl-row"><label>TRAIL LEN</label><input type="range" id="trail-length-slider" min="5" max="70" step="1" value="25"></div>
+        <div class="ctrl-row"><label>ATTRACT STR</label><input type="range" id="touch-flux-slider" min="0" max="18" step="0.5" value="6.5"></div>
+        <div class="ctrl-row"><label>🔘 FOLLOW</label><input type="checkbox" id="follow-toggle"></div>
+        <button id="reset-field-btn">⟳ RESET FIELD</button>
+        <div class="follow-indicator" id="selected-label">selected: —</div>
+        <hr>
+        <div style="font-size:8px; text-align:center;">↓ [ MANIFEST ] drag up ↓</div>
+    </div>
+</div>
+
+<div id="manifest-overlay" onclick="this.classList.add('open')">
+    <div id="handle">
+        <span>[ MICRON_PRECISION_ENGINE :: CORE_VARIABLES ]</span>
+        <span style="color: var(--chaos)" onclick="event.stopPropagation(); document.getElementById('manifest-overlay').classList.remove('open')">CLOSE</span>
+    </div>
+    <div id="scroll-area">
+        <table>
+            <thead>
+                <tr>
+                    <th>Parameter</th>
+                    <th>Value</th>
+                    <th>Info</th>
+                </tr>
+            </thead>
+            <tbody id="manifest-tbody">
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<canvas id="chaos-canvas"></canvas>
+
 <script>
-    const canvas = document.getElementById('c');
-    const ctx = canvas.getContext('2d', { willReadFrequently: true });
-    let blocks = [], img = null, isDown = false, mouse = { x: 0, y: 0 };
+    (function() {
+        const canvas = document.getElementById('chaos-canvas');
+        const ctx = canvas.getContext('2d');
+        let particles = [];
+        let t_global = 0;
+        let touchX = 0, touchY = 0, touchActive = false;
+        let selectedParticle = null;
+        let followMode = false;
+        
+        // Collapse toggle functions
+        function toggleLedger() {
+            document.getElementById('ledger-hud').classList.toggle('collapsed');
+            const btn = document.getElementById('ledger-collapse-btn');
+            btn.innerText = document.getElementById('ledger-hud').classList.contains('collapsed') ? '+' : '−';
+        }
+        
+        function togglePanel() {
+            document.getElementById('interactive-panel').classList.toggle('collapsed');
+            const btn = document.getElementById('panel-collapse-btn');
+            btn.innerText = document.getElementById('interactive-panel').classList.contains('collapsed') ? '+' : '−';
+        }
+        
+        // Make toggle functions globally accessible
+        window.toggleLedger = toggleLedger;
+        window.togglePanel = togglePanel;
+        
+        // ========== MANIFEST (50+ parameters) ==========
+        const manifest = {
+            // Chaos dynamics
+            SIM_CHAOS: 2.0,
+            THETA_FREQ_A: 1.2,
+            THETA_FREQ_B: 0.8,
+            THETA_TAN_AMP: 0.5,
+            Ux_SCALAR: 3.0,
+            Uy_SCALAR: 3.2,
+            
+            // Trail rendering
+            TRAIL_LENGTH: 25,
+            TRAIL_WIDTH: 1.1,
+            TRAIL_OPACITY: 0.5,
+            
+            // Particle
+            PARTICLE_COUNT: 8,
+            
+            // Attraction
+            TOUCH_FLUX: 6.5,
+            
+            // Timing
+            TIME_STEP: 0.02,
+            
+            // Visual - void background
+            VOID_DECAY: 0.15,
+            VOID_R: 2,
+            VOID_G: 2,
+            VOID_B: 3,
+            
+            // Visual - trail color
+            PATH_R: 138,
+            PATH_G: 154,
+            PATH_B: 138,
+            
+            // Visual - head color
+            HEAD_R: 200,
+            HEAD_G: 80,
+            HEAD_B: 80,
+            
+            // Dynamics
+            JITTER_MICRON: 0.4,
+            TORUS_WRAP_EN: 1.0,
+            WRAP_DISTANCE: 50,
+            
+            // Color flipping
+            COLOR_FLIP_FREQ: 0.5,
+            
+            // Internal
+            LOGIC_BIAS: 0.5
+        };
+        
+        function resizeCanvas() {
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
+        }
+        
+        function createParticles() {
+            particles = [];
+            for(let i = 0; i < manifest.PARTICLE_COUNT; i++) {
+                particles.push({
+                    x: Math.random() * canvas.width,
+                    y: Math.random() * canvas.height,
+                    c: Math.random() * 0.5 + 0.3,
+                    seed: Math.random() * 10,
+                    history: []
+                });
+            }
+        }
+        
+        function hardReset() {
+            t_global = 0;
+            touchActive = false;
+            selectedParticle = null;
+            createParticles();
+            updateSelectedLabel();
+        }
+        
+        function updateSelectedLabel() {
+            if(selectedParticle) {
+                const idx = particles.indexOf(selectedParticle);
+                document.getElementById('selected-label').innerText = `selected: entity_${idx}`;
+            } else {
+                document.getElementById('selected-label').innerText = 'selected: —';
+            }
+        }
+        
+        function buildManifestTable() {
+            const tbody = document.getElementById('manifest-tbody');
+            tbody.innerHTML = '';
+            for(const key in manifest) {
+                const tr = document.createElement('tr');
+                const val = manifest[key];
+                const typeStr = typeof val === 'boolean' ? 'bool' : typeof val === 'number' ? 'num' : 'str';
+                
+                const tdKey = document.createElement('td');
+                tdKey.innerText = key;
+                const tdVal = document.createElement('td');
+                const inp = document.createElement('input');
+                inp.id = `inp-${key}`;
+                inp.value = val;
+                inp.addEventListener('change', (e) => {
+                    if(typeStr === 'num') {
+                        manifest[key] = parseFloat(e.target.value);
+                    } else if(typeStr === 'bool') {
+                        manifest[key] = e.target.value === 'true';
+                    } else {
+                        manifest[key] = e.target.value;
+                    }
+                });
+                tdVal.appendChild(inp);
+                
+                const tdType = document.createElement('td');
+                const badge = document.createElement('span');
+                badge.className = 'badge';
+                badge.innerText = typeStr;
+                tdType.appendChild(badge);
+                
+                tr.appendChild(tdKey);
+                tr.appendChild(tdVal);
+                tr.appendChild(tdType);
+                tbody.appendChild(tr);
+            }
+        }
+        
+        function updateUIFromManifest() {
+            document.getElementById('p-count').innerText = particles.length;
+        }
+        
+        // ---------- INTERACTION ----------
+        canvas.addEventListener('touchstart', (e) => {
+            const touch = e.touches[0];
+            touchX = touch.clientX;
+            touchY = touch.clientY;
+            touchActive = true;
+            e.preventDefault();
+        });
+        canvas.addEventListener('touchmove', (e) => {
+            const touch = e.touches[0];
+            touchX = touch.clientX;
+            touchY = touch.clientY;
+            e.preventDefault();
+        });
+        canvas.addEventListener('touchend', (e) => {
+            touchActive = false;
+            e.preventDefault();
+        });
+        
+        canvas.addEventListener('mousedown', (e) => {
+            touchX = e.clientX;
+            touchY = e.clientY;
+            touchActive = true;
+        });
+        canvas.addEventListener('mousemove', (e) => {
+            touchX = e.clientX;
+            touchY = e.clientY;
+        });
+        canvas.addEventListener('mouseup', (e) => {
+            touchActive = false;
+        });
+        
+        canvas.addEventListener('click', (e) => {
+            const clickX = e.clientX;
+            const clickY = e.clientY;
+            let closest = null;
+            let closestDist = 15;
+            for(let p of particles) {
+                const dx = p.x - clickX;
+                const dy = p.y - clickY;
+                const dist = Math.sqrt(dx*dx + dy*dy);
+                if(dist < closestDist) {
+                    closest = p;
+                    closestDist = dist;
+                }
+            }
+            if(closest) {
+                selectedParticle = closest;
+                updateSelectedLabel();
+            }
+        });
+        
+        // ---------- SLIDER CONTROLS ----------
+        document.getElementById('sim-chaos-slider').addEventListener('input', (e) => {
+            manifest.SIM_CHAOS = parseFloat(e.target.value);
+            updateUIFromManifest();
+            const inpField = document.getElementById('inp-SIM_CHAOS');
+            if(inpField) inpField.value = manifest.SIM_CHAOS;
+        });
+        document.getElementById('time-step-slider').addEventListener('input', (e) => {
+            manifest.TIME_STEP = parseFloat(e.target.value);
+            updateUIFromManifest();
+            const inpField = document.getElementById('inp-TIME_STEP');
+            if(inpField) inpField.value = manifest.TIME_STEP;
+        });
+        document.getElementById('trail-length-slider').addEventListener('input', (e) => {
+            manifest.TRAIL_LENGTH = parseFloat(e.target.value);
+            updateUIFromManifest();
+            const inpField = document.getElementById('inp-TRAIL_LENGTH');
+            if(inpField) inpField.value = manifest.TRAIL_LENGTH;
+        });
+        document.getElementById('touch-flux-slider').addEventListener('input', (e) => {
+            manifest.TOUCH_FLUX = parseFloat(e.target.value);
+            updateUIFromManifest();
+            const inpField = document.getElementById('inp-TOUCH_FLUX');
+            if(inpField) inpField.value = manifest.TOUCH_FLUX;
+        });
+        const followCheck = document.getElementById('follow-toggle');
+        followCheck.addEventListener('change', (e) => {
+            followMode = e.target.checked;
+            document.getElementById('follow-status').innerText = followMode ? "ON" : "OFF";
+            if(!followMode) {
+                // just disable follow
+            } else if(!selectedParticle && particles.length) {
+                selectedParticle = particles[0];
+                updateSelectedLabel();
+            }
+        });
+        document.getElementById('reset-field-btn').addEventListener('click', () => {
+            hardReset();
+        });
 
-    // --- INPUTS ---
-    const getPos = (e) => {
-        const rect = canvas.getBoundingClientRect();
-        const clientX = e.touches ? e.touches[0].clientX : e.clientX;
-        const clientY = e.touches ? e.touches[0].clientY : e.clientY;
-        mouse.x = (clientX - rect.left) * (canvas.width / rect.width);
-        mouse.y = (clientY - rect.top) * (canvas.height / rect.height);
-    };
-    canvas.addEventListener('mousedown', (e) => { isDown = true; getPos(e); });
-    canvas.addEventListener('mousemove', (e) => { if(isDown) getPos(e); });
-    window.addEventListener('mouseup', () => { isDown = false; });
-    canvas.addEventListener('touchstart', (e) => { isDown = true; getPos(e); }, {passive: false});
-    canvas.addEventListener('touchmove', (e) => { if(isDown) getPos(e); }, {passive: false});
-    window.addEventListener('touchend', () => { isDown = false; });
+        // ---------- MAIN LOOP (chaos + attraction + rendering) ----------
+        function updateMotionAndDraw() {
+            t_global += manifest.TIME_STEP;
 
-    document.getElementById('loader').onchange = (e) => {
-        const reader = new FileReader();
-        reader.onload = (ev) => {
-            img = new Image();
-            img.onload = () => {
-                canvas.width = img.width > 800 ? 800 : img.width;
-                canvas.height = (canvas.width / img.width) * img.height;
-                ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
-                const data = ctx.getImageData(0, 0, canvas.width, canvas.height).data;
-                blocks = [];
-                const res = 12; // Size of fragments
-                for (let y = 0; y < canvas.height; y += res) {
-                    for (let x = 0; x < canvas.width; x += res) {
-                        let i = (y * canvas.width + x) * 4;
-                        blocks.push({
-                            x, y, vx: 0, vy: 0, 
-                            c: `rgb(${data[i]},${data[i+1]},${data[i+2]})`,
-                            size: res
-                        });
+            // --- 1. fading background (VOID) ---
+            const alphaVoid = Math.min(0.25, manifest.VOID_DECAY);
+            ctx.fillStyle = `rgba(${manifest.VOID_R}, ${manifest.VOID_G}, ${manifest.VOID_B}, ${alphaVoid})`;
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+            // --- 2. compute camera offset for follow mode ---
+            let camOffsetX = 0, camOffsetY = 0;
+            if(followMode && selectedParticle && !isNaN(selectedParticle.x)) {
+                camOffsetX = canvas.width/2 - selectedParticle.x;
+                camOffsetY = canvas.height/2 - selectedParticle.y;
+            }
+            ctx.save();
+            if(camOffsetX !== 0 || camOffsetY !== 0) {
+                ctx.translate(camOffsetX, camOffsetY);
+            }
+
+            // world touch point (for attraction, considering camera)
+            let worldTouchX = touchX, worldTouchY = touchY;
+            if(touchActive) {
+                worldTouchX = touchX - camOffsetX;
+                worldTouchY = touchY - camOffsetY;
+            }
+
+            // iterate over all particles
+            for(let p of particles) {
+                const lt = t_global + p.seed;
+                // θ(t) from manifest: sin + tan modulation
+                const theta = Math.sin(lt * manifest.THETA_FREQ_A) + 
+                              Math.tan(lt * manifest.THETA_FREQ_B) * manifest.THETA_TAN_AMP;
+                
+                // base chaotic velocity
+                let ux = p.c * Math.cos(theta) * manifest.SIM_CHAOS * manifest.Ux_SCALAR;
+                let uy = p.c * Math.sin(theta) * manifest.SIM_CHAOS * manifest.Uy_SCALAR;
+                
+                // --- ATTRACTION / TOUCH FLUX (interactive field) ---
+                if(touchActive && manifest.TOUCH_FLUX > 0.01) {
+                    const dxTo = worldTouchX - p.x;
+                    const dyTo = worldTouchY - p.y;
+                    const distSq = dxTo*dxTo + dyTo*dyTo + 0.5;
+                    const dist = Math.sqrt(distSq);
+                    const forceMag = manifest.TOUCH_FLUX / (dist + 2.0);
+                    const clampedForce = Math.min(forceMag, 2.2);
+                    ux += dxTo * clampedForce;
+                    uy += dyTo * clampedForce;
+                }
+                
+                // jitter (micron noise)
+                p.x += ux + (Math.random() - 0.5) * manifest.JITTER_MICRON;
+                p.y += uy + (Math.random() - 0.5) * manifest.JITTER_MICRON;
+                
+                // Toroidal wrap (infinite canvas)
+                if(manifest.TORUS_WRAP_EN > 0.5) {
+                    const w = canvas.width, h = canvas.height;
+                    if(p.x < 0) p.x = w;
+                    if(p.x > w) p.x = 0;
+                    if(p.y < 0) p.y = h;
+                    if(p.y > h) p.y = 0;
+                }
+                
+                // Manage trail history
+                p.history.push({x: p.x, y: p.y});
+                const maxTrail = Math.min(150, Math.floor(manifest.TRAIL_LENGTH));
+                while(p.history.length > maxTrail) p.history.shift();
+                
+                // draw path trail (only smooth connections)
+                ctx.beginPath();
+                const trailAlpha = Math.min(0.65, manifest.TRAIL_OPACITY + manifest.LOGIC_BIAS * 0.2);
+                ctx.strokeStyle = `rgba(${manifest.PATH_R}, ${manifest.PATH_G}, ${manifest.PATH_B}, ${trailAlpha})`;
+                ctx.lineWidth = manifest.TRAIL_WIDTH;
+                for(let i=1; i<p.history.length; i++) {
+                    const a = p.history[i-1];
+                    const b = p.history[i];
+                    const jumpX = Math.abs(a.x - b.x);
+                    const jumpY = Math.abs(a.y - b.y);
+                    if(jumpX < manifest.WRAP_DISTANCE && jumpY < manifest.WRAP_DISTANCE) {
+                        ctx.moveTo(a.x, a.y);
+                        ctx.lineTo(b.x, b.y);
                     }
                 }
-            };
-            img.src = ev.target.result;
-        };
-        reader.readAsDataURL(e.target.files[0]);
-    };
-
-    document.getElementById('stir').onclick = () => {
-        blocks.forEach(b => { b.vx = (Math.random()-0.5)*20; b.vy = (Math.random()-0.5)*20; });
-    };
-
-    function draw() {
-        ctx.fillStyle = "rgba(0,0,0,0.2)";
-        ctx.fillRect(0, 0, canvas.width, canvas.height);
-
-        blocks.forEach(b => {
-            if (isDown) {
-                let dx = mouse.x - b.x, dy = mouse.y - b.y;
-                let d = Math.sqrt(dx*dx + dy*dy);
-                if (d < 150) {
-                    b.vx += dx * 0.01;
-                    b.vy += dy * 0.01;
+                ctx.stroke();
+            }
+            
+            // second pass: draw particle heads (so trails are underneath)
+            for(let p of particles) {
+                const isRedPhase = (t_global % 1) > manifest.COLOR_FLIP_FREQ;
+                let headColor;
+                if(p === selectedParticle) {
+                    headColor = `rgb(255, 100, 100)`;
+                } else {
+                    headColor = isRedPhase ? 
+                        `rgb(${manifest.HEAD_R}, ${manifest.HEAD_G}, ${manifest.HEAD_B})` : 
+                        `rgb(${manifest.PATH_R}, ${manifest.PATH_G}, ${manifest.PATH_B})`;
+                }
+                ctx.fillStyle = headColor;
+                ctx.fillRect(p.x - 1.2, p.y - 1.2, 2.4, 2.4);
+                
+                // extra glow for selected entity
+                if(p === selectedParticle) {
+                    ctx.beginPath();
+                    ctx.arc(p.x, p.y, 7, 0, Math.PI*2);
+                    ctx.strokeStyle = `rgba(209,77,77,0.7)`;
+                    ctx.lineWidth = 1.2;
+                    ctx.stroke();
+                    ctx.beginPath();
+                    ctx.arc(p.x, p.y, 3, 0, Math.PI*2);
+                    ctx.fillStyle = `rgba(255,200,200,0.3)`;
+                    ctx.fill();
                 }
             }
             
-            b.vy += 0.2; // Gravity
-            b.vx *= 0.98; b.vy *= 0.98; // Friction
-            b.x += b.vx; b.y += b.vy;
-
-            if (b.y > canvas.height - b.size) { b.y = canvas.height - b.size; b.vy *= -0.4; }
-            if (b.x < 0 || b.x > canvas.width) b.vx *= -1;
-
-            ctx.fillStyle = b.c;
-            ctx.fillRect(b.x, b.y, b.size, b.size);
-        });
-        requestAnimationFrame(draw);
-    }
-    draw();
+            ctx.restore();  // restore transform
+            
+            // update HUD values
+            document.getElementById('dt-val').innerText = manifest.TIME_STEP.toFixed(4);
+            document.getElementById('c-sum').innerText = (t_global * manifest.SIM_CHAOS).toFixed(2);
+            document.getElementById('attract-status').innerHTML = (touchActive && manifest.TOUCH_FLUX > 0.2) ? "ATTRACT" : "IDLE";
+            document.getElementById('follow-status').innerText = followMode ? "ON" : "OFF";
+            requestAnimationFrame(updateMotionAndDraw);
+        }
+        
+        // start everything
+        function init() {
+            buildManifestTable();
+            createParticles();
+            resizeCanvas();
+            window.addEventListener('resize', () => {
+                resizeCanvas();
+            });
+            // initial UI sync
+            updateUIFromManifest();
+            // start animation
+            updateMotionAndDraw();
+        }
+        
+        init();
+    })();
 </script>
+```
+
 </body>
 </html>

@@ -1,668 +1,419 @@
 <!DOCTYPE html>
 
-<html lang="en">
+<html>
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>HPTT // MICRON_FIELD :: CHAOS_SELECTOR</title>
-    <style>
-        @import url('https://fonts.googleapis.com/css2?family=Share+Tech+Mono&display=swap');
-        :root {
-            --void: #020203;
-            --path: #8a9a8a;
-            --chaos: #d14d4d;
-            --data-blue: #4e88cd;
-            --ui-bg: rgba(4, 4, 6, 0.99);
-        }
-        * {
-            user-select: none;
-            -webkit-tap-highlight-color: transparent;
-        }
-        body, html {
-            margin: 0; padding: 0; width: 100%; height: 100%;
-            background: var(--void); color: var(--path);
-            font-family: 'Share Tech Mono', monospace; overflow: hidden;
-            touch-action: none;
-        }
+  <meta charset="UTF-8">
+  <title>BUFFET KING</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
+  <style>
+    :root {
+      --c1: #3366ff; --c2: #ff3333; --c3: #00cc44;
+      --gold: #ffcc00; --bg: #050505; --panel: #3e3e3f;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    html, body {
+      height: 100dvh; background: var(--bg);
+      font-family: 'Courier New', monospace;
+      overflow: hidden; user-select: none;
+      -webkit-tap-highlight-color: transparent;
+    }
+    #shell { display: flex; flex-direction: column; height: 100dvh; }
 
 ```
-    canvas {
-        display: block;
-        position: absolute;
-        top: 0;
-        left: 0;
-        width: 100%;
-        height: 100%;
-        z-index: 1;
-    }
+#plot-wrap { flex: 1 1 0; min-height: 0; position: relative; }
+#plot { width: 100%; height: 100%; }
 
-    /* HUD - LEFT (system manifest) */
-    #ledger-hud {
-        position: absolute; top: 20px; left: 20px; z-index: 50;
-        background: rgba(0,0,0,0.75); padding: 12px 16px; border-left: 2px solid var(--chaos);
-        font-size: 10px; pointer-events: auto; line-height: 1.5;
-        backdrop-filter: blur(2px);
-        font-family: 'Share Tech Mono', monospace;
-        transition: max-height 0.3s ease, opacity 0.3s ease;
-        max-height: 200px;
-        opacity: 1;
-        overflow: hidden;
-    }
-    #ledger-hud.collapsed {
-        max-height: 24px;
-        opacity: 0.6;
-    }
-    .ledger-header {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        cursor: pointer;
-        font-weight: bold;
-        margin-bottom: 8px;
-    }
-    .ledger-header:hover {
-        color: var(--chaos);
-    }
-    .collapse-btn {
-        font-size: 12px;
-        width: 20px;
-        text-align: center;
-    }
-    .ledger-content {
-        transition: opacity 0.3s ease;
-    }
-    #ledger-hud.collapsed .ledger-content {
-        display: none;
-    }
-    .val-hl { color: var(--chaos); font-weight: bold; }
+/* ── Readout overlay ── */
+#hud {
+  position: absolute; top: 8px; left: 10px;
+  font-size: 0.72em; letter-spacing: 0.06em; line-height: 1.75;
+  pointer-events: none;
+  text-shadow: 0 1px 4px #000, 0 0 8px #000;
+}
+#hud .row { display: flex; gap: 12px; }
+.tx { color: var(--c1); }
+.ty { color: var(--c2); }
+.tz { color: var(--c3); }
+.ta { color: #888; }
+.s1c { color: var(--c1); }
+.s2c { color: var(--c2); }
+.s3c { color: var(--c3); }
 
-    /* CONTROL PANEL (interactive overlay) */
-    #interactive-panel {
-        position: absolute; bottom: 70px; right: 16px; z-index: 200;
-        background: rgba(2,2,3,0.9);
-        backdrop-filter: blur(8px);
-        border: 1px solid #2a2a2a;
-        border-right: 2px solid var(--chaos);
-        padding: 12px 16px;
-        font-size: 10px;
-        width: 180px;
-        font-family: 'Share Tech Mono', monospace;
-        border-radius: 4px;
-        box-shadow: 0 4px 20px rgba(0,0,0,0.6);
-        pointer-events: auto;
-        transition: max-height 0.3s ease, opacity 0.3s ease;
-        max-height: 600px;
-        opacity: 1;
-    }
-    #interactive-panel.collapsed {
-        max-height: 24px;
-        opacity: 0.6;
-        overflow: hidden;
-        padding: 8px 16px;
-    }
-    .panel-header {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        cursor: pointer;
-        font-weight: bold;
-        margin-bottom: 8px;
-    }
-    .panel-header:hover {
-        color: var(--chaos);
-    }
-    .panel-header .collapse-btn {
-        font-size: 12px;
-        width: 20px;
-        text-align: center;
-    }
-    #interactive-panel.collapsed .panel-header {
-        margin-bottom: 0;
-    }
-    .panel-content {
-        transition: opacity 0.3s ease;
-    }
-    #interactive-panel.collapsed .panel-content {
-        display: none;
-    }
-    #interactive-panel .ctrl-row {
-        margin-bottom: 8px;
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-    }
-    #interactive-panel label {
-        color: var(--path);
-        letter-spacing: 1px;
-    }
-    input[type="range"] {
-        width: 100px;
-        background: #111;
-        height: 2px;
-        -webkit-appearance: none;
-    }
-    input[type="range"]:focus {
-        outline: none;
-    }
-    input[type="range"]::-webkit-slider-thumb {
-        -webkit-appearance: none;
-        width: 10px;
-        height: 10px;
-        background: var(--chaos);
-        border-radius: 0;
-        cursor: pointer;
-    }
-    button {
-        background: transparent;
-        border: 1px solid var(--chaos);
-        color: var(--chaos);
-        font-family: monospace;
-        font-size: 9px;
-        padding: 3px 8px;
-        cursor: pointer;
-        transition: 0.1s;
-    }
-    button:hover {
-        background: var(--chaos);
-        color: #000;
-    }
-    .highlight {
-        color: var(--chaos);
-    }
-    hr {
-        border-color: #222;
-        margin: 8px 0;
-    }
-    .follow-indicator {
-        font-size: 9px;
-        margin-top: 5px;
-        text-align: center;
-        color: #777;
-    }
+/* ── Panel ── */
+#panel {
+  flex: 0 0 auto;
+  background: var(--panel);
+  border-top: 1px solid #141414;
+  padding: 6px 8px 10px;
+  display: flex; flex-direction: column; gap: 4px;
+}
 
-    /* MANIFEST OVERLAY (50+ variables) */
-    #manifest-overlay {
-        position: absolute; bottom: 0; left: 0; width: 100%; height: 500px;
-        background: var(--ui-bg); border-top: 1px solid #222;
-        z-index: 100; transform: translateY(460px);
-        transition: transform 0.2s cubic-bezier(0, 0, 0.2, 1);
-        display: flex; flex-direction: column;
-        box-shadow: 0 -10px 30px rgba(0,0,0,0.8);
-        pointer-events: auto;
-    }
-    #manifest-overlay.open { transform: translateY(0); }
-    #handle {
-        height: 40px; background: #111; color: var(--path);
-        display: flex; align-items: center; justify-content: space-between;
-        padding: 0 20px; font-size: 11px; cursor: pointer;
-        border-bottom: 1px solid #222;
-    }
-    #scroll-area { flex-grow: 1; overflow-y: auto; padding-bottom: 20px; }
-    table { width: 100%; border-collapse: collapse; font-size: 10px; }
-    th { 
-        position: sticky; top: 0; background: #080808; padding: 12px 10px; 
-        color: var(--chaos); text-align: left; border-bottom: 1px solid #222;
-    }
-    td { padding: 4px 10px; border-bottom: 1px solid #0d0d0d; }
-    input {
-        background: #000; border: 1px solid #1a1a1a; color: var(--path);
-        font-family: inherit; font-size: 11px; width: 90%; outline: none;
-        padding: 2px 5px;
-    }
-    input:focus { border-color: var(--chaos); color: #fff; }
-    .badge {
-        color: #4e88cd;
-    }
-</style>
+.action-row {
+  display: flex; gap: 4px;
+  padding-bottom: 4px; border-bottom: 1px solid #111;
+}
+.btn {
+  background: #0e0e0e; border: 1px solid #1a1a1a; color: #3a3a3a;
+  font-family: 'Courier New', monospace; font-size: 0.65em;
+  padding: 4px 9px; border-radius: 3px; cursor: pointer;
+  transition: all 0.12s; white-space: nowrap;
+}
+.btn:active { transform: scale(0.92); }
+.btn.on  { color: var(--gold); border-color: #2a2000; background: #0f0c00; }
+.btn.del { color: #aa2222; border-color: #1c0000; }
+.btn.del:active { background: #160000; }
+.btn.ax  { font-size: 0.6em; padding: 3px 8px; letter-spacing: 0.08em; }
+.btn.ax.on { color: #ff6666; border-color: #3a0000; background: #110000; }
+.btn.cam { font-size: 0.6em; padding: 3px 7px; }
+.sp { flex: 1; }
+
+/* ── Segments ── */
+.seg {
+  display: grid;
+  grid-template-columns: 26px 1fr 1fr 1fr;
+  align-items: center; gap: 5px; padding: 2px 0;
+}
+.seg + .seg { border-top: 1px solid #0d0d0d; }
+
+.lk {
+  width: 24px; height: 24px;
+  display: flex; align-items: center; justify-content: center;
+  background: transparent; border: 1px solid #1a1a1a;
+  border-radius: 4px; cursor: pointer; font-size: 0.7em;
+  transition: all 0.15s; padding: 0; color: #2a2a2a; flex-shrink: 0;
+}
+.lk.on { border-color: var(--gold); background: #0f0c00; color: var(--gold); }
+#lk1 { border-color: #141c38; }
+#lk2 { border-color: #2a0f0f; }
+#lk3 { border-color: #0a1e10; }
+
+.sw {
+  border-radius: 3px; border: 1px solid transparent;
+  transition: border-color 0.1s, background 0.1s; position: relative;
+}
+.sw.sel { border-color: var(--gold); background: #100d00; }
+.sw.sel::after {
+  content: ''; position: absolute; inset: 0; border-radius: 3px;
+  box-shadow: 0 0 6px 1px #ffcc0028; pointer-events: none;
+}
+.seg.locked .sw { opacity: 0.18; pointer-events: none; }
+
+input[type=range] {
+  -webkit-appearance: none; appearance: none;
+  display: block; width: 100%; height: 26px;
+  background: transparent; cursor: pointer;
+}
+input[type=range]::-webkit-slider-runnable-track { height: 2px; border-radius: 1px; background: #1c1c1c; }
+input[type=range]::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  height: 15px; width: 15px; border-radius: 50%;
+  margin-top: -6.5px; border: 2px solid currentColor; background: #050505;
+}
+input[type=range]::-moz-range-track { height: 2px; background: #1c1c1c; }
+input[type=range]::-moz-range-thumb { height: 13px; width: 13px; border-radius: 50%; border: 2px solid currentColor; background: #050505; }
+.c1 input[type=range] { color: var(--c1); }
+.c2 input[type=range] { color: var(--c2); }
+.c3 input[type=range] { color: var(--c3); }
+.sw.sel input[type=range] { color: var(--gold); }
 ```
 
+  </style>
 </head>
 <body>
+<div id="shell">
+
+  <div id="plot-wrap">
+    <div id="plot"></div>
+    <div id="hud">
+      <!-- tip position -->
+      <div class="row">
+        <span class="tx" id="hx">x  0.0</span>
+        <span class="ty" id="hy">y  0.0</span>
+        <span class="tz" id="hz">z  0.0</span>
+      </div>
+      <!-- per-segment angles -->
+      <div class="row">
+        <span class="s1c" id="ha1">① --/--</span>
+        <span class="s2c" id="ha2">② --/--</span>
+        <span class="s3c" id="ha3">③ --/--</span>
+      </div>
+    </div>
+  </div>
+
+  <div id="panel">
 
 ```
-<div id="ledger-hud">
-    <div class="ledger-header" onclick="toggleLedger()">
-        <span>[ HPTT_FIELD_MANIFEST ]</span>
-        <span class="collapse-btn" id="ledger-collapse-btn">−</span>
-    </div>
-    <div class="ledger-content">
-        θ(t) = sin(t·f₁) + tan(t·f₂)·Amp<br>
-        ENTITIES: <span id="p-count">0</span> &nbsp;| Δt: <span id="dt-val" class="val-hl">0.000</span><br>
-        CHAOS_INTEGRAL: <span id="c-sum" class="val-hl">0.0</span><br>
-        ATTRACT: <span id="attract-status" class="badge">OFF</span> &nbsp;| FOLLOW: <span id="follow-status">OFF</span>
-    </div>
+<!-- Row 1: toggles + clear -->
+<div class="action-row">
+  <button class="btn"    id="bGhost" onclick="toggleGhost()">👻 ghost</button>
+  <button class="btn on" id="bFade"  onclick="toggleFade()">〰 fade</button>
+  <button class="btn"    id="bDesel" onclick="clearSel()" style="display:none">✕ desel</button>
+  <div class="sp"></div>
+  <button class="btn del" onclick="clearTraces()">🗑</button>
 </div>
 
-<div id="interactive-panel">
-    <div class="panel-header" onclick="togglePanel()">
-        <span>[ CONTROLS ]</span>
-        <span class="collapse-btn" id="panel-collapse-btn">−</span>
-    </div>
-    <div class="panel-content">
-        <div class="ctrl-row"><label>CHAOS (γ)</label><input type="range" id="sim-chaos-slider" min="0.2" max="5.0" step="0.01" value="2.0"></div>
-        <div class="ctrl-row"><label>SPEED (Δt)</label><input type="range" id="time-step-slider" min="0.005" max="0.08" step="0.002" value="0.02"></div>
-        <div class="ctrl-row"><label>TRAIL LEN</label><input type="range" id="trail-length-slider" min="5" max="70" step="1" value="25"></div>
-        <div class="ctrl-row"><label>ATTRACT STR</label><input type="range" id="touch-flux-slider" min="0" max="18" step="0.5" value="6.5"></div>
-        <div class="ctrl-row"><label>🔘 FOLLOW</label><input type="checkbox" id="follow-toggle"></div>
-        <button id="reset-field-btn">⟳ RESET FIELD</button>
-        <div class="follow-indicator" id="selected-label">selected: —</div>
-        <hr>
-        <div style="font-size:8px; text-align:center;">↓ [ MANIFEST ] drag up ↓</div>
-    </div>
+<!-- Row 2: axis flips + camera presets -->
+<div class="action-row">
+  <button class="btn ax" id="bFX" onclick="flipAxis('x')">±X</button>
+  <button class="btn ax" id="bFY" onclick="flipAxis('y')">±Y</button>
+  <button class="btn ax" id="bFZ" onclick="flipAxis('z')">±Z</button>
+  <div class="sp"></div>
+  <button class="btn cam" onclick="setCamera('iso')">ISO</button>
+  <button class="btn cam" onclick="setCamera('top')">TOP</button>
+  <button class="btn cam" onclick="setCamera('front')">FRT</button>
+  <button class="btn cam" onclick="setCamera('side')">SID</button>
 </div>
 
-<div id="manifest-overlay" onclick="this.classList.add('open')">
-    <div id="handle">
-        <span>[ MICRON_PRECISION_ENGINE :: CORE_VARIABLES ]</span>
-        <span style="color: var(--chaos)" onclick="event.stopPropagation(); document.getElementById('manifest-overlay').classList.remove('open')">CLOSE</span>
-    </div>
-    <div id="scroll-area">
-        <table>
-            <thead>
-                <tr>
-                    <th>Parameter</th>
-                    <th>Value</th>
-                    <th>Info</th>
-                </tr>
-            </thead>
-            <tbody id="manifest-tbody">
-            </tbody>
-        </table>
-    </div>
+<!-- Segment 1 -->
+<div class="seg" id="sg1">
+  <button class="lk" id="lk1" onclick="toggleLock(1)">🔒</button>
+  <div class="sw c1" data-id="a1"><input type="range" id="a1" min="0" max="360" value="45"></div>
+  <div class="sw c1" data-id="p1"><input type="range" id="p1" min="0" max="360" value="45"></div>
+  <div class="sw c1" data-id="l1"><input type="range" id="l1" min="1" max="25" value="10"></div>
 </div>
 
-<canvas id="chaos-canvas"></canvas>
+<!-- Segment 2 -->
+<div class="seg" id="sg2">
+  <button class="lk" id="lk2" onclick="toggleLock(2)">🔒</button>
+  <div class="sw c2" data-id="a2"><input type="range" id="a2" min="0" max="360" value="90"></div>
+  <div class="sw c2" data-id="p2"><input type="range" id="p2" min="0" max="360" value="90"></div>
+  <div class="sw c2" data-id="l2"><input type="range" id="l2" min="1" max="25" value="7"></div>
+</div>
+
+<!-- Segment 3 -->
+<div class="seg" id="sg3">
+  <button class="lk" id="lk3" onclick="toggleLock(3)">🔒</button>
+  <div class="sw c3" data-id="a3"><input type="range" id="a3" min="0" max="360" value="45"></div>
+  <div class="sw c3" data-id="p3"><input type="range" id="p3" min="0" max="360" value="45"></div>
+  <div class="sw c3" data-id="l3"><input type="range" id="l3" min="1" max="25" value="5"></div>
+</div>
+```
+
+  </div>
+</div>
 
 <script>
-    (function() {
-        const canvas = document.getElementById('chaos-canvas');
-        const ctx = canvas.getContext('2d');
-        let particles = [];
-        let t_global = 0;
-        let touchX = 0, touchY = 0, touchActive = false;
-        let selectedParticle = null;
-        let followMode = false;
-        
-        // Collapse toggle functions
-        function toggleLedger() {
-            document.getElementById('ledger-hud').classList.toggle('collapsed');
-            const btn = document.getElementById('ledger-collapse-btn');
-            btn.innerText = document.getElementById('ledger-hud').classList.contains('collapsed') ? '+' : '−';
-        }
-        
-        function togglePanel() {
-            document.getElementById('interactive-panel').classList.toggle('collapsed');
-            const btn = document.getElementById('panel-collapse-btn');
-            btn.innerText = document.getElementById('interactive-panel').classList.contains('collapsed') ? '+' : '−';
-        }
-        
-        // Make toggle functions globally accessible
-        window.toggleLedger = toggleLedger;
-        window.togglePanel = togglePanel;
-        
-        // ========== MANIFEST (50+ parameters) ==========
-        const manifest = {
-            // Chaos dynamics
-            SIM_CHAOS: 2.0,
-            THETA_FREQ_A: 1.2,
-            THETA_FREQ_B: 0.8,
-            THETA_TAN_AMP: 0.5,
-            Ux_SCALAR: 3.0,
-            Uy_SCALAR: 3.2,
-            
-            // Trail rendering
-            TRAIL_LENGTH: 25,
-            TRAIL_WIDTH: 1.1,
-            TRAIL_OPACITY: 0.5,
-            
-            // Particle
-            PARTICLE_COUNT: 8,
-            
-            // Attraction
-            TOUCH_FLUX: 6.5,
-            
-            // Timing
-            TIME_STEP: 0.02,
-            
-            // Visual - void background
-            VOID_DECAY: 0.15,
-            VOID_R: 2,
-            VOID_G: 2,
-            VOID_B: 3,
-            
-            // Visual - trail color
-            PATH_R: 138,
-            PATH_G: 154,
-            PATH_B: 138,
-            
-            // Visual - head color
-            HEAD_R: 200,
-            HEAD_G: 80,
-            HEAD_B: 80,
-            
-            // Dynamics
-            JITTER_MICRON: 0.4,
-            TORUS_WRAP_EN: 1.0,
-            WRAP_DISTANCE: 50,
-            
-            // Color flipping
-            COLOR_FLIP_FREQ: 0.5,
-            
-            // Internal
-            LOGIC_BIAS: 0.5
-        };
-        
-        function resizeCanvas() {
-            canvas.width = window.innerWidth;
-            canvas.height = window.innerHeight;
-        }
-        
-        function createParticles() {
-            particles = [];
-            for(let i = 0; i < manifest.PARTICLE_COUNT; i++) {
-                particles.push({
-                    x: Math.random() * canvas.width,
-                    y: Math.random() * canvas.height,
-                    c: Math.random() * 0.5 + 0.3,
-                    seed: Math.random() * 10,
-                    history: []
-                });
-            }
-        }
-        
-        function hardReset() {
-            t_global = 0;
-            touchActive = false;
-            selectedParticle = null;
-            createParticles();
-            updateSelectedLabel();
-        }
-        
-        function updateSelectedLabel() {
-            if(selectedParticle) {
-                const idx = particles.indexOf(selectedParticle);
-                document.getElementById('selected-label').innerText = `selected: entity_${idx}`;
-            } else {
-                document.getElementById('selected-label').innerText = 'selected: —';
-            }
-        }
-        
-        function buildManifestTable() {
-            const tbody = document.getElementById('manifest-tbody');
-            tbody.innerHTML = '';
-            for(const key in manifest) {
-                const tr = document.createElement('tr');
-                const val = manifest[key];
-                const typeStr = typeof val === 'boolean' ? 'bool' : typeof val === 'number' ? 'num' : 'str';
-                
-                const tdKey = document.createElement('td');
-                tdKey.innerText = key;
-                const tdVal = document.createElement('td');
-                const inp = document.createElement('input');
-                inp.id = `inp-${key}`;
-                inp.value = val;
-                inp.addEventListener('change', (e) => {
-                    if(typeStr === 'num') {
-                        manifest[key] = parseFloat(e.target.value);
-                    } else if(typeStr === 'bool') {
-                        manifest[key] = e.target.value === 'true';
-                    } else {
-                        manifest[key] = e.target.value;
-                    }
-                });
-                tdVal.appendChild(inp);
-                
-                const tdType = document.createElement('td');
-                const badge = document.createElement('span');
-                badge.className = 'badge';
-                badge.innerText = typeStr;
-                tdType.appendChild(badge);
-                
-                tr.appendChild(tdKey);
-                tr.appendChild(tdVal);
-                tr.appendChild(tdType);
-                tbody.appendChild(tr);
-            }
-        }
-        
-        function updateUIFromManifest() {
-            document.getElementById('p-count').innerText = particles.length;
-        }
-        
-        // ---------- INTERACTION ----------
-        canvas.addEventListener('touchstart', (e) => {
-            const touch = e.touches[0];
-            touchX = touch.clientX;
-            touchY = touch.clientY;
-            touchActive = true;
-            e.preventDefault();
-        });
-        canvas.addEventListener('touchmove', (e) => {
-            const touch = e.touches[0];
-            touchX = touch.clientX;
-            touchY = touch.clientY;
-            e.preventDefault();
-        });
-        canvas.addEventListener('touchend', (e) => {
-            touchActive = false;
-            e.preventDefault();
-        });
-        
-        canvas.addEventListener('mousedown', (e) => {
-            touchX = e.clientX;
-            touchY = e.clientY;
-            touchActive = true;
-        });
-        canvas.addEventListener('mousemove', (e) => {
-            touchX = e.clientX;
-            touchY = e.clientY;
-        });
-        canvas.addEventListener('mouseup', (e) => {
-            touchActive = false;
-        });
-        
-        canvas.addEventListener('click', (e) => {
-            const clickX = e.clientX;
-            const clickY = e.clientY;
-            let closest = null;
-            let closestDist = 15;
-            for(let p of particles) {
-                const dx = p.x - clickX;
-                const dy = p.y - clickY;
-                const dist = Math.sqrt(dx*dx + dy*dy);
-                if(dist < closestDist) {
-                    closest = p;
-                    closestDist = dist;
-                }
-            }
-            if(closest) {
-                selectedParticle = closest;
-                updateSelectedLabel();
-            }
-        });
-        
-        // ---------- SLIDER CONTROLS ----------
-        document.getElementById('sim-chaos-slider').addEventListener('input', (e) => {
-            manifest.SIM_CHAOS = parseFloat(e.target.value);
-            updateUIFromManifest();
-            const inpField = document.getElementById('inp-SIM_CHAOS');
-            if(inpField) inpField.value = manifest.SIM_CHAOS;
-        });
-        document.getElementById('time-step-slider').addEventListener('input', (e) => {
-            manifest.TIME_STEP = parseFloat(e.target.value);
-            updateUIFromManifest();
-            const inpField = document.getElementById('inp-TIME_STEP');
-            if(inpField) inpField.value = manifest.TIME_STEP;
-        });
-        document.getElementById('trail-length-slider').addEventListener('input', (e) => {
-            manifest.TRAIL_LENGTH = parseFloat(e.target.value);
-            updateUIFromManifest();
-            const inpField = document.getElementById('inp-TRAIL_LENGTH');
-            if(inpField) inpField.value = manifest.TRAIL_LENGTH;
-        });
-        document.getElementById('touch-flux-slider').addEventListener('input', (e) => {
-            manifest.TOUCH_FLUX = parseFloat(e.target.value);
-            updateUIFromManifest();
-            const inpField = document.getElementById('inp-TOUCH_FLUX');
-            if(inpField) inpField.value = manifest.TOUCH_FLUX;
-        });
-        const followCheck = document.getElementById('follow-toggle');
-        followCheck.addEventListener('change', (e) => {
-            followMode = e.target.checked;
-            document.getElementById('follow-status').innerText = followMode ? "ON" : "OFF";
-            if(!followMode) {
-                // just disable follow
-            } else if(!selectedParticle && particles.length) {
-                selectedParticle = particles[0];
-                updateSelectedLabel();
-            }
-        });
-        document.getElementById('reset-field-btn').addEventListener('click', () => {
-            hardReset();
-        });
+  let traces={x1:[],y1:[],z1:[],x2:[],y2:[],z2:[],x3:[],y3:[],z3:[]};
+  const locks={1:false,2:false,3:false};
+  const lpos={1:null,2:null,3:null};
+  const sel=new Set();
+  let fadeMode=true;
 
-        // ---------- MAIN LOOP (chaos + attraction + rendering) ----------
-        function updateMotionAndDraw() {
-            t_global += manifest.TIME_STEP;
+  // Ghost: null = off, object = pinned pose snapshot
+  let ghostSnap=null;
 
-            // --- 1. fading background (VOID) ---
-            const alphaVoid = Math.min(0.25, manifest.VOID_DECAY);
-            ctx.fillStyle = `rgba(${manifest.VOID_R}, ${manifest.VOID_G}, ${manifest.VOID_B}, ${alphaVoid})`;
-            ctx.fillRect(0, 0, canvas.width, canvas.height);
+  // ── Axis flips ────────────────────────────────────
+  const flip={x:1,y:1,z:1};
+  function flipAxis(ax){
+    flip[ax]*=-1;
+    document.getElementById('bF'+ax.toUpperCase()).classList.toggle('on',flip[ax]<0);
+    update();
+  }
 
-            // --- 2. compute camera offset for follow mode ---
-            let camOffsetX = 0, camOffsetY = 0;
-            if(followMode && selectedParticle && !isNaN(selectedParticle.x)) {
-                camOffsetX = canvas.width/2 - selectedParticle.x;
-                camOffsetY = canvas.height/2 - selectedParticle.y;
-            }
-            ctx.save();
-            if(camOffsetX !== 0 || camOffsetY !== 0) {
-                ctx.translate(camOffsetX, camOffsetY);
-            }
+  // ── Camera presets ────────────────────────────────
+  const cams={
+    iso:  {eye:{x:1.5,y:1.5,z:1.2}},
+    top:  {eye:{x:0,  y:0,  z:2.5}},
+    front:{eye:{x:0,  y:2.5,z:0  }},
+    side: {eye:{x:2.5,y:0,  z:0  }},
+  };
+  let currentCam=cams.iso;
+  function setCamera(name){ currentCam=cams[name]; update(); }
 
-            // world touch point (for attraction, considering camera)
-            let worldTouchX = touchX, worldTouchY = touchY;
-            if(touchActive) {
-                worldTouchX = touchX - camOffsetX;
-                worldTouchY = touchY - camOffsetY;
-            }
+  // ── Helpers ───────────────────────────────────────
+  const gV=id=>parseFloat(document.getElementById(id).value);
+  const tR=d=>d*Math.PI/180;
+  const fmt=v=>(v>=0?' ':'')+v.toFixed(1);
+  const ap=({x,y,z})=>({x:x*flip.x,y:y*flip.y,z:z*flip.z});
 
-            // iterate over all particles
-            for(let p of particles) {
-                const lt = t_global + p.seed;
-                // θ(t) from manifest: sin + tan modulation
-                const theta = Math.sin(lt * manifest.THETA_FREQ_A) + 
-                              Math.tan(lt * manifest.THETA_FREQ_B) * manifest.THETA_TAN_AMP;
-                
-                // base chaotic velocity
-                let ux = p.c * Math.cos(theta) * manifest.SIM_CHAOS * manifest.Ux_SCALAR;
-                let uy = p.c * Math.sin(theta) * manifest.SIM_CHAOS * manifest.Uy_SCALAR;
-                
-                // --- ATTRACTION / TOUCH FLUX (interactive field) ---
-                if(touchActive && manifest.TOUCH_FLUX > 0.01) {
-                    const dxTo = worldTouchX - p.x;
-                    const dyTo = worldTouchY - p.y;
-                    const distSq = dxTo*dxTo + dyTo*dyTo + 0.5;
-                    const dist = Math.sqrt(distSq);
-                    const forceMag = manifest.TOUCH_FLUX / (dist + 2.0);
-                    const clampedForce = Math.min(forceMag, 2.2);
-                    ux += dxTo * clampedForce;
-                    uy += dyTo * clampedForce;
-                }
-                
-                // jitter (micron noise)
-                p.x += ux + (Math.random() - 0.5) * manifest.JITTER_MICRON;
-                p.y += uy + (Math.random() - 0.5) * manifest.JITTER_MICRON;
-                
-                // Toroidal wrap (infinite canvas)
-                if(manifest.TORUS_WRAP_EN > 0.5) {
-                    const w = canvas.width, h = canvas.height;
-                    if(p.x < 0) p.x = w;
-                    if(p.x > w) p.x = 0;
-                    if(p.y < 0) p.y = h;
-                    if(p.y > h) p.y = 0;
-                }
-                
-                // Manage trail history
-                p.history.push({x: p.x, y: p.y});
-                const maxTrail = Math.min(150, Math.floor(manifest.TRAIL_LENGTH));
-                while(p.history.length > maxTrail) p.history.shift();
-                
-                // draw path trail (only smooth connections)
-                ctx.beginPath();
-                const trailAlpha = Math.min(0.65, manifest.TRAIL_OPACITY + manifest.LOGIC_BIAS * 0.2);
-                ctx.strokeStyle = `rgba(${manifest.PATH_R}, ${manifest.PATH_G}, ${manifest.PATH_B}, ${trailAlpha})`;
-                ctx.lineWidth = manifest.TRAIL_WIDTH;
-                for(let i=1; i<p.history.length; i++) {
-                    const a = p.history[i-1];
-                    const b = p.history[i];
-                    const jumpX = Math.abs(a.x - b.x);
-                    const jumpY = Math.abs(a.y - b.y);
-                    if(jumpX < manifest.WRAP_DISTANCE && jumpY < manifest.WRAP_DISTANCE) {
-                        ctx.moveTo(a.x, a.y);
-                        ctx.lineTo(b.x, b.y);
-                    }
-                }
-                ctx.stroke();
-            }
-            
-            // second pass: draw particle heads (so trails are underneath)
-            for(let p of particles) {
-                const isRedPhase = (t_global % 1) > manifest.COLOR_FLIP_FREQ;
-                let headColor;
-                if(p === selectedParticle) {
-                    headColor = `rgb(255, 100, 100)`;
-                } else {
-                    headColor = isRedPhase ? 
-                        `rgb(${manifest.HEAD_R}, ${manifest.HEAD_G}, ${manifest.HEAD_B})` : 
-                        `rgb(${manifest.PATH_R}, ${manifest.PATH_G}, ${manifest.PATH_B})`;
-                }
-                ctx.fillStyle = headColor;
-                ctx.fillRect(p.x - 1.2, p.y - 1.2, 2.4, 2.4);
-                
-                // extra glow for selected entity
-                if(p === selectedParticle) {
-                    ctx.beginPath();
-                    ctx.arc(p.x, p.y, 7, 0, Math.PI*2);
-                    ctx.strokeStyle = `rgba(209,77,77,0.7)`;
-                    ctx.lineWidth = 1.2;
-                    ctx.stroke();
-                    ctx.beginPath();
-                    ctx.arc(p.x, p.y, 3, 0, Math.PI*2);
-                    ctx.fillStyle = `rgba(255,200,200,0.3)`;
-                    ctx.fill();
-                }
-            }
-            
-            ctx.restore();  // restore transform
-            
-            // update HUD values
-            document.getElementById('dt-val').innerText = manifest.TIME_STEP.toFixed(4);
-            document.getElementById('c-sum').innerText = (t_global * manifest.SIM_CHAOS).toFixed(2);
-            document.getElementById('attract-status').innerHTML = (touchActive && manifest.TOUCH_FLUX > 0.2) ? "ATTRACT" : "IDLE";
-            document.getElementById('follow-status').innerText = followMode ? "ON" : "OFF";
-            requestAnimationFrame(updateMotionAndDraw);
-        }
-        
-        // start everything
-        function init() {
-            buildManifestTable();
-            createParticles();
-            resizeCanvas();
-            window.addEventListener('resize', () => {
-                resizeCanvas();
-            });
-            // initial UI sync
-            updateUIFromManifest();
-            // start animation
-            updateMotionAndDraw();
-        }
-        
-        init();
-    })();
+  function computeChain(){
+    const a1=tR(gV('a1')),p1=tR(gV('p1')),l1=gV('l1');
+    const a2=tR(gV('a2')),p2=tR(gV('p2')),l2=gV('l2');
+    const a3=tR(gV('a3')),p3=tR(gV('p3')),l3=gV('l3');
+
+    let x1=l1*Math.sin(p1)*Math.cos(a1),y1=l1*Math.sin(p1)*Math.sin(a1),z1=-l1*Math.cos(p1);
+    if(locks[1]){if(!lpos[1])lpos[1]={x:x1,y:y1,z:z1};({x:x1,y:y1,z:z1}=lpos[1]);}else lpos[1]=null;
+
+    let x2=x1+l2*Math.sin(p2)*Math.cos(a2+a1),y2=y1+l2*Math.sin(p2)*Math.sin(a2+a1),z2=z1-l2*Math.cos(p2);
+    if(locks[2]){if(!lpos[2])lpos[2]={x:x2,y:y2,z:z2};({x:x2,y:y2,z:z2}=lpos[2]);}else lpos[2]=null;
+
+    let x3=x2+l3*Math.sin(p3)*Math.cos(a3+a2+a1),y3=y2+l3*Math.sin(p3)*Math.sin(a3+a2+a1),z3=z2-l3*Math.cos(p3);
+    if(locks[3]){if(!lpos[3])lpos[3]={x:x3,y:y3,z:z3};({x:x3,y:y3,z:z3}=lpos[3]);}else lpos[3]=null;
+
+    return{x1,y1,z1,x2,y2,z2,x3,y3,z3};
+  }
+
+  // Ghost: pin on press, hold frozen while arm moves, clear on press again
+  function toggleGhost(){
+    if(ghostSnap){
+      // already pinned — clear it
+      ghostSnap=null;
+      document.getElementById('bGhost').classList.remove('on');
+    } else {
+      // pin current pose now
+      ghostSnap=computeChain();
+      document.getElementById('bGhost').classList.add('on');
+    }
+    update();
+  }
+
+  function toggleFade(){
+    fadeMode=!fadeMode;
+    document.getElementById('bFade').classList.toggle('on',fadeMode);
+    update();
+  }
+
+  function toggleLock(n){
+    locks[n]=!locks[n]; if(!locks[n]) lpos[n]=null;
+    const b=document.getElementById('lk'+n), s=document.getElementById('sg'+n);
+    b.classList.toggle('on',locks[n]);
+    s.classList.toggle('locked',locks[n]);
+    b.textContent=locks[n]?'\uD83D\uDD13':'\uD83D\uDD12';
+    update();
+  }
+
+  function trailData(){
+    const ks=[['x1','y1','z1','#3366ff'],['x2','y2','z2','#ff3333'],['x3','y3','z3','#00cc44']];
+    const out=[];
+    if(!fadeMode){
+      ks.forEach(([a,b,c,col])=>out.push({
+        x:traces[a].map(v=>v*flip.x),y:traces[b].map(v=>v*flip.y),z:traces[c].map(v=>v*flip.z),
+        type:'scatter3d',mode:'lines',line:{color:col,width:1,opacity:0.12}
+      }));
+      return out;
+    }
+    const N=7;
+    ks.forEach(([a,b,c,col])=>{
+      const n=traces[a].length; if(n<2) return;
+      const cs=Math.max(2,Math.ceil(n/N));
+      for(let i=0;i<N;i++){
+        const s=i*cs,e=Math.min(n,(i+1)*cs+1); if(s>=n) break;
+        out.push({
+          x:traces[a].slice(s,e).map(v=>v*flip.x),
+          y:traces[b].slice(s,e).map(v=>v*flip.y),
+          z:traces[c].slice(s,e).map(v=>v*flip.z),
+          type:'scatter3d',mode:'lines',
+          line:{color:col,width:1.2,opacity:0.05+(i/N)*0.22}
+        });
+      }
+    });
+    return out;
+  }
+
+  function update(){
+    const c=computeChain();
+    const{x1,y1,z1,x2,y2,z2,x3,y3,z3}=c;
+    const p0=ap({x:0,y:0,z:0}),p1=ap({x:x1,y:y1,z:z1}),p2=ap({x:x2,y:y2,z:z2}),p3=ap({x:x3,y:y3,z:z3});
+
+    // ── HUD update ────────────────────────────────
+    document.getElementById('hx').textContent='x '+fmt(p3.x);
+    document.getElementById('hy').textContent='y '+fmt(p3.y);
+    document.getElementById('hz').textContent='z '+fmt(p3.z);
+    // Rot / Lean per segment (integer degrees)
+    const r=Math.round;
+    document.getElementById('ha1').textContent='\u2460 '+r(gV('a1'))+'\u00b0 '+r(gV('p1'))+'\u00b0';
+    document.getElementById('ha2').textContent='\u2461 '+r(gV('a2'))+'\u00b0 '+r(gV('p2'))+'\u00b0';
+    document.getElementById('ha3').textContent='\u2462 '+r(gV('a3'))+'\u00b0 '+r(gV('p3'))+'\u00b0';
+
+    // ── Trail ─────────────────────────────────────
+    traces.x1.push(x1);traces.y1.push(y1);traces.z1.push(z1);
+    traces.x2.push(x2);traces.y2.push(y2);traces.z2.push(z2);
+    traces.x3.push(x3);traces.y3.push(y3);traces.z3.push(z3);
+    const M=300;
+    ['x1','y1','z1','x2','y2','z2','x3','y3','z3'].forEach(k=>{if(traces[k].length>M)traces[k]=traces[k].slice(-M);});
+
+    // ── Arm ───────────────────────────────────────
+    const arm=[
+      {x:[p0.x,p1.x],y:[p0.y,p1.y],z:[p0.z,p1.z],type:'scatter3d',mode:'lines+markers',marker:{size:5,color:'#3366ff'},line:{color:'#3366ff',width:7}},
+      {x:[p1.x,p2.x],y:[p1.y,p2.y],z:[p1.z,p2.z],type:'scatter3d',mode:'lines+markers',marker:{size:5,color:'#ff3333'},line:{color:'#ff3333',width:5}},
+      {x:[p2.x,p3.x],y:[p2.y,p3.y],z:[p2.z,p3.z],type:'scatter3d',mode:'lines+markers',marker:{size:5,color:'#00cc44'},line:{color:'#00cc44',width:4}},
+    ];
+    const tip=[{x:[p3.x],y:[p3.y],z:[p3.z],type:'scatter3d',mode:'markers',marker:{size:7,color:'#fff',opacity:0.9}}];
+    const origin=[{x:[0],y:[0],z:[0],type:'scatter3d',mode:'markers',marker:{size:4,color:'#2a2a2a'}}];
+
+    // ── Ghost: frozen snapshot ────────────────────
+    const ghost=[];
+    if(ghostSnap){
+      const g=ghostSnap;
+      const gp0=ap({x:0,y:0,z:0});
+      const gp1=ap({x:g.x1,y:g.y1,z:g.z1});
+      const gp2=ap({x:g.x2,y:g.y2,z:g.z2});
+      const gp3=ap({x:g.x3,y:g.y3,z:g.z3});
+      [[gp0,gp1,'#3366ff'],[gp1,gp2,'#ff3333'],[gp2,gp3,'#00cc44']].forEach(([a,b,col])=>
+        ghost.push({
+          x:[a.x,b.x],y:[a.y,b.y],z:[a.z,b.z],
+          type:'scatter3d',mode:'lines+markers',
+          marker:{size:4,color:col,opacity:0.35},
+          line:{color:col,width:3,dash:'dot'},
+          opacity:0.35
+        })
+      );
+      // ghost tip
+      ghost.push({x:[gp3.x],y:[gp3.y],z:[gp3.z],type:'scatter3d',mode:'markers',marker:{size:6,color:'#fff',opacity:0.3}});
+    }
+
+    // ── Lock markers ─────────────────────────────
+    const lmk=[];
+    [1,2,3].forEach(n=>{
+      const p=lpos[n];
+      if(locks[n]&&p){const fp=ap(p);lmk.push({x:[fp.x],y:[fp.y],z:[fp.z],type:'scatter3d',mode:'markers',marker:{size:6,color:'#ffcc00',symbol:'diamond'}});}
+    });
+
+    Plotly.react('plot',[...trailData(),...ghost,...origin,...arm,...tip,...lmk],{
+      paper_bgcolor:'#050505',plot_bgcolor:'#050505',
+      scene:{
+        camera:currentCam,
+        xaxis:{range:[-40,40],showgrid:false,zeroline:false,showticklabels:false,showspikes:false},
+        yaxis:{range:[-40,40],showgrid:false,zeroline:false,showticklabels:false,showspikes:false},
+        zaxis:{range:[-40,40],showgrid:false,zeroline:false,showticklabels:false,showspikes:false},
+        bgcolor:'#050505'
+      },
+      showlegend:false,margin:{l:0,r:0,b:0,t:0},
+      modebar:{orientation:'v',bgcolor:'transparent',color:'#1a1a1a',activecolor:'#ffcc00'}
+    });
+    // NOTE: ghostSnap is NOT updated here — it stays frozen until user clears it
+  }
+
+  // ── Slider gang linking ───────────────────────────
+  let tapping=false, tapT=null, dv0=null, dv0Range=null;
+
+  function updateDesel(){ document.getElementById('bDesel').style.display=sel.size>0?'inline-block':'none'; }
+  function toggleSel(id){ const w=document.querySelector(`.sw[data-id="${id}"]`); if(sel.has(id)){sel.delete(id);w.classList.remove('sel');}else{sel.add(id);w.classList.add('sel');} updateDesel(); }
+  function clearSel(){ sel.forEach(id=>document.querySelector(`.sw[data-id="${id}"]`)?.classList.remove('sel')); sel.clear(); updateDesel(); }
+  function clearTraces(){ traces={x1:[],y1:[],z1:[],x2:[],y2:[],z2:[],x3:[],y3:[],z3:[]}; update(); }
+
+  document.querySelectorAll('.sw').forEach(wrap=>{
+    const sid=wrap.dataset.id, inp=wrap.querySelector('input');
+
+    wrap.addEventListener('pointerdown',()=>{ tapping=true; tapT=setTimeout(()=>tapping=false,220); });
+    wrap.addEventListener('click',()=>{ if(tapping){ toggleSel(sid); tapping=false; clearTimeout(tapT); } });
+
+    inp.addEventListener('pointerdown',()=>{
+      dv0=parseFloat(inp.value);
+      dv0Range=parseFloat(inp.max)-parseFloat(inp.min);
+    });
+
+    inp.addEventListener('input',()=>{
+      const cur=parseFloat(inp.value);
+      if(sel.has(sid)&&sel.size>1&&dv0!==null){
+        const frac=(cur-dv0)/dv0Range;
+        dv0=cur;
+        sel.forEach(oid=>{
+          if(oid===sid) return;
+          const o=document.getElementById(oid);
+          const oRange=parseFloat(o.max)-parseFloat(o.min);
+          o.value=Math.max(+o.min,Math.min(+o.max,+o.value+frac*oRange));
+        });
+      }
+      update();
+    });
+  });
+
+  document.addEventListener('pointerup',()=>{ dv0=null; dv0Range=null; });
+
+  update();
 </script>
-```
 
 </body>
 </html>

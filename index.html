@@ -1,419 +1,678 @@
 <!DOCTYPE html>
-
-<html>
+<html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>BUFFET KING</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>Articulated Arm Studio</title>
   <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
   <style>
-    :root {
-      --c1: #3366ff; --c2: #ff3333; --c3: #00cc44;
-      --gold: #ffcc00; --bg: #050505; --panel: #3e3e3f;
-    }
-    * { box-sizing: border-box; margin: 0; padding: 0; }
-    html, body {
-      height: 100dvh; background: var(--bg);
-      font-family: 'Courier New', monospace;
-      overflow: hidden; user-select: none;
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      user-select: none;
       -webkit-tap-highlight-color: transparent;
     }
-    #shell { display: flex; flex-direction: column; height: 100dvh; }
-
-```
-#plot-wrap { flex: 1 1 0; min-height: 0; position: relative; }
-#plot { width: 100%; height: 100%; }
-
-/* ── Readout overlay ── */
-#hud {
-  position: absolute; top: 8px; left: 10px;
-  font-size: 0.72em; letter-spacing: 0.06em; line-height: 1.75;
-  pointer-events: none;
-  text-shadow: 0 1px 4px #000, 0 0 8px #000;
-}
-#hud .row { display: flex; gap: 12px; }
-.tx { color: var(--c1); }
-.ty { color: var(--c2); }
-.tz { color: var(--c3); }
-.ta { color: #888; }
-.s1c { color: var(--c1); }
-.s2c { color: var(--c2); }
-.s3c { color: var(--c3); }
-
-/* ── Panel ── */
-#panel {
-  flex: 0 0 auto;
-  background: var(--panel);
-  border-top: 1px solid #141414;
-  padding: 6px 8px 10px;
-  display: flex; flex-direction: column; gap: 4px;
-}
-
-.action-row {
-  display: flex; gap: 4px;
-  padding-bottom: 4px; border-bottom: 1px solid #111;
-}
-.btn {
-  background: #0e0e0e; border: 1px solid #1a1a1a; color: #3a3a3a;
-  font-family: 'Courier New', monospace; font-size: 0.65em;
-  padding: 4px 9px; border-radius: 3px; cursor: pointer;
-  transition: all 0.12s; white-space: nowrap;
-}
-.btn:active { transform: scale(0.92); }
-.btn.on  { color: var(--gold); border-color: #2a2000; background: #0f0c00; }
-.btn.del { color: #aa2222; border-color: #1c0000; }
-.btn.del:active { background: #160000; }
-.btn.ax  { font-size: 0.6em; padding: 3px 8px; letter-spacing: 0.08em; }
-.btn.ax.on { color: #ff6666; border-color: #3a0000; background: #110000; }
-.btn.cam { font-size: 0.6em; padding: 3px 7px; }
-.sp { flex: 1; }
-
-/* ── Segments ── */
-.seg {
-  display: grid;
-  grid-template-columns: 26px 1fr 1fr 1fr;
-  align-items: center; gap: 5px; padding: 2px 0;
-}
-.seg + .seg { border-top: 1px solid #0d0d0d; }
-
-.lk {
-  width: 24px; height: 24px;
-  display: flex; align-items: center; justify-content: center;
-  background: transparent; border: 1px solid #1a1a1a;
-  border-radius: 4px; cursor: pointer; font-size: 0.7em;
-  transition: all 0.15s; padding: 0; color: #2a2a2a; flex-shrink: 0;
-}
-.lk.on { border-color: var(--gold); background: #0f0c00; color: var(--gold); }
-#lk1 { border-color: #141c38; }
-#lk2 { border-color: #2a0f0f; }
-#lk3 { border-color: #0a1e10; }
-
-.sw {
-  border-radius: 3px; border: 1px solid transparent;
-  transition: border-color 0.1s, background 0.1s; position: relative;
-}
-.sw.sel { border-color: var(--gold); background: #100d00; }
-.sw.sel::after {
-  content: ''; position: absolute; inset: 0; border-radius: 3px;
-  box-shadow: 0 0 6px 1px #ffcc0028; pointer-events: none;
-}
-.seg.locked .sw { opacity: 0.18; pointer-events: none; }
-
-input[type=range] {
-  -webkit-appearance: none; appearance: none;
-  display: block; width: 100%; height: 26px;
-  background: transparent; cursor: pointer;
-}
-input[type=range]::-webkit-slider-runnable-track { height: 2px; border-radius: 1px; background: #1c1c1c; }
-input[type=range]::-webkit-slider-thumb {
-  -webkit-appearance: none;
-  height: 15px; width: 15px; border-radius: 50%;
-  margin-top: -6.5px; border: 2px solid currentColor; background: #050505;
-}
-input[type=range]::-moz-range-track { height: 2px; background: #1c1c1c; }
-input[type=range]::-moz-range-thumb { height: 13px; width: 13px; border-radius: 50%; border: 2px solid currentColor; background: #050505; }
-.c1 input[type=range] { color: var(--c1); }
-.c2 input[type=range] { color: var(--c2); }
-.c3 input[type=range] { color: var(--c3); }
-.sw.sel input[type=range] { color: var(--gold); }
-```
-
+    :root {
+      --c1: #D5BBD6;
+      --c2: #FDFFB4;
+      --c3: #EBEBEB;
+      --bg: #787878;
+      --panel: #A0A0A0;
+    }
+    html, body {
+      height: 100dvh;
+      background: var(--bg);
+      font-family: 'Courier New', monospace;
+      overflow: hidden;
+    }
+    #shell {
+      display: flex;
+      flex-direction: column;
+      height: 100dvh;
+    }
+    #plot-wrap {
+      flex: 1 1 0;
+      min-height: 0;
+      position: relative;
+    }
+    #plot {
+      width: 100%;
+      height: 100%;
+    }
+    #hud {
+      position: absolute;
+      top: 8px;
+      left: 10px;
+      font-size: 0.72rem;
+      letter-spacing: 0.06em;
+      line-height: 1.75;
+      pointer-events: none;
+      background: rgba(0,0,0,0.2);
+      padding: 4px 8px;
+      border-radius: 6px;
+      backdrop-filter: blur(2px);
+      font-weight: 500;
+    }
+    .row {
+      display: flex;
+      gap: 12px;
+    }
+    .tx { color: #d5bbd6; }
+    .ty { color: #e5e59e; }
+    .tz { color: #cccccc; }
+    .s1c { color: #d5bbd6; }
+    .s2c { color: #e5e59e; }
+    .s3c { color: #cccccc; }
+    #panel {
+      flex: 0 0 auto;
+      background: var(--panel);
+      border-top: 1px solid #888;
+      padding: 6px 10px 10px;
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      font-size: 0.7rem;
+    }
+    .action-row {
+      display: flex;
+      gap: 8px;
+      align-items: center;
+      flex-wrap: wrap;
+      padding-bottom: 4px;
+      border-bottom: 1px solid #8a8a8a;
+    }
+    .action-row:last-child {
+      border-bottom: none;
+    }
+    .btn {
+      background: #909090;
+      border: 1px solid #787878;
+      color: #1a1a1a;
+      font-family: 'Courier New', monospace;
+      font-size: 0.7rem;
+      padding: 4px 10px;
+      border-radius: 4px;
+      cursor: pointer;
+      transition: 0.1s ease;
+      white-space: nowrap;
+    }
+    .btn:active { transform: scale(0.96); }
+    .btn.on {
+      border-color: #8a6e8b;
+      background: #D5BBD6;
+      color: #1a1a1a;
+    }
+    .btn.danger {
+      background: #9e7a7a;
+    }
+    .sp { flex: 1; }
+    .checkbox-label {
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      background: #909090;
+      border: 1px solid #787878;
+      padding: 3px 8px;
+      border-radius: 4px;
+      cursor: pointer;
+    }
+    input[type="checkbox"] {
+      margin: 0;
+      width: 14px;
+      height: 14px;
+      cursor: pointer;
+    }
+    .seg {
+      display: grid;
+      grid-template-columns: 50px 1fr 1fr 1fr 36px;
+      align-items: center;
+      gap: 8px;
+      padding: 5px 0;
+    }
+    .seg + .seg {
+      border-top: 1px solid #8a8a8a;
+    }
+    .lk {
+      background: #909090;
+      border: 1px solid #787878;
+      border-radius: 4px;
+      cursor: pointer;
+      font-size: 0.7rem;
+      padding: 4px 0;
+      text-align: center;
+      font-weight: bold;
+    }
+    .lk.on {
+      border-color: #8a6e8b;
+      background: #D5BBD6;
+      color: #2a2a2a;
+    }
+    .length-value {
+      text-align: right;
+      font-weight: bold;
+      color: #eee;
+      background: #6a6a6a;
+      padding: 2px 6px;
+      border-radius: 12px;
+      font-size: 0.7rem;
+    }
+    .sw {
+      border-radius: 4px;
+      border: 1px solid transparent;
+      transition: border 0.1s;
+      position: relative;
+    }
+    .sw.sel {
+      border-color: #8a6e8b;
+      background: rgba(213, 187, 214, 0.22);
+    }
+    .seg.locked .sw {
+      opacity: 0.28;
+      pointer-events: none;
+    }
+    input[type=range] {
+      -webkit-appearance: none;
+      width: 100%;
+      height: 24px;
+      background: transparent;
+    }
+    input[type=range]::-webkit-slider-runnable-track {
+      height: 2px;
+      background: #787878;
+    }
+    input[type=range]::-webkit-slider-thumb {
+      -webkit-appearance: none;
+      height: 14px;
+      width: 14px;
+      border-radius: 50%;
+      margin-top: -6px;
+      border: 2px solid currentColor;
+      background: #A0A0A0;
+    }
+    .c1 input { color: var(--c1); }
+    .c2 input { color: var(--c2); }
+    .c3 input { color: var(--c3); }
   </style>
 </head>
 <body>
 <div id="shell">
-
   <div id="plot-wrap">
     <div id="plot"></div>
     <div id="hud">
-      <!-- tip position -->
       <div class="row">
-        <span class="tx" id="hx">x  0.0</span>
-        <span class="ty" id="hy">y  0.0</span>
-        <span class="tz" id="hz">z  0.0</span>
+        <span class="tx" id="hx">x 0.0</span>
+        <span class="ty" id="hy">y 0.0</span>
+        <span class="tz" id="hz">z 0.0</span>
       </div>
-      <!-- per-segment angles -->
       <div class="row">
-        <span class="s1c" id="ha1">① --/--</span>
-        <span class="s2c" id="ha2">② --/--</span>
-        <span class="s3c" id="ha3">③ --/--</span>
+        <span class="s1c" id="ha1">1 --/--</span>
+        <span class="s2c" id="ha2">2 --/--</span>
+        <span class="s3c" id="ha3">3 --/--</span>
       </div>
+      <div class="row" id="lenHud" style="font-size:0.65rem; gap:8px;"></div>
     </div>
   </div>
 
   <div id="panel">
+    <div class="action-row">
+      <button class="btn" id="btnGhost">Ghost</button>
+      <button class="btn on" id="btnFade">Fade trail</button>
+      <button class="btn" id="btnGrid">Grid off</button>
+      <button class="btn" id="btnDesel" style="display:none">Deselect</button>
+      <div class="sp"></div>
+      <button class="btn danger" id="btnClearTraces">Clear trails</button>
+    </div>
+    <div class="action-row">
+      <button class="btn" id="btnUndo">Undo</button>
+      <button class="btn" id="btnRedo">Redo</button>
+      <button class="btn" id="btnSavePreset">Save preset</button>
+      <button class="btn" id="btnLoadPreset">Load preset</button>
+      <label class="checkbox-label">
+        <input type="checkbox" id="autoGhostLock"> Auto-ghost on lock
+      </label>
+      <label class="checkbox-label">
+        <input type="checkbox" id="infiniteTrail"> Infinite trail
+      </label>
+      <div class="sp"></div>
+      <button class="btn" id="btnAnim">Animate</button>
+    </div>
+    <div class="action-row">
+      <button class="btn" id="btnFX">+-X</button>
+      <button class="btn" id="btnFY">+-Y</button>
+      <button class="btn" id="btnFZ">+-Z</button>
+      <button class="btn" id="camIso">ISO</button>
+      <button class="btn" id="camTop">TOP</button>
+      <button class="btn" id="camFront">FRT</button>
+      <button class="btn" id="camSide">SID</button>
+      <button class="btn" id="camReset">Reset cam</button>
+    </div>
 
-```
-<!-- Row 1: toggles + clear -->
-<div class="action-row">
-  <button class="btn"    id="bGhost" onclick="toggleGhost()">👻 ghost</button>
-  <button class="btn on" id="bFade"  onclick="toggleFade()">〰 fade</button>
-  <button class="btn"    id="bDesel" onclick="clearSel()" style="display:none">✕ desel</button>
-  <div class="sp"></div>
-  <button class="btn del" onclick="clearTraces()">🗑</button>
-</div>
-
-<!-- Row 2: axis flips + camera presets -->
-<div class="action-row">
-  <button class="btn ax" id="bFX" onclick="flipAxis('x')">±X</button>
-  <button class="btn ax" id="bFY" onclick="flipAxis('y')">±Y</button>
-  <button class="btn ax" id="bFZ" onclick="flipAxis('z')">±Z</button>
-  <div class="sp"></div>
-  <button class="btn cam" onclick="setCamera('iso')">ISO</button>
-  <button class="btn cam" onclick="setCamera('top')">TOP</button>
-  <button class="btn cam" onclick="setCamera('front')">FRT</button>
-  <button class="btn cam" onclick="setCamera('side')">SID</button>
-</div>
-
-<!-- Segment 1 -->
-<div class="seg" id="sg1">
-  <button class="lk" id="lk1" onclick="toggleLock(1)">🔒</button>
-  <div class="sw c1" data-id="a1"><input type="range" id="a1" min="0" max="360" value="45"></div>
-  <div class="sw c1" data-id="p1"><input type="range" id="p1" min="0" max="360" value="45"></div>
-  <div class="sw c1" data-id="l1"><input type="range" id="l1" min="1" max="25" value="10"></div>
-</div>
-
-<!-- Segment 2 -->
-<div class="seg" id="sg2">
-  <button class="lk" id="lk2" onclick="toggleLock(2)">🔒</button>
-  <div class="sw c2" data-id="a2"><input type="range" id="a2" min="0" max="360" value="90"></div>
-  <div class="sw c2" data-id="p2"><input type="range" id="p2" min="0" max="360" value="90"></div>
-  <div class="sw c2" data-id="l2"><input type="range" id="l2" min="1" max="25" value="7"></div>
-</div>
-
-<!-- Segment 3 -->
-<div class="seg" id="sg3">
-  <button class="lk" id="lk3" onclick="toggleLock(3)">🔒</button>
-  <div class="sw c3" data-id="a3"><input type="range" id="a3" min="0" max="360" value="45"></div>
-  <div class="sw c3" data-id="p3"><input type="range" id="p3" min="0" max="360" value="45"></div>
-  <div class="sw c3" data-id="l3"><input type="range" id="l3" min="1" max="25" value="5"></div>
-</div>
-```
-
+    <div class="seg" id="sg1">
+      <button class="lk" id="lk1">Lock</button>
+      <div class="sw c1" data-id="a1"><input type="range" id="a1" min="0" max="360" value="45"></div>
+      <div class="sw c1" data-id="p1"><input type="range" id="p1" min="0" max="360" value="45"></div>
+      <div class="sw c1" data-id="l1"><input type="range" id="l1" min="1" max="25" value="10"></div>
+      <span class="length-value" id="len1Val">10.0</span>
+    </div>
+    <div class="seg" id="sg2">
+      <button class="lk" id="lk2">Lock</button>
+      <div class="sw c2" data-id="a2"><input type="range" id="a2" min="0" max="360" value="90"></div>
+      <div class="sw c2" data-id="p2"><input type="range" id="p2" min="0" max="360" value="90"></div>
+      <div class="sw c2" data-id="l2"><input type="range" id="l2" min="1" max="25" value="7"></div>
+      <span class="length-value" id="len2Val">7.0</span>
+    </div>
+    <div class="seg" id="sg3">
+      <button class="lk" id="lk3">Lock</button>
+      <div class="sw c3" data-id="a3"><input type="range" id="a3" min="0" max="360" value="45"></div>
+      <div class="sw c3" data-id="p3"><input type="range" id="p3" min="0" max="360" value="45"></div>
+      <div class="sw c3" data-id="l3"><input type="range" id="l3" min="1" max="25" value="5"></div>
+      <span class="length-value" id="len3Val">5.0</span>
+    </div>
   </div>
 </div>
 
 <script>
-  let traces={x1:[],y1:[],z1:[],x2:[],y2:[],z2:[],x3:[],y3:[],z3:[]};
-  const locks={1:false,2:false,3:false};
-  const lpos={1:null,2:null,3:null};
-  const sel=new Set();
-  let fadeMode=true;
+  (function(){
+    // ----- DOM elements -----
+    const plotDiv = document.getElementById('plot');
+    const sliders = {
+      a1:gid('a1'), p1:gid('p1'), l1:gid('l1'),
+      a2:gid('a2'), p2:gid('p2'), l2:gid('l2'),
+      a3:gid('a3'), p3:gid('p3'), l3:gid('l3')
+    };
+    const lockBtns = {1:gid('lk1'),2:gid('lk2'),3:gid('lk3')};
+    const segDivs = {1:gid('sg1'),2:gid('sg2'),3:gid('sg3')};
+    const lenSpans = {1:gid('len1Val'),2:gid('len2Val'),3:gid('len3Val')};
+    const hudLen = gid('lenHud');
+    function gid(id){ return document.getElementById(id); }
 
-  // Ghost: null = off, object = pinned pose snapshot
-  let ghostSnap=null;
+    // ----- State -----
+    let traces = { x1:[],y1:[],z1:[], x2:[],y2:[],z2:[], x3:[],y3:[],z3:[] };
+    let locks = {1:false,2:false,3:false};
+    let lockedPos = {1:null,2:null,3:null};
+    let fadeMode = true;
+    let ghostSnap = null;
+    let flip = { x:1, y:1, z:1 };
+    let showGrid = false;
+    let infiniteTrail = false;
+    let autoGhostOnLock = false;
+    let currentCam = { eye:{ x:1.5, y:1.5, z:1.2 } };
+    const cameraPresets = {
+      iso:  { eye:{ x:1.5, y:1.5, z:1.2 } },
+      top:  { eye:{ x:0,   y:0,   z:2.5 } },
+      front:{ eye:{ x:0,   y:2.5, z:0   } },
+      side: { eye:{ x:2.5, y:0,   z:0   } }
+    };
 
-  // ── Axis flips ────────────────────────────────────
-  const flip={x:1,y:1,z:1};
-  function flipAxis(ax){
-    flip[ax]*=-1;
-    document.getElementById('bF'+ax.toUpperCase()).classList.toggle('on',flip[ax]<0);
-    update();
-  }
+    // Undo/Redo stacks
+    let undoStack = [], redoStack = [];
+    let ignoreHistory = false;
+    const MAX_HISTORY = 40;
 
-  // ── Camera presets ────────────────────────────────
-  const cams={
-    iso:  {eye:{x:1.5,y:1.5,z:1.2}},
-    top:  {eye:{x:0,  y:0,  z:2.5}},
-    front:{eye:{x:0,  y:2.5,z:0  }},
-    side: {eye:{x:2.5,y:0,  z:0  }},
-  };
-  let currentCam=cams.iso;
-  function setCamera(name){ currentCam=cams[name]; update(); }
-
-  // ── Helpers ───────────────────────────────────────
-  const gV=id=>parseFloat(document.getElementById(id).value);
-  const tR=d=>d*Math.PI/180;
-  const fmt=v=>(v>=0?' ':'')+v.toFixed(1);
-  const ap=({x,y,z})=>({x:x*flip.x,y:y*flip.y,z:z*flip.z});
-
-  function computeChain(){
-    const a1=tR(gV('a1')),p1=tR(gV('p1')),l1=gV('l1');
-    const a2=tR(gV('a2')),p2=tR(gV('p2')),l2=gV('l2');
-    const a3=tR(gV('a3')),p3=tR(gV('p3')),l3=gV('l3');
-
-    let x1=l1*Math.sin(p1)*Math.cos(a1),y1=l1*Math.sin(p1)*Math.sin(a1),z1=-l1*Math.cos(p1);
-    if(locks[1]){if(!lpos[1])lpos[1]={x:x1,y:y1,z:z1};({x:x1,y:y1,z:z1}=lpos[1]);}else lpos[1]=null;
-
-    let x2=x1+l2*Math.sin(p2)*Math.cos(a2+a1),y2=y1+l2*Math.sin(p2)*Math.sin(a2+a1),z2=z1-l2*Math.cos(p2);
-    if(locks[2]){if(!lpos[2])lpos[2]={x:x2,y:y2,z:z2};({x:x2,y:y2,z:z2}=lpos[2]);}else lpos[2]=null;
-
-    let x3=x2+l3*Math.sin(p3)*Math.cos(a3+a2+a1),y3=y2+l3*Math.sin(p3)*Math.sin(a3+a2+a1),z3=z2-l3*Math.cos(p3);
-    if(locks[3]){if(!lpos[3])lpos[3]={x:x3,y:y3,z:z3};({x:x3,y:y3,z:z3}=lpos[3]);}else lpos[3]=null;
-
-    return{x1,y1,z1,x2,y2,z2,x3,y3,z3};
-  }
-
-  // Ghost: pin on press, hold frozen while arm moves, clear on press again
-  function toggleGhost(){
-    if(ghostSnap){
-      // already pinned — clear it
-      ghostSnap=null;
-      document.getElementById('bGhost').classList.remove('on');
-    } else {
-      // pin current pose now
-      ghostSnap=computeChain();
-      document.getElementById('bGhost').classList.add('on');
+    function captureState(){
+      return {
+        a1: sliders.a1.value, p1: sliders.p1.value, l1: sliders.l1.value,
+        a2: sliders.a2.value, p2: sliders.p2.value, l2: sliders.l2.value,
+        a3: sliders.a3.value, p3: sliders.p3.value, l3: sliders.l3.value,
+        flipX: flip.x, flipY: flip.y, flipZ: flip.z,
+        fade: fadeMode
+      };
     }
-    update();
-  }
+    function pushState(){
+      if(ignoreHistory) return;
+      const cur = captureState();
+      undoStack.push(cur);
+      if(undoStack.length > MAX_HISTORY) undoStack.shift();
+      redoStack = [];
+    }
+    function applyState(state){
+      ignoreHistory = true;
+      sliders.a1.value = state.a1; sliders.p1.value = state.p1; sliders.l1.value = state.l1;
+      sliders.a2.value = state.a2; sliders.p2.value = state.p2; sliders.l2.value = state.l2;
+      sliders.a3.value = state.a3; sliders.p3.value = state.p3; sliders.l3.value = state.l3;
+      flip.x = state.flipX; flip.y = state.flipY; flip.z = state.flipZ;
+      fadeMode = state.fade;
+      gid('btnFX').classList.toggle('on', flip.x === -1);
+      gid('btnFY').classList.toggle('on', flip.y === -1);
+      gid('btnFZ').classList.toggle('on', flip.z === -1);
+      gid('btnFade').classList.toggle('on', fadeMode);
+      ignoreHistory = false;
+      updateLengthDisplays();
+      updateVisualization();
+    }
+    function undo(){ if(undoStack.length){ redoStack.push(captureState()); applyState(undoStack.pop()); } }
+    function redo(){ if(redoStack.length){ undoStack.push(captureState()); applyState(redoStack.pop()); } }
 
-  function toggleFade(){
-    fadeMode=!fadeMode;
-    document.getElementById('bFade').classList.toggle('on',fadeMode);
-    update();
-  }
+    // ----- Helpers -----
+    function getVal(id){ return parseFloat(sliders[id].value); }
+    function toRad(d){ return d * Math.PI / 180; }
+    function applyFlip(p){ return { x:p.x*flip.x, y:p.y*flip.y, z:p.z*flip.z }; }
+    function updateLengthDisplays(){
+      lenSpans[1].innerText = getVal('l1').toFixed(1);
+      lenSpans[2].innerText = getVal('l2').toFixed(1);
+      lenSpans[3].innerText = getVal('l3').toFixed(1);
+      hudLen.innerHTML = 'L1:'+getVal('l1').toFixed(1)+'  L2:'+getVal('l2').toFixed(1)+'  L3:'+getVal('l3').toFixed(1);
+    }
 
-  function toggleLock(n){
-    locks[n]=!locks[n]; if(!locks[n]) lpos[n]=null;
-    const b=document.getElementById('lk'+n), s=document.getElementById('sg'+n);
-    b.classList.toggle('on',locks[n]);
-    s.classList.toggle('locked',locks[n]);
-    b.textContent=locks[n]?'\uD83D\uDD13':'\uD83D\uDD12';
-    update();
-  }
+    // Kinematics (raw, no flip)
+    function computeChainRaw(){
+      const a1=toRad(getVal('a1')), p1=toRad(getVal('p1')), l1=getVal('l1');
+      const a2=toRad(getVal('a2')), p2=toRad(getVal('p2')), l2=getVal('l2');
+      const a3=toRad(getVal('a3')), p3=toRad(getVal('p3')), l3=getVal('l3');
 
-  function trailData(){
-    const ks=[['x1','y1','z1','#3366ff'],['x2','y2','z2','#ff3333'],['x3','y3','z3','#00cc44']];
-    const out=[];
-    if(!fadeMode){
-      ks.forEach(([a,b,c,col])=>out.push({
-        x:traces[a].map(v=>v*flip.x),y:traces[b].map(v=>v*flip.y),z:traces[c].map(v=>v*flip.z),
-        type:'scatter3d',mode:'lines',line:{color:col,width:1,opacity:0.12}
-      }));
+      let x1 = l1*Math.sin(p1)*Math.cos(a1);
+      let y1 = l1*Math.sin(p1)*Math.sin(a1);
+      let z1 = -l1*Math.cos(p1);
+      if(locks[1]) { if(!lockedPos[1]) lockedPos[1]={x:x1,y:y1,z:z1}; else { x1=lockedPos[1].x; y1=lockedPos[1].y; z1=lockedPos[1].z; } }
+      else lockedPos[1]=null;
+
+      let x2 = x1 + l2*Math.sin(p2)*Math.cos(a2+a1);
+      let y2 = y1 + l2*Math.sin(p2)*Math.sin(a2+a1);
+      let z2 = z1 - l2*Math.cos(p2);
+      if(locks[2]) { if(!lockedPos[2]) lockedPos[2]={x:x2,y:y2,z:z2}; else { x2=lockedPos[2].x; y2=lockedPos[2].y; z2=lockedPos[2].z; } }
+      else lockedPos[2]=null;
+
+      let x3 = x2 + l3*Math.sin(p3)*Math.cos(a3+a2+a1);
+      let y3 = y2 + l3*Math.sin(p3)*Math.sin(a3+a2+a1);
+      let z3 = z2 - l3*Math.cos(p3);
+      if(locks[3]) { if(!lockedPos[3]) lockedPos[3]={x:x3,y:y3,z:z3}; else { x3=lockedPos[3].x; y3=lockedPos[3].y; z3=lockedPos[3].z; } }
+      else lockedPos[3]=null;
+      return { x1,y1,z1, x2,y2,z2, x3,y3,z3 };
+    }
+
+    // Trail builder
+    function buildTrailData(){
+      const segs = [
+        {x:traces.x1,y:traces.y1,z:traces.z1, col:'#D5BBD6'},
+        {x:traces.x2,y:traces.y2,z:traces.z2, col:'#FDFFB4'},
+        {x:traces.x3,y:traces.y3,z:traces.z3, col:'#EBEBEB'}
+      ];
+      if(!fadeMode){
+        return segs.filter(s=>s.x.length>1).map(s => ({
+          x:s.x.map(v=>v*flip.x), y:s.y.map(v=>v*flip.y), z:s.z.map(v=>v*flip.z),
+          type:'scatter3d', mode:'lines', line:{color:s.col, width:1, opacity:0.12}
+        }));
+      }
+      const out=[];
+      const N=7;
+      for(let s of segs){
+        let len=s.x.length; if(len<2) continue;
+        let chunk=Math.max(2, Math.ceil(len/N));
+        for(let i=0; i<N; i++){
+          let st=i*chunk, ed=Math.min(len, (i+1)*chunk+1);
+          if(st>=len) break;
+          let op=0.05+(i/N)*0.22;
+          out.push({ x:s.x.slice(st,ed).map(v=>v*flip.x), y:s.y.slice(st,ed).map(v=>v*flip.y), z:s.z.slice(st,ed).map(v=>v*flip.z),
+            type:'scatter3d', mode:'lines', line:{color:s.col, width:1.2, opacity:op} });
+        }
+      }
       return out;
     }
-    const N=7;
-    ks.forEach(([a,b,c,col])=>{
-      const n=traces[a].length; if(n<2) return;
-      const cs=Math.max(2,Math.ceil(n/N));
-      for(let i=0;i<N;i++){
-        const s=i*cs,e=Math.min(n,(i+1)*cs+1); if(s>=n) break;
-        out.push({
-          x:traces[a].slice(s,e).map(v=>v*flip.x),
-          y:traces[b].slice(s,e).map(v=>v*flip.y),
-          z:traces[c].slice(s,e).map(v=>v*flip.z),
-          type:'scatter3d',mode:'lines',
-          line:{color:col,width:1.2,opacity:0.05+(i/N)*0.22}
-        });
-      }
-    });
-    return out;
-  }
-
-  function update(){
-    const c=computeChain();
-    const{x1,y1,z1,x2,y2,z2,x3,y3,z3}=c;
-    const p0=ap({x:0,y:0,z:0}),p1=ap({x:x1,y:y1,z:z1}),p2=ap({x:x2,y:y2,z:z2}),p3=ap({x:x3,y:y3,z:z3});
-
-    // ── HUD update ────────────────────────────────
-    document.getElementById('hx').textContent='x '+fmt(p3.x);
-    document.getElementById('hy').textContent='y '+fmt(p3.y);
-    document.getElementById('hz').textContent='z '+fmt(p3.z);
-    // Rot / Lean per segment (integer degrees)
-    const r=Math.round;
-    document.getElementById('ha1').textContent='\u2460 '+r(gV('a1'))+'\u00b0 '+r(gV('p1'))+'\u00b0';
-    document.getElementById('ha2').textContent='\u2461 '+r(gV('a2'))+'\u00b0 '+r(gV('p2'))+'\u00b0';
-    document.getElementById('ha3').textContent='\u2462 '+r(gV('a3'))+'\u00b0 '+r(gV('p3'))+'\u00b0';
-
-    // ── Trail ─────────────────────────────────────
-    traces.x1.push(x1);traces.y1.push(y1);traces.z1.push(z1);
-    traces.x2.push(x2);traces.y2.push(y2);traces.z2.push(z2);
-    traces.x3.push(x3);traces.y3.push(y3);traces.z3.push(z3);
-    const M=300;
-    ['x1','y1','z1','x2','y2','z2','x3','y3','z3'].forEach(k=>{if(traces[k].length>M)traces[k]=traces[k].slice(-M);});
-
-    // ── Arm ───────────────────────────────────────
-    const arm=[
-      {x:[p0.x,p1.x],y:[p0.y,p1.y],z:[p0.z,p1.z],type:'scatter3d',mode:'lines+markers',marker:{size:5,color:'#3366ff'},line:{color:'#3366ff',width:7}},
-      {x:[p1.x,p2.x],y:[p1.y,p2.y],z:[p1.z,p2.z],type:'scatter3d',mode:'lines+markers',marker:{size:5,color:'#ff3333'},line:{color:'#ff3333',width:5}},
-      {x:[p2.x,p3.x],y:[p2.y,p3.y],z:[p2.z,p3.z],type:'scatter3d',mode:'lines+markers',marker:{size:5,color:'#00cc44'},line:{color:'#00cc44',width:4}},
-    ];
-    const tip=[{x:[p3.x],y:[p3.y],z:[p3.z],type:'scatter3d',mode:'markers',marker:{size:7,color:'#fff',opacity:0.9}}];
-    const origin=[{x:[0],y:[0],z:[0],type:'scatter3d',mode:'markers',marker:{size:4,color:'#2a2a2a'}}];
-
-    // ── Ghost: frozen snapshot ────────────────────
-    const ghost=[];
-    if(ghostSnap){
+    function buildGhost(){
+      if(!ghostSnap) return [];
       const g=ghostSnap;
-      const gp0=ap({x:0,y:0,z:0});
-      const gp1=ap({x:g.x1,y:g.y1,z:g.z1});
-      const gp2=ap({x:g.x2,y:g.y2,z:g.z2});
-      const gp3=ap({x:g.x3,y:g.y3,z:g.z3});
-      [[gp0,gp1,'#3366ff'],[gp1,gp2,'#ff3333'],[gp2,gp3,'#00cc44']].forEach(([a,b,col])=>
-        ghost.push({
-          x:[a.x,b.x],y:[a.y,b.y],z:[a.z,b.z],
-          type:'scatter3d',mode:'lines+markers',
-          marker:{size:4,color:col,opacity:0.35},
-          line:{color:col,width:3,dash:'dot'},
-          opacity:0.35
-        })
-      );
-      // ghost tip
-      ghost.push({x:[gp3.x],y:[gp3.y],z:[gp3.z],type:'scatter3d',mode:'markers',marker:{size:6,color:'#fff',opacity:0.3}});
+      const p0=applyFlip({x:0,y:0,z:0}), p1=applyFlip({x:g.x1,y:g.y1,z:g.z1});
+      const p2=applyFlip({x:g.x2,y:g.y2,z:g.z2}), p3=applyFlip({x:g.x3,y:g.y3,z:g.z3});
+      let out=[];
+      [[p0,p1,'#D5BBD6'],[p1,p2,'#FDFFB4'],[p2,p3,'#EBEBEB']].forEach(([a,b,col])=>{
+        out.push({ x:[a.x,b.x], y:[a.y,b.y], z:[a.z,b.z], type:'scatter3d', mode:'lines+markers',
+          marker:{size:4,color:col,opacity:0.4}, line:{color:col,width:3,dash:'dot'}, opacity:0.4 });
+      });
+      out.push({ x:[p3.x], y:[p3.y], z:[p3.z], type:'scatter3d', mode:'markers', marker:{size:6,color:'#fff',opacity:0.4} });
+      return out;
+    }
+    function buildLockMarkers(){
+      let m=[];
+      for(let i=1;i<=3;i++) if(locks[i] && lockedPos[i]){
+        let p=applyFlip(lockedPos[i]);
+        m.push({ x:[p.x], y:[p.y], z:[p.z], type:'scatter3d', mode:'markers', marker:{size:7,color:'#FDFFB4',symbol:'diamond',opacity:0.9} });
+      }
+      return m;
     }
 
-    // ── Lock markers ─────────────────────────────
-    const lmk=[];
-    [1,2,3].forEach(n=>{
-      const p=lpos[n];
-      if(locks[n]&&p){const fp=ap(p);lmk.push({x:[fp.x],y:[fp.y],z:[fp.z],type:'scatter3d',mode:'markers',marker:{size:6,color:'#ffcc00',symbol:'diamond'}});}
-    });
-
-    Plotly.react('plot',[...trailData(),...ghost,...origin,...arm,...tip,...lmk],{
-      paper_bgcolor:'#050505',plot_bgcolor:'#050505',
-      scene:{
-        camera:currentCam,
-        xaxis:{range:[-40,40],showgrid:false,zeroline:false,showticklabels:false,showspikes:false},
-        yaxis:{range:[-40,40],showgrid:false,zeroline:false,showticklabels:false,showspikes:false},
-        zaxis:{range:[-40,40],showgrid:false,zeroline:false,showticklabels:false,showspikes:false},
-        bgcolor:'#050505'
-      },
-      showlegend:false,margin:{l:0,r:0,b:0,t:0},
-      modebar:{orientation:'v',bgcolor:'transparent',color:'#1a1a1a',activecolor:'#ffcc00'}
-    });
-    // NOTE: ghostSnap is NOT updated here — it stays frozen until user clears it
-  }
-
-  // ── Slider gang linking ───────────────────────────
-  let tapping=false, tapT=null, dv0=null, dv0Range=null;
-
-  function updateDesel(){ document.getElementById('bDesel').style.display=sel.size>0?'inline-block':'none'; }
-  function toggleSel(id){ const w=document.querySelector(`.sw[data-id="${id}"]`); if(sel.has(id)){sel.delete(id);w.classList.remove('sel');}else{sel.add(id);w.classList.add('sel');} updateDesel(); }
-  function clearSel(){ sel.forEach(id=>document.querySelector(`.sw[data-id="${id}"]`)?.classList.remove('sel')); sel.clear(); updateDesel(); }
-  function clearTraces(){ traces={x1:[],y1:[],z1:[],x2:[],y2:[],z2:[],x3:[],y3:[],z3:[]}; update(); }
-
-  document.querySelectorAll('.sw').forEach(wrap=>{
-    const sid=wrap.dataset.id, inp=wrap.querySelector('input');
-
-    wrap.addEventListener('pointerdown',()=>{ tapping=true; tapT=setTimeout(()=>tapping=false,220); });
-    wrap.addEventListener('click',()=>{ if(tapping){ toggleSel(sid); tapping=false; clearTimeout(tapT); } });
-
-    inp.addEventListener('pointerdown',()=>{
-      dv0=parseFloat(inp.value);
-      dv0Range=parseFloat(inp.max)-parseFloat(inp.min);
-    });
-
-    inp.addEventListener('input',()=>{
-      const cur=parseFloat(inp.value);
-      if(sel.has(sid)&&sel.size>1&&dv0!==null){
-        const frac=(cur-dv0)/dv0Range;
-        dv0=cur;
-        sel.forEach(oid=>{
-          if(oid===sid) return;
-          const o=document.getElementById(oid);
-          const oRange=parseFloat(o.max)-parseFloat(o.min);
-          o.value=Math.max(+o.min,Math.min(+o.max,+o.value+frac*oRange));
-        });
+    function updateVisualization(){
+      const raw = computeChainRaw();
+      const {x1,y1,z1,x2,y2,z2,x3,y3,z3} = raw;
+      if(infiniteTrail || traces.x1.length<500){
+        traces.x1.push(x1); traces.y1.push(y1); traces.z1.push(z1);
+        traces.x2.push(x2); traces.y2.push(y2); traces.z2.push(z2);
+        traces.x3.push(x3); traces.y3.push(y3); traces.z3.push(z3);
+        if(!infiniteTrail && traces.x1.length>300){
+          ['x1','y1','z1','x2','y2','z2','x3','y3','z3'].forEach(k=>traces[k]=traces[k].slice(-300));
+        }
       }
-      update();
-    });
-  });
+      const tipF = applyFlip({x:x3,y:y3,z:z3});
+      gid('hx').innerText='x '+(tipF.x>=0?' ':'')+tipF.x.toFixed(1);
+      gid('hy').innerText='y '+(tipF.y>=0?' ':'')+tipF.y.toFixed(1);
+      gid('hz').innerText='z '+(tipF.z>=0?' ':'')+tipF.z.toFixed(1);
+      gid('ha1').innerText='1 '+Math.round(getVal('a1'))+'deg '+Math.round(getVal('p1'))+'deg';
+      gid('ha2').innerText='2 '+Math.round(getVal('a2'))+'deg '+Math.round(getVal('p2'))+'deg';
+      gid('ha3').innerText='3 '+Math.round(getVal('a3'))+'deg '+Math.round(getVal('p3'))+'deg';
+      updateLengthDisplays();
 
-  document.addEventListener('pointerup',()=>{ dv0=null; dv0Range=null; });
+      const p0f=applyFlip({x:0,y:0,z:0}), p1f=applyFlip({x:x1,y:y1,z:z1});
+      const p2f=applyFlip({x:x2,y:y2,z:z2}), p3f=applyFlip({x:x3,y:y3,z:z3});
+      const armTraces = [
+        {x:[p0f.x,p1f.x], y:[p0f.y,p1f.y], z:[p0f.z,p1f.z], type:'scatter3d', mode:'lines+markers', marker:{size:5,color:'#D5BBD6'}, line:{color:'#D5BBD6',width:7}},
+        {x:[p1f.x,p2f.x], y:[p1f.y,p2f.y], z:[p1f.z,p2f.z], type:'scatter3d', mode:'lines+markers', marker:{size:5,color:'#FDFFB4'}, line:{color:'#FDFFB4',width:5}},
+        {x:[p2f.x,p3f.x], y:[p2f.y,p3f.y], z:[p2f.z,p3f.z], type:'scatter3d', mode:'lines+markers', marker:{size:5,color:'#EBEBEB'}, line:{color:'#EBEBEB',width:4}}
+      ];
+      const tipMarker = [{x:[p3f.x], y:[p3f.y], z:[p3f.z], type:'scatter3d', mode:'markers', marker:{size:8,color:'#fff',opacity:0.95}}];
+      const originMarker = [{x:[0], y:[0], z:[0], type:'scatter3d', mode:'markers', marker:{size:4,color:'#555'}}];
+      const totalLen = getVal('l1')+getVal('l2')+getVal('l3');
+      const rangeBound = Math.max(18, totalLen*1.2);
+      const plotData = [...buildTrailData(), ...buildGhost(), ...originMarker, ...armTraces, ...tipMarker, ...buildLockMarkers()];
+      const layout = {
+        paper_bgcolor:'#787878', plot_bgcolor:'#787878',
+        scene: {
+          camera: currentCam,
+          xaxis: { range:[-rangeBound,rangeBound], showgrid:showGrid, zeroline:false, showticklabels:false, showspikes:false },
+          yaxis: { range:[-rangeBound,rangeBound], showgrid:showGrid, zeroline:false, showticklabels:false, showspikes:false },
+          zaxis: { range:[-rangeBound,rangeBound], showgrid:showGrid, zeroline:false, showticklabels:false, showspikes:false },
+          bgcolor:'#787878'
+        },
+        showlegend:false, margin:{l:0,r:0,b:0,t:0},
+        modebar:{orientation:'v', bgcolor:'transparent', color:'#909090', activecolor:'#D5BBD6'}
+      };
+      Plotly.react(plotDiv, plotData, layout);
+    }
 
-  update();
+    // ----- UI Actions -----
+    function toggleGhost(){
+      if(ghostSnap){ ghostSnap=null; gid('btnGhost').classList.remove('on'); }
+      else { ghostSnap = computeChainRaw(); gid('btnGhost').classList.add('on'); }
+      updateVisualization();
+    }
+    function toggleFade(){ fadeMode=!fadeMode; gid('btnFade').classList.toggle('on',fadeMode); pushState(); updateVisualization(); }
+    function toggleGrid(){ showGrid=!showGrid; gid('btnGrid').innerText=showGrid?'Grid on':'Grid off'; updateVisualization(); }
+    function flipAxis(ax){ flip[ax]*=-1; gid('btnF'+ax.toUpperCase()).classList.toggle('on',flip[ax]===-1); pushState(); updateVisualization(); }
+    function setCamera(name){ currentCam = cameraPresets[name]; updateVisualization(); }
+    function resetCamera(){ currentCam = cameraPresets.iso; updateVisualization(); }
+    function clearTraces(){ traces = { x1:[],y1:[],z1:[], x2:[],y2:[],z2:[], x3:[],y3:[],z3:[] }; updateVisualization(); }
+    function toggleLock(seg){
+      locks[seg]=!locks[seg];
+      if(!locks[seg]) lockedPos[seg]=null;
+      lockBtns[seg].innerText = locks[seg]?'Unlock':'Lock';
+      lockBtns[seg].classList.toggle('on',locks[seg]);
+      segDivs[seg].classList.toggle('locked',locks[seg]);
+      if(autoGhostOnLock && locks[seg]) { ghostSnap = computeChainRaw(); gid('btnGhost').classList.add('on'); }
+      pushState(); updateVisualization();
+    }
+    function savePreset(){
+      const state = captureState();
+      const blob = new Blob([JSON.stringify(state,null,2)], {type:'application/json'});
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url; a.download = 'arm_preset.json'; a.click();
+      URL.revokeObjectURL(url);
+    }
+    function loadPreset(){
+      const input = document.createElement('input');
+      input.type = 'file'; input.accept = 'application/json';
+      input.onchange = e => {
+        const file = e.target.files[0];
+        if(!file) return;
+        const reader = new FileReader();
+        reader.onload = ev => { try { applyState(JSON.parse(ev.target.result)); } catch(err){ alert('Invalid preset'); } };
+        reader.readAsText(file);
+      };
+      input.click();
+    }
+
+    // ----- ANIMATION: moves all selected sliders together (one update per frame)-----
+    let animActive = false;
+    let animDirection = 1;
+    let animFrameId = null;
+    let lastTimestamp = 0;
+    const ANIM_SPEED = 120; // units (degrees or length) per second
+
+    function stepAnimation(now){
+      if(!animActive) return;
+      if(!lastTimestamp) { lastTimestamp = now; animFrameId = requestAnimationFrame(stepAnimation); return; }
+      let dt = Math.min(0.033, (now - lastTimestamp) / 1000);
+      lastTimestamp = now;
+      let delta = ANIM_SPEED * dt * animDirection;
+
+      let selected = Array.from(selectedSliders);
+      if(selected.length === 0) selected = ['a1','a2','a3'];
+
+      let anyHit = false;
+      let updates = []; // store {input, newValue}
+      for(let id of selected){
+        let inp = document.getElementById(id);
+        if(!inp || inp.disabled) continue;
+        let min = parseFloat(inp.min), max = parseFloat(inp.max), val = parseFloat(inp.value);
+        let newVal = val + delta;
+        if(newVal >= max) { newVal = max; anyHit = true; }
+        if(newVal <= min) { newVal = min; anyHit = true; }
+        updates.push({ inp, newVal });
+      }
+      if(updates.length === 0){ stopAnimation(); return; }
+      // Apply all updates
+      for(let u of updates) u.inp.value = u.newVal;
+      // Update visualization once
+      updateVisualization();
+      if(anyHit) animDirection *= -1;
+      animFrameId = requestAnimationFrame(stepAnimation);
+    }
+
+    function startAnimation(){
+      if(animActive) return;
+      animActive = true;
+      animDirection = 1;
+      lastTimestamp = 0;
+      // Disable history pushing during animation
+      ignoreHistory = true;
+      animFrameId = requestAnimationFrame(stepAnimation);
+      gid('btnAnim').innerHTML = 'Stop';
+      gid('btnAnim').classList.add('on');
+    }
+    function stopAnimation(){
+      if(animFrameId) cancelAnimationFrame(animFrameId);
+      animActive = false;
+      ignoreHistory = false;
+      // Save current state as one undo point after animation stops
+      pushState();
+      gid('btnAnim').innerHTML = 'Animate';
+      gid('btnAnim').classList.remove('on');
+    }
+    function toggleAnimation(){
+      if(animActive) stopAnimation();
+      else startAnimation();
+    }
+
+    // ----- Slider selection & linking (manual drag) -----
+    let selectedSliders = new Set();
+    let tapping=false, tapT=null, dragStartVal=null, dragRange=null;
+    function updateDeselBtn(){ gid('btnDesel').style.display = selectedSliders.size ? 'inline-block' : 'none'; }
+    function toggleSliderSel(id){
+      let wrap = document.querySelector(`.sw[data-id="${id}"]`);
+      if(!wrap) return;
+      if(selectedSliders.has(id)){ selectedSliders.delete(id); wrap.classList.remove('sel'); }
+      else { selectedSliders.add(id); wrap.classList.add('sel'); }
+      updateDeselBtn();
+    }
+    function clearSelection(){ selectedSliders.forEach(id=>document.querySelector(`.sw[data-id="${id}"]`)?.classList.remove('sel')); selectedSliders.clear(); updateDeselBtn(); }
+
+    function bindSliderLinking(){
+      document.querySelectorAll('.sw').forEach(w=>{
+        let sid = w.dataset.id;
+        let inp = w.querySelector('input');
+        w.addEventListener('pointerdown',()=>{ tapping=true; tapT=setTimeout(()=>tapping=false,220); });
+        w.addEventListener('click',(e)=>{ if(tapping){ toggleSliderSel(sid); tapping=false; clearTimeout(tapT); } });
+        inp.addEventListener('pointerdown',()=>{ dragStartVal=parseFloat(inp.value); dragRange=parseFloat(inp.max)-parseFloat(inp.min); });
+        inp.addEventListener('input',()=>{
+          let cur=parseFloat(inp.value);
+          if(selectedSliders.size>1 && dragStartVal!==null && dragRange>0){
+            let frac=(cur-dragStartVal)/dragRange;
+            dragStartVal=cur;
+            for(let oid of selectedSliders){
+              if(oid===sid) continue;
+              let oth=document.getElementById(oid);
+              if(oth){
+                let oMin=parseFloat(oth.min), oMax=parseFloat(oth.max);
+                let newVal=parseFloat(oth.value)+frac*(oMax-oMin);
+                oth.value=Math.min(oMax,Math.max(oMin,newVal));
+              }
+            }
+            // Update visualization once after batch
+            updateVisualization();
+          }
+          pushState();
+          updateVisualization();
+        });
+      });
+      document.addEventListener('pointerup',()=>{ dragStartVal=null; dragRange=null; });
+    }
+
+    // Keyboard shortcuts
+    function onKey(e){
+      if(e.target.tagName==='INPUT') return;
+      switch(e.key.toLowerCase()){
+        case 'g': toggleGhost(); break;
+        case 'f': toggleFade(); break;
+        case 'r': clearTraces(); break;
+        case 'z': if(e.ctrlKey||e.metaKey) undo(); break;
+        case 'y': if(e.ctrlKey||e.metaKey) redo(); break;
+        case 'c': resetCamera(); break;
+        case 't': toggleGrid(); break;
+        case 'a': toggleAnimation(); break;
+        case 'escape': clearSelection(); break;
+      }
+    }
+
+    // ----- Init -----
+    function init(){
+      gid('btnGhost').addEventListener('click',toggleGhost);
+      gid('btnFade').addEventListener('click',toggleFade);
+      gid('btnGrid').addEventListener('click',toggleGrid);
+      gid('btnClearTraces').addEventListener('click',clearTraces);
+      gid('btnUndo').addEventListener('click',undo);
+      gid('btnRedo').addEventListener('click',redo);
+      gid('btnSavePreset').addEventListener('click',savePreset);
+      gid('btnLoadPreset').addEventListener('click',loadPreset);
+      gid('btnAnim').addEventListener('click',toggleAnimation);
+      gid('btnDesel').addEventListener('click',clearSelection);
+      gid('autoGhostLock').addEventListener('change',e=>autoGhostOnLock=e.target.checked);
+      gid('infiniteTrail').addEventListener('change',e=>{ infiniteTrail=e.target.checked; updateVisualization(); });
+      gid('btnFX').addEventListener('click',()=>flipAxis('x'));
+      gid('btnFY').addEventListener('click',()=>flipAxis('y'));
+      gid('btnFZ').addEventListener('click',()=>flipAxis('z'));
+      gid('camIso').addEventListener('click',()=>setCamera('iso'));
+      gid('camTop').addEventListener('click',()=>setCamera('top'));
+      gid('camFront').addEventListener('click',()=>setCamera('front'));
+      gid('camSide').addEventListener('click',()=>setCamera('side'));
+      gid('camReset').addEventListener('click',resetCamera);
+      for(let i=1;i<=3;i++) lockBtns[i].addEventListener('click',()=>toggleLock(i));
+      for(let id in sliders) sliders[id].addEventListener('input',()=>{ pushState(); updateVisualization(); });
+      bindSliderLinking();
+      window.addEventListener('keydown',onKey);
+      pushState();
+      updateVisualization();
+    }
+    init();
+  })();
 </script>
-
 </body>
 </html>

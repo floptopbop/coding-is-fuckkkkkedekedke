@@ -1,678 +1,1362 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  <title>Articulated Arm Studio</title>
-  <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
-  <style>
-    * {
-      box-sizing: border-box;
-      margin: 0;
-      padding: 0;
-      user-select: none;
-      -webkit-tap-highlight-color: transparent;
-    }
-    :root {
-      --c1: #D5BBD6;
-      --c2: #FDFFB4;
-      --c3: #EBEBEB;
-      --bg: #787878;
-      --panel: #A0A0A0;
-    }
-    html, body {
-      height: 100dvh;
-      background: var(--bg);
-      font-family: 'Courier New', monospace;
-      overflow: hidden;
-    }
-    #shell {
-      display: flex;
-      flex-direction: column;
-      height: 100dvh;
-    }
-    #plot-wrap {
-      flex: 1 1 0;
-      min-height: 0;
-      position: relative;
-    }
-    #plot {
-      width: 100%;
-      height: 100%;
-    }
-    #hud {
-      position: absolute;
-      top: 8px;
-      left: 10px;
-      font-size: 0.72rem;
-      letter-spacing: 0.06em;
-      line-height: 1.75;
-      pointer-events: none;
-      background: rgba(0,0,0,0.2);
-      padding: 4px 8px;
-      border-radius: 6px;
-      backdrop-filter: blur(2px);
-      font-weight: 500;
-    }
-    .row {
-      display: flex;
-      gap: 12px;
-    }
-    .tx { color: #d5bbd6; }
-    .ty { color: #e5e59e; }
-    .tz { color: #cccccc; }
-    .s1c { color: #d5bbd6; }
-    .s2c { color: #e5e59e; }
-    .s3c { color: #cccccc; }
-    #panel {
-      flex: 0 0 auto;
-      background: var(--panel);
-      border-top: 1px solid #888;
-      padding: 6px 10px 10px;
-      display: flex;
-      flex-direction: column;
-      gap: 6px;
-      font-size: 0.7rem;
-    }
-    .action-row {
-      display: flex;
-      gap: 8px;
-      align-items: center;
-      flex-wrap: wrap;
-      padding-bottom: 4px;
-      border-bottom: 1px solid #8a8a8a;
-    }
-    .action-row:last-child {
-      border-bottom: none;
-    }
-    .btn {
-      background: #909090;
-      border: 1px solid #787878;
-      color: #1a1a1a;
-      font-family: 'Courier New', monospace;
-      font-size: 0.7rem;
-      padding: 4px 10px;
-      border-radius: 4px;
-      cursor: pointer;
-      transition: 0.1s ease;
-      white-space: nowrap;
-    }
-    .btn:active { transform: scale(0.96); }
-    .btn.on {
-      border-color: #8a6e8b;
-      background: #D5BBD6;
-      color: #1a1a1a;
-    }
-    .btn.danger {
-      background: #9e7a7a;
-    }
-    .sp { flex: 1; }
-    .checkbox-label {
-      display: inline-flex;
-      align-items: center;
-      gap: 5px;
-      background: #909090;
-      border: 1px solid #787878;
-      padding: 3px 8px;
-      border-radius: 4px;
-      cursor: pointer;
-    }
-    input[type="checkbox"] {
-      margin: 0;
-      width: 14px;
-      height: 14px;
-      cursor: pointer;
-    }
-    .seg {
-      display: grid;
-      grid-template-columns: 50px 1fr 1fr 1fr 36px;
-      align-items: center;
-      gap: 8px;
-      padding: 5px 0;
-    }
-    .seg + .seg {
-      border-top: 1px solid #8a8a8a;
-    }
-    .lk {
-      background: #909090;
-      border: 1px solid #787878;
-      border-radius: 4px;
-      cursor: pointer;
-      font-size: 0.7rem;
-      padding: 4px 0;
-      text-align: center;
-      font-weight: bold;
-    }
-    .lk.on {
-      border-color: #8a6e8b;
-      background: #D5BBD6;
-      color: #2a2a2a;
-    }
-    .length-value {
-      text-align: right;
-      font-weight: bold;
-      color: #eee;
-      background: #6a6a6a;
-      padding: 2px 6px;
-      border-radius: 12px;
-      font-size: 0.7rem;
-    }
-    .sw {
-      border-radius: 4px;
-      border: 1px solid transparent;
-      transition: border 0.1s;
-      position: relative;
-    }
-    .sw.sel {
-      border-color: #8a6e8b;
-      background: rgba(213, 187, 214, 0.22);
-    }
-    .seg.locked .sw {
-      opacity: 0.28;
-      pointer-events: none;
-    }
-    input[type=range] {
-      -webkit-appearance: none;
-      width: 100%;
-      height: 24px;
-      background: transparent;
-    }
-    input[type=range]::-webkit-slider-runnable-track {
-      height: 2px;
-      background: #787878;
-    }
-    input[type=range]::-webkit-slider-thumb {
-      -webkit-appearance: none;
-      height: 14px;
-      width: 14px;
-      border-radius: 50%;
-      margin-top: -6px;
-      border: 2px solid currentColor;
-      background: #A0A0A0;
-    }
-    .c1 input { color: var(--c1); }
-    .c2 input { color: var(--c2); }
-    .c3 input { color: var(--c3); }
-  </style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>ISO_CAGE // VENOM_SYNTHESIS</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;700&display=swap');
+
+        :root {
+            --void: #020306;
+            --phosphor: #729d72;
+            --brass: #b5945b;
+            --brass-glow: #d4b87a;
+            --bleed: #ff3366;
+            --surge: #ffaa00;
+            --cyan-shift: #00e5ff;
+            --deck: #0a0c10;
+            --border: #1c1f26;
+            --grid-line: rgba(181, 148, 91, 0.12);
+        }
+
+        * {
+            box-sizing: border-box;
+            -webkit-tap-highlight-color: transparent;
+            user-select: none;
+        }
+
+        body,
+        html {
+            margin: 0;
+            padding: 0;
+            width: 100%;
+            height: 100%;
+            background: var(--void);
+            color: #c8cdd8;
+            font-family: 'Fira Code', monospace;
+            overflow: hidden;
+            touch-action: none;
+            display: flex;
+            flex-direction: column;
+        }
+
+        #viewport {
+            flex-grow: 1;
+            position: relative;
+            width: 100%;
+            background: radial-gradient(ellipse at center, #070913 0%, var(--void) 75%);
+            filter: contrast(1.25) brightness(1.08) saturate(1.15);
+            overflow: hidden;
+            touch-action: none;
+            cursor: crosshair;
+        }
+
+        #minimap {
+            position: absolute;
+            top: 14px;
+            right: 14px;
+            width: 120px;
+            height: 80px;
+            background: rgba(2, 3, 6, 0.92);
+            border: 1px solid var(--border);
+            border-right: 3px solid var(--brass);
+            border-radius: 4px 0 0 4px;
+            box-shadow: 0 4px 18px rgba(0, 0, 0, 0.85);
+            pointer-events: none;
+            z-index: 5;
+        }
+        #minimap canvas {
+            position: absolute;
+            top: 0; left: 0;
+            width: 100%; height: 100%;
+        }
+        #offscreen-arrow {
+            position: absolute;
+            width: 28px;
+            height: 28px;
+            pointer-events: none;
+            z-index: 20;
+            transform-origin: center center;
+        }
+        #offscreen-arrow::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: var(--brass);
+            clip-path: polygon(50% 0%, 0% 100%, 100% 100%);
+            filter: drop-shadow(0 0 6px rgba(181,148,91,0.8));
+            transition: background 0.2s;
+        }
+        #offscreen-arrow.critical::before {
+            background: var(--bleed);
+            filter: drop-shadow(0 0 8px rgba(255,51,102,0.9));
+        }
+
+        #viewport::before {
+            content: "";
+            position: absolute;
+            inset: 0;
+            background-image: radial-gradient(var(--brass), rgba(181, 148, 91, 0.18) 1px, transparent 38px);
+            background-size: 380px 380px;
+            opacity: 0.08;
+            pointer-events: none;
+            z-index: 1;
+        }
+
+        canvas {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            touch-action: none;
+            mix-blend-mode: screen;
+            z-index: 0;
+        }
+
+        #telemetry {
+            position: absolute;
+            top: 14px;
+            left: 14px;
+            background: rgba(2, 3, 6, 0.92);
+            padding: 13px 16px;
+            border: 1px solid var(--border);
+            font-size: 10px;
+            pointer-events: none;
+            line-height: 1.7;
+            border-left: 3px solid var(--brass);
+            text-shadow: 0 0 4px rgba(181, 148, 91, 0.4);
+            z-index: 5;
+            letter-spacing: 0.5px;
+            box-shadow: 0 4px 18px rgba(0, 0, 0, 0.85);
+            border-radius: 0 4px 4px 0;
+            animation: breathe-border 3.5s ease-in-out infinite;
+            transition: border-left-color 0.6s ease;
+        }
+
+        @keyframes breathe-border {
+            0%,
+            100% {
+                border-left-color: var(--brass);
+                box-shadow: 0 4px 18px rgba(0, 0, 0, 0.85), 0 0 10px rgba(181, 148, 91, 0.25);
+            }
+            50% {
+                border-left-color: var(--brass-glow);
+                box-shadow: 0 4px 18px rgba(0, 0, 0, 0.85), 0 0 20px rgba(181, 148, 91, 0.45);
+            }
+        }
+        #telemetry.critical-telemetry {
+            animation: breathe-border-critical .8s ease-in-out infinite;
+            border-left-color: var(--bleed);
+        }
+        @keyframes breathe-border-critical {
+            0%,
+            100% {
+                border-left-color: var(--bleed);
+                box-shadow: 0 4px 18px rgba(0, 0, 0, 0.85), 0 0 14px rgba(255, 51, 102, 0.5);
+            }
+            50% {
+                border-left-color: #ff5c85;
+                box-shadow: 0 4px 18px rgba(0, 0, 0, 0.85), 0 0 28px rgba(255, 51, 102, 0.7);
+            }
+        }
+
+        #telemetry span.highlight {
+            color: #fff;
+            font-weight: 700;
+            text-shadow: 0 0 6px #fff;
+        }
+        #telemetry span.warn {
+            color: var(--surge);
+            font-weight: 700;
+            text-shadow: 0 0 6px var(--surge);
+        }
+        #telemetry span.crit {
+            color: var(--bleed);
+            font-weight: 700;
+            text-shadow: 0 0 8px var(--bleed);
+        }
+        #telemetry span.brass-text {
+            color: var(--brass);
+            font-weight: 700;
+        }
+
+        /* CRT Scanline Overlay */
+        #viewport::after {
+            content: " ";
+            display: block;
+            position: absolute;
+            inset: 0;
+            background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.3) 50%),
+                linear-gradient(90deg, rgba(255, 0, 0, 0.04), rgba(0, 255, 0, 0.015), rgba(0, 0, 255, 0.04));
+            z-index: 2;
+            background-size: 100% 4px, 6px 100%;
+            pointer-events: none;
+            opacity: 0.7;
+            animation: scanline-flicker 8s linear infinite;
+        }
+        @keyframes scanline-flicker {
+            0%,
+            99.5%,
+            100% {
+                opacity: 0.7;
+            }
+            99.6% {
+                opacity: 0.55;
+            }
+            99.7% {
+                opacity: 0.85;
+            }
+            99.8% {
+                opacity: 0.5;
+            }
+        }
+
+        #control-deck {
+            flex-shrink: 0;
+            width: 100%;
+            background: var(--deck);
+            border-top: 1px solid var(--border);
+            display: flex;
+            flex-direction: column;
+            padding: 12px 16px 16px;
+            gap: 10px;
+            z-index: 10;
+            box-shadow: 0 -4px 20px rgba(0, 0, 0, 0.8);
+        }
+
+        .hud-row {
+            display: flex;
+            justify-content: space-between;
+            font-size: 10px;
+            letter-spacing: 0.5px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.04);
+            padding-bottom: 5px;
+            color: #8a92a6;
+        }
+        .hud-row span {
+            color: var(--brass);
+            font-weight: 700;
+        }
+
+        .slider-group {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 10px;
+        }
+        .slider-group span.label {
+            font-size: 10px;
+            width: 120px;
+            flex-shrink: 0;
+            letter-spacing: 0.3px;
+            color: #8a92a6;
+        }
+        .slider-group .val {
+            width: 48px;
+            text-align: right;
+            font-size: 11px;
+            color: var(--brass);
+            font-weight: 700;
+            flex-shrink: 0;
+            text-shadow: 0 0 4px rgba(181, 148, 91, 0.5);
+        }
+
+        input[type=range] {
+            appearance: none;
+            -webkit-appearance: none;
+            background: #060709;
+            height: 4px;
+            flex-grow: 1;
+            border: 1px solid #14171c;
+            border-radius: 2px;
+            cursor: pointer;
+        }
+        input[type=range]::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            width: 16px;
+            height: 24px;
+            background: var(--brass);
+            cursor: pointer;
+            border: 1px solid #fff;
+            border-radius: 2px;
+            box-shadow: 0 0 12px rgba(181, 148, 91, 0.55);
+            transition: box-shadow 0.2s ease;
+        }
+        input[type=range]::-webkit-slider-thumb:hover {
+            box-shadow: 0 0 20px rgba(181, 148, 91, 0.8);
+        }
+        input[type=range]::-moz-range-thumb {
+            width: 16px;
+            height: 24px;
+            background: var(--brass);
+            cursor: pointer;
+            border: 1px solid #fff;
+            border-radius: 2px;
+            box-shadow: 0 0 12px rgba(181, 148, 91, 0.55);
+        }
+
+        .action-container {
+            display: flex;
+            gap: 10px;
+            margin-top: 4px;
+        }
+        .btn {
+            background: #0f1115;
+            border: 1px solid var(--border);
+            color: rgba(212, 212, 212, 0.8);
+            font-family: 'Fira Code', monospace;
+            font-size: 10px;
+            padding: 14px 8px;
+            cursor: pointer;
+            flex: 1;
+            text-align: center;
+            font-weight: bold;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            transition: all 0.18s ease;
+            border-radius: 2px;
+            touch-action: manipulation;
+            position: relative;
+            overflow: hidden;
+        }
+        .btn:hover {
+            background: #161a20;
+            border-color: #2a2f38;
+        }
+        .btn:active {
+            background: #1a1e24;
+            transform: scale(0.97);
+        }
+        .btn.active {
+            background: var(--brass);
+            color: #000;
+            box-shadow: 0 0 18px rgba(181, 148, 91, 0.5);
+            border-color: var(--brass);
+        }
+        #slam-trigger {
+            color: var(--bleed);
+            border-color: rgba(255, 51, 102, 0.35);
+            text-shadow: 0 0 4px rgba(255, 51, 102, 0.4);
+        }
+        #slam-trigger:hover {
+            background: rgba(255, 51, 102, 0.1);
+            box-shadow: 0 0 22px rgba(255, 51, 102, 0.5);
+            border-color: var(--bleed);
+            color: #fff;
+        }
+        #slam-trigger:active {
+            background: rgba(255, 51, 102, 0.2);
+            box-shadow: 0 0 32px rgba(255, 51, 102, 0.7);
+            transform: scale(0.95);
+        }
+
+        /* Subtle pulsing dot on slam button */
+        #slam-trigger::after {
+            content: '';
+            position: absolute;
+            top: 6px;
+            right: 8px;
+            width: 5px;
+            height: 5px;
+            border-radius: 50%;
+            background: var(--bleed);
+            box-shadow: 0 0 6px var(--bleed);
+            animation: pulse-dot 2s ease-in-out infinite;
+            pointer-events: none;
+        }
+        @keyframes pulse-dot {
+            0%,
+            100% {
+                opacity: 0.5;
+                transform: scale(1);
+            }
+            50% {
+                opacity: 1;
+                transform: scale(1.8);
+            }
+        }
+
+        @media (max-width: 500px) {
+            #telemetry {
+                font-size: 9px;
+                padding: 10px 12px;
+                top: 8px;
+                left: 8px;
+            }
+            .slider-group span.label {
+                width: 90px;
+                font-size: 9px;
+            }
+            .btn {
+                font-size: 9px;
+                padding: 12px 6px;
+                letter-spacing: 0.5px;
+            }
+            #control-deck {
+                padding: 10px 10px 14px;
+                gap: 7px;
+            }
+        }
+    </style>
 </head>
 <body>
-<div id="shell">
-  <div id="plot-wrap">
-    <div id="plot"></div>
-    <div id="hud">
-      <div class="row">
-        <span class="tx" id="hx">x 0.0</span>
-        <span class="ty" id="hy">y 0.0</span>
-        <span class="tz" id="hz">z 0.0</span>
-      </div>
-      <div class="row">
-        <span class="s1c" id="ha1">1 --/--</span>
-        <span class="s2c" id="ha2">2 --/--</span>
-        <span class="s3c" id="ha3">3 --/--</span>
-      </div>
-      <div class="row" id="lenHud" style="font-size:0.65rem; gap:8px;"></div>
-    </div>
-  </div>
 
-  <div id="panel">
-    <div class="action-row">
-      <button class="btn" id="btnGhost">Ghost</button>
-      <button class="btn on" id="btnFade">Fade trail</button>
-      <button class="btn" id="btnGrid">Grid off</button>
-      <button class="btn" id="btnDesel" style="display:none">Deselect</button>
-      <div class="sp"></div>
-      <button class="btn danger" id="btnClearTraces">Clear trails</button>
-    </div>
-    <div class="action-row">
-      <button class="btn" id="btnUndo">Undo</button>
-      <button class="btn" id="btnRedo">Redo</button>
-      <button class="btn" id="btnSavePreset">Save preset</button>
-      <button class="btn" id="btnLoadPreset">Load preset</button>
-      <label class="checkbox-label">
-        <input type="checkbox" id="autoGhostLock"> Auto-ghost on lock
-      </label>
-      <label class="checkbox-label">
-        <input type="checkbox" id="infiniteTrail"> Infinite trail
-      </label>
-      <div class="sp"></div>
-      <button class="btn" id="btnAnim">Animate</button>
-    </div>
-    <div class="action-row">
-      <button class="btn" id="btnFX">+-X</button>
-      <button class="btn" id="btnFY">+-Y</button>
-      <button class="btn" id="btnFZ">+-Z</button>
-      <button class="btn" id="camIso">ISO</button>
-      <button class="btn" id="camTop">TOP</button>
-      <button class="btn" id="camFront">FRT</button>
-      <button class="btn" id="camSide">SID</button>
-      <button class="btn" id="camReset">Reset cam</button>
+    <div id="viewport">
+        <div id="telemetry">
+            ORRERY_STATE: <span class="highlight">UNBOUND_KINEMATICS</span><br>
+            ROOF_STATUS: <span class="warn">BREACHED</span><br>
+            STIFFNESS (k): <span id="k-readout" class="brass-text">1.10</span><br>
+            GRAVITY: <span id="g-readout" class="highlight">1.80</span><br>
+            ORBIT_RADIUS: <span id="size-readout" class="brass-text">40 px</span><br>
+            POTENTIAL_ENG: <span id="us-val" class="warn">0.00 J</span><br>
+            INTEGRITY: <span id="integrity" class="warn">NOMINAL</span><br>
+            DECAY_RATE: <span id="decay-readout" style="color:#666;">0.00005</span>
+        </div>
+        <canvas id="mainCanvas"></canvas>
+        <div id="minimap">
+            <canvas id="minimapCanvas"></canvas>
+        </div>
+        <div id="offscreen-arrow" style="display:none;"></div>
     </div>
 
-    <div class="seg" id="sg1">
-      <button class="lk" id="lk1">Lock</button>
-      <div class="sw c1" data-id="a1"><input type="range" id="a1" min="0" max="360" value="45"></div>
-      <div class="sw c1" data-id="p1"><input type="range" id="p1" min="0" max="360" value="45"></div>
-      <div class="sw c1" data-id="l1"><input type="range" id="l1" min="1" max="25" value="10"></div>
-      <span class="length-value" id="len1Val">10.0</span>
+    <div id="control-deck">
+        <div class="hud-row">
+            <div>EPHEMERIS: <span>GEOCENTRIC_MECHANICS</span></div>
+            <div>GYRO_STATE: <span id="gyro-status" style="color:#555;">DISCONNECTED</span></div>
+        </div>
+
+        <div class="slider-group">
+            <span class="label">ORBITAL_STIFF (k)</span>
+            <input type="range" id="k-slider" min="0.05" max="5.00" step="0.05" value="1.10">
+            <span class="val" id="k-val">1.10</span>
+        </div>
+
+        <div class="slider-group">
+            <span class="label">GRAVITATIONAL (g)</span>
+            <input type="range" id="g-slider" min="0.05" max="6.00" step="0.05" value="1.80">
+            <span class="val" id="g-val">1.80</span>
+        </div>
+
+        <div class="slider-group">
+            <span class="label">ORBIT_RADIUS (px)</span>
+            <input type="range" id="size-slider" min="8" max="420" step="5" value="40">
+            <span class="val" id="size-val">40</span>
+        </div>
+
+        <div class="action-container">
+            <button class="btn" id="gyro-toggle">ENGAGE GYRO</button>
+            <button class="btn" id="slam-trigger">KINETIC STRIKE</button>
+        </div>
     </div>
-    <div class="seg" id="sg2">
-      <button class="lk" id="lk2">Lock</button>
-      <div class="sw c2" data-id="a2"><input type="range" id="a2" min="0" max="360" value="90"></div>
-      <div class="sw c2" data-id="p2"><input type="range" id="p2" min="0" max="360" value="90"></div>
-      <div class="sw c2" data-id="l2"><input type="range" id="l2" min="1" max="25" value="7"></div>
-      <span class="length-value" id="len2Val">7.0</span>
-    </div>
-    <div class="seg" id="sg3">
-      <button class="lk" id="lk3">Lock</button>
-      <div class="sw c3" data-id="a3"><input type="range" id="a3" min="0" max="360" value="45"></div>
-      <div class="sw c3" data-id="p3"><input type="range" id="p3" min="0" max="360" value="45"></div>
-      <div class="sw c3" data-id="l3"><input type="range" id="l3" min="1" max="25" value="5"></div>
-      <span class="length-value" id="len3Val">5.0</span>
-    </div>
-  </div>
-</div>
 
-<script>
-  (function(){
-    // ----- DOM elements -----
-    const plotDiv = document.getElementById('plot');
-    const sliders = {
-      a1:gid('a1'), p1:gid('p1'), l1:gid('l1'),
-      a2:gid('a2'), p2:gid('p2'), l2:gid('l2'),
-      a3:gid('a3'), p3:gid('p3'), l3:gid('l3')
-    };
-    const lockBtns = {1:gid('lk1'),2:gid('lk2'),3:gid('lk3')};
-    const segDivs = {1:gid('sg1'),2:gid('sg2'),3:gid('sg3')};
-    const lenSpans = {1:gid('len1Val'),2:gid('len2Val'),3:gid('len3Val')};
-    const hudLen = gid('lenHud');
-    function gid(id){ return document.getElementById(id); }
+    <script>
+        (function() {
+            const canvas = document.getElementById('mainCanvas');
+            const container = document.getElementById('viewport');
+            const ctx = canvas.getContext('2d');
+            const telemetryEl = document.getElementById('telemetry');
 
-    // ----- State -----
-    let traces = { x1:[],y1:[],z1:[], x2:[],y2:[],z2:[], x3:[],y3:[],z3:[] };
-    let locks = {1:false,2:false,3:false};
-    let lockedPos = {1:null,2:null,3:null};
-    let fadeMode = true;
-    let ghostSnap = null;
-    let flip = { x:1, y:1, z:1 };
-    let showGrid = false;
-    let infiniteTrail = false;
-    let autoGhostOnLock = false;
-    let currentCam = { eye:{ x:1.5, y:1.5, z:1.2 } };
-    const cameraPresets = {
-      iso:  { eye:{ x:1.5, y:1.5, z:1.2 } },
-      top:  { eye:{ x:0,   y:0,   z:2.5 } },
-      front:{ eye:{ x:0,   y:2.5, z:0   } },
-      side: { eye:{ x:2.5, y:0,   z:0   } }
-    };
-
-    // Undo/Redo stacks
-    let undoStack = [], redoStack = [];
-    let ignoreHistory = false;
-    const MAX_HISTORY = 40;
-
-    function captureState(){
-      return {
-        a1: sliders.a1.value, p1: sliders.p1.value, l1: sliders.l1.value,
-        a2: sliders.a2.value, p2: sliders.p2.value, l2: sliders.l2.value,
-        a3: sliders.a3.value, p3: sliders.p3.value, l3: sliders.l3.value,
-        flipX: flip.x, flipY: flip.y, flipZ: flip.z,
-        fade: fadeMode
-      };
-    }
-    function pushState(){
-      if(ignoreHistory) return;
-      const cur = captureState();
-      undoStack.push(cur);
-      if(undoStack.length > MAX_HISTORY) undoStack.shift();
-      redoStack = [];
-    }
-    function applyState(state){
-      ignoreHistory = true;
-      sliders.a1.value = state.a1; sliders.p1.value = state.p1; sliders.l1.value = state.l1;
-      sliders.a2.value = state.a2; sliders.p2.value = state.p2; sliders.l2.value = state.l2;
-      sliders.a3.value = state.a3; sliders.p3.value = state.p3; sliders.l3.value = state.l3;
-      flip.x = state.flipX; flip.y = state.flipY; flip.z = state.flipZ;
-      fadeMode = state.fade;
-      gid('btnFX').classList.toggle('on', flip.x === -1);
-      gid('btnFY').classList.toggle('on', flip.y === -1);
-      gid('btnFZ').classList.toggle('on', flip.z === -1);
-      gid('btnFade').classList.toggle('on', fadeMode);
-      ignoreHistory = false;
-      updateLengthDisplays();
-      updateVisualization();
-    }
-    function undo(){ if(undoStack.length){ redoStack.push(captureState()); applyState(undoStack.pop()); } }
-    function redo(){ if(redoStack.length){ undoStack.push(captureState()); applyState(redoStack.pop()); } }
-
-    // ----- Helpers -----
-    function getVal(id){ return parseFloat(sliders[id].value); }
-    function toRad(d){ return d * Math.PI / 180; }
-    function applyFlip(p){ return { x:p.x*flip.x, y:p.y*flip.y, z:p.z*flip.z }; }
-    function updateLengthDisplays(){
-      lenSpans[1].innerText = getVal('l1').toFixed(1);
-      lenSpans[2].innerText = getVal('l2').toFixed(1);
-      lenSpans[3].innerText = getVal('l3').toFixed(1);
-      hudLen.innerHTML = 'L1:'+getVal('l1').toFixed(1)+'  L2:'+getVal('l2').toFixed(1)+'  L3:'+getVal('l3').toFixed(1);
-    }
-
-    // Kinematics (raw, no flip)
-    function computeChainRaw(){
-      const a1=toRad(getVal('a1')), p1=toRad(getVal('p1')), l1=getVal('l1');
-      const a2=toRad(getVal('a2')), p2=toRad(getVal('p2')), l2=getVal('l2');
-      const a3=toRad(getVal('a3')), p3=toRad(getVal('p3')), l3=getVal('l3');
-
-      let x1 = l1*Math.sin(p1)*Math.cos(a1);
-      let y1 = l1*Math.sin(p1)*Math.sin(a1);
-      let z1 = -l1*Math.cos(p1);
-      if(locks[1]) { if(!lockedPos[1]) lockedPos[1]={x:x1,y:y1,z:z1}; else { x1=lockedPos[1].x; y1=lockedPos[1].y; z1=lockedPos[1].z; } }
-      else lockedPos[1]=null;
-
-      let x2 = x1 + l2*Math.sin(p2)*Math.cos(a2+a1);
-      let y2 = y1 + l2*Math.sin(p2)*Math.sin(a2+a1);
-      let z2 = z1 - l2*Math.cos(p2);
-      if(locks[2]) { if(!lockedPos[2]) lockedPos[2]={x:x2,y:y2,z:z2}; else { x2=lockedPos[2].x; y2=lockedPos[2].y; z2=lockedPos[2].z; } }
-      else lockedPos[2]=null;
-
-      let x3 = x2 + l3*Math.sin(p3)*Math.cos(a3+a2+a1);
-      let y3 = y2 + l3*Math.sin(p3)*Math.sin(a3+a2+a1);
-      let z3 = z2 - l3*Math.cos(p3);
-      if(locks[3]) { if(!lockedPos[3]) lockedPos[3]={x:x3,y:y3,z:z3}; else { x3=lockedPos[3].x; y3=lockedPos[3].y; z3=lockedPos[3].z; } }
-      else lockedPos[3]=null;
-      return { x1,y1,z1, x2,y2,z2, x3,y3,z3 };
-    }
-
-    // Trail builder
-    function buildTrailData(){
-      const segs = [
-        {x:traces.x1,y:traces.y1,z:traces.z1, col:'#D5BBD6'},
-        {x:traces.x2,y:traces.y2,z:traces.z2, col:'#FDFFB4'},
-        {x:traces.x3,y:traces.y3,z:traces.z3, col:'#EBEBEB'}
-      ];
-      if(!fadeMode){
-        return segs.filter(s=>s.x.length>1).map(s => ({
-          x:s.x.map(v=>v*flip.x), y:s.y.map(v=>v*flip.y), z:s.z.map(v=>v*flip.z),
-          type:'scatter3d', mode:'lines', line:{color:s.col, width:1, opacity:0.12}
-        }));
-      }
-      const out=[];
-      const N=7;
-      for(let s of segs){
-        let len=s.x.length; if(len<2) continue;
-        let chunk=Math.max(2, Math.ceil(len/N));
-        for(let i=0; i<N; i++){
-          let st=i*chunk, ed=Math.min(len, (i+1)*chunk+1);
-          if(st>=len) break;
-          let op=0.05+(i/N)*0.22;
-          out.push({ x:s.x.slice(st,ed).map(v=>v*flip.x), y:s.y.slice(st,ed).map(v=>v*flip.y), z:s.z.slice(st,ed).map(v=>v*flip.z),
-            type:'scatter3d', mode:'lines', line:{color:s.col, width:1.2, opacity:op} });
-        }
-      }
-      return out;
-    }
-    function buildGhost(){
-      if(!ghostSnap) return [];
-      const g=ghostSnap;
-      const p0=applyFlip({x:0,y:0,z:0}), p1=applyFlip({x:g.x1,y:g.y1,z:g.z1});
-      const p2=applyFlip({x:g.x2,y:g.y2,z:g.z2}), p3=applyFlip({x:g.x3,y:g.y3,z:g.z3});
-      let out=[];
-      [[p0,p1,'#D5BBD6'],[p1,p2,'#FDFFB4'],[p2,p3,'#EBEBEB']].forEach(([a,b,col])=>{
-        out.push({ x:[a.x,b.x], y:[a.y,b.y], z:[a.z,b.z], type:'scatter3d', mode:'lines+markers',
-          marker:{size:4,color:col,opacity:0.4}, line:{color:col,width:3,dash:'dot'}, opacity:0.4 });
-      });
-      out.push({ x:[p3.x], y:[p3.y], z:[p3.z], type:'scatter3d', mode:'markers', marker:{size:6,color:'#fff',opacity:0.4} });
-      return out;
-    }
-    function buildLockMarkers(){
-      let m=[];
-      for(let i=1;i<=3;i++) if(locks[i] && lockedPos[i]){
-        let p=applyFlip(lockedPos[i]);
-        m.push({ x:[p.x], y:[p.y], z:[p.z], type:'scatter3d', mode:'markers', marker:{size:7,color:'#FDFFB4',symbol:'diamond',opacity:0.9} });
-      }
-      return m;
-    }
-
-    function updateVisualization(){
-      const raw = computeChainRaw();
-      const {x1,y1,z1,x2,y2,z2,x3,y3,z3} = raw;
-      if(infiniteTrail || traces.x1.length<500){
-        traces.x1.push(x1); traces.y1.push(y1); traces.z1.push(z1);
-        traces.x2.push(x2); traces.y2.push(y2); traces.z2.push(z2);
-        traces.x3.push(x3); traces.y3.push(y3); traces.z3.push(z3);
-        if(!infiniteTrail && traces.x1.length>300){
-          ['x1','y1','z1','x2','y2','z2','x3','y3','z3'].forEach(k=>traces[k]=traces[k].slice(-300));
-        }
-      }
-      const tipF = applyFlip({x:x3,y:y3,z:z3});
-      gid('hx').innerText='x '+(tipF.x>=0?' ':'')+tipF.x.toFixed(1);
-      gid('hy').innerText='y '+(tipF.y>=0?' ':'')+tipF.y.toFixed(1);
-      gid('hz').innerText='z '+(tipF.z>=0?' ':'')+tipF.z.toFixed(1);
-      gid('ha1').innerText='1 '+Math.round(getVal('a1'))+'deg '+Math.round(getVal('p1'))+'deg';
-      gid('ha2').innerText='2 '+Math.round(getVal('a2'))+'deg '+Math.round(getVal('p2'))+'deg';
-      gid('ha3').innerText='3 '+Math.round(getVal('a3'))+'deg '+Math.round(getVal('p3'))+'deg';
-      updateLengthDisplays();
-
-      const p0f=applyFlip({x:0,y:0,z:0}), p1f=applyFlip({x:x1,y:y1,z:z1});
-      const p2f=applyFlip({x:x2,y:y2,z:z2}), p3f=applyFlip({x:x3,y:y3,z:z3});
-      const armTraces = [
-        {x:[p0f.x,p1f.x], y:[p0f.y,p1f.y], z:[p0f.z,p1f.z], type:'scatter3d', mode:'lines+markers', marker:{size:5,color:'#D5BBD6'}, line:{color:'#D5BBD6',width:7}},
-        {x:[p1f.x,p2f.x], y:[p1f.y,p2f.y], z:[p1f.z,p2f.z], type:'scatter3d', mode:'lines+markers', marker:{size:5,color:'#FDFFB4'}, line:{color:'#FDFFB4',width:5}},
-        {x:[p2f.x,p3f.x], y:[p2f.y,p3f.y], z:[p2f.z,p3f.z], type:'scatter3d', mode:'lines+markers', marker:{size:5,color:'#EBEBEB'}, line:{color:'#EBEBEB',width:4}}
-      ];
-      const tipMarker = [{x:[p3f.x], y:[p3f.y], z:[p3f.z], type:'scatter3d', mode:'markers', marker:{size:8,color:'#fff',opacity:0.95}}];
-      const originMarker = [{x:[0], y:[0], z:[0], type:'scatter3d', mode:'markers', marker:{size:4,color:'#555'}}];
-      const totalLen = getVal('l1')+getVal('l2')+getVal('l3');
-      const rangeBound = Math.max(18, totalLen*1.2);
-      const plotData = [...buildTrailData(), ...buildGhost(), ...originMarker, ...armTraces, ...tipMarker, ...buildLockMarkers()];
-      const layout = {
-        paper_bgcolor:'#787878', plot_bgcolor:'#787878',
-        scene: {
-          camera: currentCam,
-          xaxis: { range:[-rangeBound,rangeBound], showgrid:showGrid, zeroline:false, showticklabels:false, showspikes:false },
-          yaxis: { range:[-rangeBound,rangeBound], showgrid:showGrid, zeroline:false, showticklabels:false, showspikes:false },
-          zaxis: { range:[-rangeBound,rangeBound], showgrid:showGrid, zeroline:false, showticklabels:false, showspikes:false },
-          bgcolor:'#787878'
-        },
-        showlegend:false, margin:{l:0,r:0,b:0,t:0},
-        modebar:{orientation:'v', bgcolor:'transparent', color:'#909090', activecolor:'#D5BBD6'}
-      };
-      Plotly.react(plotDiv, plotData, layout);
-    }
-
-    // ----- UI Actions -----
-    function toggleGhost(){
-      if(ghostSnap){ ghostSnap=null; gid('btnGhost').classList.remove('on'); }
-      else { ghostSnap = computeChainRaw(); gid('btnGhost').classList.add('on'); }
-      updateVisualization();
-    }
-    function toggleFade(){ fadeMode=!fadeMode; gid('btnFade').classList.toggle('on',fadeMode); pushState(); updateVisualization(); }
-    function toggleGrid(){ showGrid=!showGrid; gid('btnGrid').innerText=showGrid?'Grid on':'Grid off'; updateVisualization(); }
-    function flipAxis(ax){ flip[ax]*=-1; gid('btnF'+ax.toUpperCase()).classList.toggle('on',flip[ax]===-1); pushState(); updateVisualization(); }
-    function setCamera(name){ currentCam = cameraPresets[name]; updateVisualization(); }
-    function resetCamera(){ currentCam = cameraPresets.iso; updateVisualization(); }
-    function clearTraces(){ traces = { x1:[],y1:[],z1:[], x2:[],y2:[],z2:[], x3:[],y3:[],z3:[] }; updateVisualization(); }
-    function toggleLock(seg){
-      locks[seg]=!locks[seg];
-      if(!locks[seg]) lockedPos[seg]=null;
-      lockBtns[seg].innerText = locks[seg]?'Unlock':'Lock';
-      lockBtns[seg].classList.toggle('on',locks[seg]);
-      segDivs[seg].classList.toggle('locked',locks[seg]);
-      if(autoGhostOnLock && locks[seg]) { ghostSnap = computeChainRaw(); gid('btnGhost').classList.add('on'); }
-      pushState(); updateVisualization();
-    }
-    function savePreset(){
-      const state = captureState();
-      const blob = new Blob([JSON.stringify(state,null,2)], {type:'application/json'});
-      const url = URL.createObjectURL(blob);
-      const a = document.createElement('a');
-      a.href = url; a.download = 'arm_preset.json'; a.click();
-      URL.revokeObjectURL(url);
-    }
-    function loadPreset(){
-      const input = document.createElement('input');
-      input.type = 'file'; input.accept = 'application/json';
-      input.onchange = e => {
-        const file = e.target.files[0];
-        if(!file) return;
-        const reader = new FileReader();
-        reader.onload = ev => { try { applyState(JSON.parse(ev.target.result)); } catch(err){ alert('Invalid preset'); } };
-        reader.readAsText(file);
-      };
-      input.click();
-    }
-
-    // ----- ANIMATION: moves all selected sliders together (one update per frame)-----
-    let animActive = false;
-    let animDirection = 1;
-    let animFrameId = null;
-    let lastTimestamp = 0;
-    const ANIM_SPEED = 120; // units (degrees or length) per second
-
-    function stepAnimation(now){
-      if(!animActive) return;
-      if(!lastTimestamp) { lastTimestamp = now; animFrameId = requestAnimationFrame(stepAnimation); return; }
-      let dt = Math.min(0.033, (now - lastTimestamp) / 1000);
-      lastTimestamp = now;
-      let delta = ANIM_SPEED * dt * animDirection;
-
-      let selected = Array.from(selectedSliders);
-      if(selected.length === 0) selected = ['a1','a2','a3'];
-
-      let anyHit = false;
-      let updates = []; // store {input, newValue}
-      for(let id of selected){
-        let inp = document.getElementById(id);
-        if(!inp || inp.disabled) continue;
-        let min = parseFloat(inp.min), max = parseFloat(inp.max), val = parseFloat(inp.value);
-        let newVal = val + delta;
-        if(newVal >= max) { newVal = max; anyHit = true; }
-        if(newVal <= min) { newVal = min; anyHit = true; }
-        updates.push({ inp, newVal });
-      }
-      if(updates.length === 0){ stopAnimation(); return; }
-      // Apply all updates
-      for(let u of updates) u.inp.value = u.newVal;
-      // Update visualization once
-      updateVisualization();
-      if(anyHit) animDirection *= -1;
-      animFrameId = requestAnimationFrame(stepAnimation);
-    }
-
-    function startAnimation(){
-      if(animActive) return;
-      animActive = true;
-      animDirection = 1;
-      lastTimestamp = 0;
-      // Disable history pushing during animation
-      ignoreHistory = true;
-      animFrameId = requestAnimationFrame(stepAnimation);
-      gid('btnAnim').innerHTML = 'Stop';
-      gid('btnAnim').classList.add('on');
-    }
-    function stopAnimation(){
-      if(animFrameId) cancelAnimationFrame(animFrameId);
-      animActive = false;
-      ignoreHistory = false;
-      // Save current state as one undo point after animation stops
-      pushState();
-      gid('btnAnim').innerHTML = 'Animate';
-      gid('btnAnim').classList.remove('on');
-    }
-    function toggleAnimation(){
-      if(animActive) stopAnimation();
-      else startAnimation();
-    }
-
-    // ----- Slider selection & linking (manual drag) -----
-    let selectedSliders = new Set();
-    let tapping=false, tapT=null, dragStartVal=null, dragRange=null;
-    function updateDeselBtn(){ gid('btnDesel').style.display = selectedSliders.size ? 'inline-block' : 'none'; }
-    function toggleSliderSel(id){
-      let wrap = document.querySelector(`.sw[data-id="${id}"]`);
-      if(!wrap) return;
-      if(selectedSliders.has(id)){ selectedSliders.delete(id); wrap.classList.remove('sel'); }
-      else { selectedSliders.add(id); wrap.classList.add('sel'); }
-      updateDeselBtn();
-    }
-    function clearSelection(){ selectedSliders.forEach(id=>document.querySelector(`.sw[data-id="${id}"]`)?.classList.remove('sel')); selectedSliders.clear(); updateDeselBtn(); }
-
-    function bindSliderLinking(){
-      document.querySelectorAll('.sw').forEach(w=>{
-        let sid = w.dataset.id;
-        let inp = w.querySelector('input');
-        w.addEventListener('pointerdown',()=>{ tapping=true; tapT=setTimeout(()=>tapping=false,220); });
-        w.addEventListener('click',(e)=>{ if(tapping){ toggleSliderSel(sid); tapping=false; clearTimeout(tapT); } });
-        inp.addEventListener('pointerdown',()=>{ dragStartVal=parseFloat(inp.value); dragRange=parseFloat(inp.max)-parseFloat(inp.min); });
-        inp.addEventListener('input',()=>{
-          let cur=parseFloat(inp.value);
-          if(selectedSliders.size>1 && dragStartVal!==null && dragRange>0){
-            let frac=(cur-dragStartVal)/dragRange;
-            dragStartVal=cur;
-            for(let oid of selectedSliders){
-              if(oid===sid) continue;
-              let oth=document.getElementById(oid);
-              if(oth){
-                let oMin=parseFloat(oth.min), oMax=parseFloat(oth.max);
-                let newVal=parseFloat(oth.value)+frac*(oMax-oMin);
-                oth.value=Math.min(oMax,Math.max(oMin,newVal));
-              }
+            // --- Minimap ---
+            const mmCanvas = document.getElementById('minimapCanvas');
+            const mmCtx = mmCanvas.getContext('2d');
+            function resizeMinimap() {
+                const mmEl = document.getElementById('minimap');
+                mmCanvas.width = mmEl.clientWidth;
+                mmCanvas.height = mmEl.clientHeight;
             }
-            // Update visualization once after batch
-            updateVisualization();
-          }
-          pushState();
-          updateVisualization();
-        });
-      });
-      document.addEventListener('pointerup',()=>{ dragStartVal=null; dragRange=null; });
-    }
 
-    // Keyboard shortcuts
-    function onKey(e){
-      if(e.target.tagName==='INPUT') return;
-      switch(e.key.toLowerCase()){
-        case 'g': toggleGhost(); break;
-        case 'f': toggleFade(); break;
-        case 'r': clearTraces(); break;
-        case 'z': if(e.ctrlKey||e.metaKey) undo(); break;
-        case 'y': if(e.ctrlKey||e.metaKey) redo(); break;
-        case 'c': resetCamera(); break;
-        case 't': toggleGrid(); break;
-        case 'a': toggleAnimation(); break;
-        case 'escape': clearSelection(); break;
-      }
-    }
+            // --- Off-screen arrow tracker ---
+            const arrowEl = document.getElementById('offscreen-arrow');
 
-    // ----- Init -----
-    function init(){
-      gid('btnGhost').addEventListener('click',toggleGhost);
-      gid('btnFade').addEventListener('click',toggleFade);
-      gid('btnGrid').addEventListener('click',toggleGrid);
-      gid('btnClearTraces').addEventListener('click',clearTraces);
-      gid('btnUndo').addEventListener('click',undo);
-      gid('btnRedo').addEventListener('click',redo);
-      gid('btnSavePreset').addEventListener('click',savePreset);
-      gid('btnLoadPreset').addEventListener('click',loadPreset);
-      gid('btnAnim').addEventListener('click',toggleAnimation);
-      gid('btnDesel').addEventListener('click',clearSelection);
-      gid('autoGhostLock').addEventListener('change',e=>autoGhostOnLock=e.target.checked);
-      gid('infiniteTrail').addEventListener('change',e=>{ infiniteTrail=e.target.checked; updateVisualization(); });
-      gid('btnFX').addEventListener('click',()=>flipAxis('x'));
-      gid('btnFY').addEventListener('click',()=>flipAxis('y'));
-      gid('btnFZ').addEventListener('click',()=>flipAxis('z'));
-      gid('camIso').addEventListener('click',()=>setCamera('iso'));
-      gid('camTop').addEventListener('click',()=>setCamera('top'));
-      gid('camFront').addEventListener('click',()=>setCamera('front'));
-      gid('camSide').addEventListener('click',()=>setCamera('side'));
-      gid('camReset').addEventListener('click',resetCamera);
-      for(let i=1;i<=3;i++) lockBtns[i].addEventListener('click',()=>toggleLock(i));
-      for(let id in sliders) sliders[id].addEventListener('input',()=>{ pushState(); updateVisualization(); });
-      bindSliderLinking();
-      window.addEventListener('keydown',onKey);
-      pushState();
-      updateVisualization();
-    }
-    init();
-  })();
-</script>
+            // --- DOM refs ---
+            const elUs = document.getElementById('us-val');
+            const elIntegrity = document.getElementById('integrity');
+            const elKReadout = document.getElementById('k-readout');
+            const elKVal = document.getElementById('k-val');
+            const elGReadout = document.getElementById('g-readout');
+            const elGVal = document.getElementById('g-val');
+            const elSizeReadout = document.getElementById('size-readout');
+            const elSizeVal = document.getElementById('size-val');
+            const elGyroStatus = document.getElementById('gyro-status');
+            const elDecayReadout = document.getElementById('decay-readout');
+            const kSlider = document.getElementById('k-slider');
+            const gSlider = document.getElementById('g-slider');
+            const sizeSlider = document.getElementById('size-slider');
+            const gyroBtn = document.getElementById('gyro-toggle');
+            const slamBtn = document.getElementById('slam-trigger');
+
+            // --- Engine state ---
+            let engine = {
+                k: 1.10,
+                damping: 0.94,
+                gravity: 1.80,
+                cageSize: 40,
+                totalUs: 0,
+                gyro: { x: 0, y: 0, active: false },
+                pointer: { x: 0, y: 0, active: false, targetNode: null },
+                shake: 0,
+                entropy: 0,
+                decay_rate: 0.00005,
+                epicycleRotation: 0,
+                resonancePulses: [],
+                breathPhase: 0,
+            };
+
+            // --- Classes ---
+            class Node {
+                constructor(x, y) {
+                    this.x = x;
+                    this.y = y;
+                    this.vx = 0;
+                    this.vy = 0;
+                    this.historicalTrail = [];
+                    this.ghostEchoes = [];
+                }
+                recordPosition() {
+                    this.historicalTrail.push({ x: this.x, y: this.y, age: 0 });
+                    if (this.historicalTrail.length > 28) this.historicalTrail.shift();
+                    // Update ages
+                    this.historicalTrail.forEach(p => p.age++);
+                }
+            }
+
+            class PureSpring {
+                constructor(nodeA, nodeB, restLength, isDiagonal = false) {
+                    this.a = nodeA;
+                    this.b = nodeB;
+                    this.restLength = restLength;
+                    this.isDiagonal = isDiagonal;
+                    this.currentUs = 0;
+                    this.midX = 0;
+                    this.midY = 0;
+                }
+                evaluate() {
+                    const dx = this.b.x - this.a.x;
+                    const dy = this.b.y - this.a.y;
+                    const len = Math.hypot(dx, dy) || 0.001;
+                    const displacement = len - this.restLength;
+                    this.currentUs = 0.5 * engine.k * (displacement * displacement);
+                    const force = displacement * engine.k;
+                    const fx = (dx / len) * force;
+                    const fy = (dy / len) * force;
+                    this.a.vx += fx;
+                    this.a.vy += fy;
+                    this.b.vx -= fx;
+                    this.b.vy -= fy;
+                    this.midX = (this.a.x + this.b.x) / 2;
+                    this.midY = (this.a.y + this.b.y) / 2;
+                }
+            }
+
+            class Spark {
+                constructor(x, y, vx, vy, colorType) {
+                    this.x = x;
+                    this.y = y;
+                    this.vx = vx;
+                    this.vy = vy;
+                    this.life = 1.0;
+                    this.colorType = colorType;
+                    this.size = 0.8 + Math.random() * 2.2;
+                }
+                update() {
+                    this.x += this.vx;
+                    this.y += this.vy;
+                    this.vy += engine.gravity * 0.04;
+                    this.life -= 0.018;
+                    this.size *= 0.995;
+                }
+                draw(ctx) {
+                    if (this.life <= 0) return;
+                    const alpha = Math.max(0, this.life);
+                    let color;
+                    if (this.colorType === 'bleed') color = `rgba(255,51,102,${alpha})`;
+                    else if (this.colorType === 'surge') color = `rgba(255,170,0,${alpha})`;
+                    else if (this.colorType === 'cyan') color = `rgba(0,229,255,${alpha})`;
+                    else color = `rgba(181,148,91,${alpha})`;
+                    ctx.fillStyle = color;
+                    ctx.shadowColor = color;
+                    ctx.shadowBlur = this.size * 2 * alpha;
+                    ctx.beginPath();
+                    ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
+                    ctx.fill();
+                    ctx.shadowBlur = 0;
+                }
+            }
+
+            class ResonancePulse {
+                constructor(x, y, intensity) {
+                    this.x = x;
+                    this.y = y;
+                    this.radius = 0;
+                    this.maxRadius = 80 + intensity * 2.5;
+                    this.life = 1.0;
+                    this.intensity = intensity;
+                    this.speed = 3 + intensity * 3;
+                }
+                update() {
+                    this.radius += this.speed;
+                    this.life = 1 - (this.radius / this.maxRadius);
+                    return this.life > 0;
+                }
+                draw(ctx) {
+                    if (this.life <= 0) return;
+                    const alpha = this.life * 0.55;
+                    ctx.beginPath();
+                    ctx.arc(this.x, this.y, this.radius, 0, Math.PI * 2);
+                    ctx.strokeStyle = `rgba(181,148,91,${alpha})`;
+                    ctx.lineWidth = 2.5 * this.life;
+                    ctx.shadowColor = `rgba(255,170,0,${alpha * 0.6})`;
+                    ctx.shadowBlur = 8 * this.life;
+                    ctx.stroke();
+                    ctx.shadowBlur = 0;
+                }
+            }
+
+            class Wisp {
+                constructor(node, intensity) {
+                    this.node = node;
+                    this.angle = Math.random() * Math.PI * 2;
+                    this.dist = 8 + Math.random() * 18;
+                    this.speed = (0.02 + Math.random() * 0.06) * (Math.random() > 0.5 ? 1 : -1);
+                    this.life = 0.6 + Math.random() * 0.4;
+                    this.intensity = intensity;
+                    this.size = 0.6 + Math.random() * 2;
+                }
+                update() {
+                    this.angle += this.speed;
+                    this.dist += (Math.random() - 0.5) * 0.4;
+                    this.dist = Math.max(5, Math.min(30, this.dist));
+                    this.life -= 0.008;
+                }
+                draw(ctx) {
+                    if (this.life <= 0) return;
+                    const x = this.node.x + Math.cos(this.angle) * this.dist;
+                    const y = this.node.y + Math.sin(this.angle) * this.dist;
+                    const alpha = this.life * 0.7;
+                    ctx.fillStyle = `rgba(255,170,0,${alpha})`;
+                    ctx.shadowColor = `rgba(255,170,0,${alpha})`;
+                    ctx.shadowBlur = 4;
+                    ctx.beginPath();
+                    ctx.arc(x, y, this.size, 0, Math.PI * 2);
+                    ctx.fill();
+                    ctx.shadowBlur = 0;
+                }
+                get alive() { return this.life > 0; }
+            }
+
+            // --- Data ---
+            let nodes = [];
+            let springs = [];
+            let sparks = [];
+            let backgroundAstrolabe = [];
+            let wisps = [];
+
+            function buildAstrolabe() {
+                backgroundAstrolabe = [];
+                for (let i = 1; i <= 7; i++) {
+                    backgroundAstrolabe.push({
+                        radiusRatio: i / 7,
+                        dashConfig: i % 2 === 0 ? [4, 8] : [2, 5],
+                        lineWidth: i === 7 ? 1.0 : 0.35,
+                        phase: Math.random() * Math.PI * 2,
+                    });
+                }
+            }
+
+            function buildCage() {
+                nodes = [];
+                springs = [];
+                sparks = [];
+                wisps = [];
+                engine.resonancePulses = [];
+                const cx = canvas.width / 2;
+                const cy = canvas.height / 2;
+                const half = engine.cageSize / 2;
+                const size = engine.cageSize;
+
+                nodes.push(new Node(cx - half, cy - half)); // TL
+                nodes.push(new Node(cx + half, cy - half)); // TR
+                nodes.push(new Node(cx + half, cy + half)); // BR
+                nodes.push(new Node(cx - half, cy + half)); // BL
+
+                springs.push(new PureSpring(nodes[0], nodes[1], size, false));
+                springs.push(new PureSpring(nodes[1], nodes[2], size, false));
+                springs.push(new PureSpring(nodes[2], nodes[3], size, false));
+                springs.push(new PureSpring(nodes[3], nodes[0], size, false));
+
+                const diagDist = size * Math.sqrt(2);
+                springs.push(new PureSpring(nodes[0], nodes[2], diagDist, true));
+                springs.push(new PureSpring(nodes[1], nodes[3], diagDist, true));
+            }
+
+            function resize() {
+                canvas.width = container.clientWidth;
+                canvas.height = container.clientHeight;
+                buildAstrolabe();
+                buildCage();
+                resizeMinimap();
+            }
+            window.addEventListener('resize', resize);
+            resize();
+
+            // --- Slider handlers ---
+            kSlider.oninput = (e) => {
+                engine.k = parseFloat(e.target.value);
+                elKReadout.textContent = engine.k.toFixed(2);
+                elKVal.textContent = engine.k.toFixed(2);
+            };
+            gSlider.oninput = (e) => {
+                engine.gravity = parseFloat(e.target.value);
+                elGReadout.textContent = engine.gravity.toFixed(2);
+                elGVal.textContent = engine.gravity.toFixed(2);
+            };
+            sizeSlider.oninput = (e) => {
+                engine.cageSize = parseInt(e.target.value);
+                elSizeReadout.textContent = engine.cageSize + ' px';
+                elSizeVal.textContent = engine.cageSize;
+                buildCage();
+            };
+
+            // --- Kinetic Strike ---
+            const executeTrauma = (e) => {
+                if (e) e.preventDefault();
+                const cx = canvas.width / 2;
+                const cy = canvas.height / 2;
+                nodes.forEach(n => {
+                    n.vx += (Math.random() - 0.5) * 90;
+                    n.vy -= (Math.random() * 65) + 35;
+                });
+                engine.shake = Math.min(engine.shake + 130, 138);
+                engine.resonancePulses.push(new ResonancePulse(cx, cy, 25));
+                nodes.forEach((n) => {
+                    for (let i = 0; i < 80; i++) {
+                        const angle = Math.random() * Math.PI * 1;
+                        const vel = Math.random() * 1 + 3;
+                        const cType = i % 3 === 0 ? 'bleed' : (i % 2 === 0 ? 'surge' : 'brass');
+                        sparks.push(new Spark(n.x, n.y, Math.cos(angle) * vel, Math.sin(angle) * vel, cType));
+                    }
+                });
+            };
+            slamBtn.addEventListener('mousedown', executeTrauma);
+            slamBtn.addEventListener('touchstart', executeTrauma, { passive: false });
+
+            // --- Gyro ---
+            gyroBtn.onclick = async () => {
+                if (
+                    typeof DeviceOrientationEvent !== 'undefined' &&
+                    typeof DeviceOrientationEvent.requestPermission === 'function'
+                ) {
+                    try {
+                        const res = await DeviceOrientationEvent.requestPermission();
+                        if (res === 'granted') activateGyro();
+                    } catch (err) {
+                        console.error('Gyro permission error:', err);
+                    }
+                } else {
+                    activateGyro();
+                }
+            };
+
+            function activateGyro() {
+                window.addEventListener('deviceorientation', (e) => {
+                    engine.gyro.x = (e.gamma || 0) * 0.28;
+                    engine.gyro.y = (e.beta || 0) * 0.28;
+                });
+                engine.gyro.active = true;
+                gyroBtn.classList.add('active');
+                elGyroStatus.textContent = 'LINKED';
+                elGyroStatus.style.color = 'var(--brass)';
+            }
+
+            // --- Pointer / Touch handling ---
+            function getPointerPos(e) {
+                const rect = canvas.getBoundingClientRect();
+                const clientX = e.touches ? e.touches[0].clientX : e.clientX;
+                const clientY = e.touches ? e.touches[0].clientY : e.clientY;
+                return { x: clientX - rect.left, y: clientY - rect.top };
+            }
+
+            function onPointerDown(e) {
+                if (e.touches && e.touches.length > 1) return;
+                const pos = getPointerPos(e);
+                engine.pointer.active = true;
+                let closest = null;
+                let minDist = 70;
+                nodes.forEach(n => {
+                    const d = Math.hypot(n.x - pos.x, n.y - pos.y);
+                    if (d < minDist) { minDist = d;
+                        closest = n; }
+                });
+                engine.pointer.targetNode = closest;
+            }
+
+            function onPointerMove(e) {
+                if (!engine.pointer.active) return;
+                const pos = getPointerPos(e);
+                if (engine.pointer.targetNode) {
+                    engine.pointer.targetNode.x = pos.x;
+                    engine.pointer.targetNode.y = pos.y;
+                    engine.pointer.targetNode.vx = 0;
+                    engine.pointer.targetNode.vy = 0;
+                }
+                engine.pointer.x = pos.x;
+                engine.pointer.y = pos.y;
+            }
+
+            const drop = () => {
+                engine.pointer.active = false;
+                engine.pointer.targetNode = null;
+            };
+
+            canvas.addEventListener('mousedown', onPointerDown);
+            window.addEventListener('mousemove', onPointerMove);
+            window.addEventListener('mouseup', drop);
+            canvas.addEventListener('touchstart', (e) => { e.preventDefault();
+                onPointerDown(e); }, { passive: false });
+            window.addEventListener('touchmove', (e) => { if (engine.pointer.active) e.preventDefault();
+                onPointerMove(e); }, { passive: false });
+            window.addEventListener('touchend', (e) => { e.preventDefault();
+                drop(); }, { passive: false });
+            window.addEventListener('touchcancel', (e) => { e.preventDefault();
+                drop(); }, { passive: false });
+
+            // --- Constants ---
+            const SUB_STEPS = 8;
+            const DT = 0.12;
+            const CRITICAL_US = 800;
+
+            // --- Main loop ---
+            function loop() {
+                // Entropy decay
+                engine.k = Math.max(0.15, engine.k - engine.decay_rate);
+                engine.entropy = Math.min(engine.entropy + 0.00008, 2.8);
+                engine.epicycleRotation += 0.0035;
+                engine.breathPhase += 0.025;
+
+                // Phosphor trail persistence
+                ctx.globalCompositeOperation = 'source-over';
+                ctx.fillStyle = 'rgba(2, 3, 6, 0.28)';
+                ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+                engine.totalUs = 0;
+                const jitterX = (Math.random() - 0.5) * engine.entropy * 0;
+                const jitterY = (Math.random() - 0.5) * engine.entropy * 0;
+
+                // --- Physics sub-steps ---
+                for (let step = 0; step < SUB_STEPS; step++) {
+                    springs.forEach(s => {
+                        s.evaluate();
+                        if (step === 0) engine.totalUs += s.currentUs;
+                    });
+
+                    nodes.forEach(n => {
+                        if (n !== engine.pointer.targetNode) {
+                            n.vx += (engine.gyro.active ? engine.gyro.x : 0) * DT + jitterX;
+                            n.vy += (engine.gyro.active ? engine.gyro.y : engine.gravity) * DT + jitterY;
+                            n.x += n.vx * DT;
+                            n.y += n.vy * DT;
+                        }
+
+                        const r = 8;
+                        // NO ROOF — only walls and floor
+                        if (n.x < r) { n.x = r;
+                            n.vx *= -0.3; }
+                        if (n.x > canvas.width - r) { n.x = canvas.width - r;
+                            n.vx *= -0.3; }
+                        if (n.y > canvas.height - r) { n.y = canvas.height - r;
+                            n.vy *= -0.3; }
+
+                        n.vx *= Math.pow(engine.damping, DT);
+                        n.vy *= Math.pow(engine.damping, DT);
+                    });
+                }
+
+                // --- Record trails ---
+                nodes.forEach(n => n.recordPosition());
+
+                // --- Critical state detection ---
+                const isCritical = engine.totalUs > CRITICAL_US || engine.k < 0.55;
+
+                // --- Spawn resonance pulses on critical transition ---
+                if (isCritical && engine.resonancePulses.length === 0 && Math.random() < 0.3) {
+                    const cx = canvas.width / 2;
+                    const cy = canvas.height / 2;
+                    engine.resonancePulses.push(new ResonancePulse(cx, cy, engine.totalUs / 30));
+                }
+
+                // --- Shake ---
+                if (isCritical) {
+                    engine.shake = Math.min(engine.shake + 2.2, 18);
+                    nodes.forEach(n => {
+                        if (Math.random() < 0.25) {
+                            sparks.push(new Spark(n.x, n.y, (Math.random() - 0.5) * 11, (Math.random() - 0.5) * 11,
+                                'surge'));
+                        }
+                    });
+                    springs.forEach(s => {
+                        if (Math.random() < 0.1 && s.currentUs > 100) {
+                            sparks.push(new Spark(s.midX, s.midY, (Math.random() - 0.5) * 8, (Math.random() -
+                                0.5) * 8, 'cyan'));
+                        }
+                    });
+                    // Spawn wisps around stressed nodes
+                    nodes.forEach(n => {
+                        const nodeStress = springs
+                            .filter(s => s.a === n || s.b === n)
+                            .reduce((sum, s) => sum + s.currentUs, 0);
+                        if (nodeStress > 200 && Math.random() < 0.3 && wisps.length < 20) {
+                            wisps.push(new Wisp(n, nodeStress / 200));
+                        }
+                    });
+                }
+                if (engine.shake > 0) engine.shake *= 0.87;
+                if (engine.shake < 0.3) engine.shake = 0;
+
+                // --- Update resonance pulses ---
+                engine.resonancePulses = engine.resonancePulses.filter(p => p.update());
+
+                // --- Update wisps ---
+                wisps.forEach(w => w.update());
+                wisps = wisps.filter(w => w.alive);
+                // Prune excess wisps
+                if (wisps.length > 25) wisps.splice(0, wisps.length - 25);
+
+                // --- Update sparks ---
+                for (let i = sparks.length - 1; i >= 0; i--) {
+                    sparks[i].update();
+                    if (sparks[i].life <= 0) sparks.splice(i, 1);
+                }
+                // Limit sparks
+                if (sparks.length > 500) sparks.splice(0, sparks.length - 500);
+
+                // --- Rendering ---
+                ctx.save();
+                if (engine.shake > 0.4) {
+                    ctx.translate(
+                        (Math.random() - 0.5) * engine.shake * 1.6,
+                        (Math.random() - 0.5) * engine.shake * 1.6
+                    );
+                }
+
+                ctx.globalCompositeOperation = 'lighter';
+
+                const cx = canvas.width / 2;
+                const cy = canvas.height / 2;
+                const maxD = Math.max(canvas.width, canvas.height);
+
+                // --- Astrolabe background ---
+                const astrolabePulse = 1 + (isCritical ? Math.sin(engine.breathPhase * 3) * 0.15 : Math.sin(engine
+                    .breathPhase) * 0.04);
+                backgroundAstrolabe.forEach(r => {
+                    const baseAlpha = r.radiusRatio * 0.14 * astrolabePulse;
+                    ctx.strokeStyle = isCritical ?
+                        `rgba(255,51,102,${baseAlpha * 1.3})` :
+                        `rgba(181,148,91,${baseAlpha})`;
+                    ctx.setLineDash(r.dashConfig);
+                    ctx.lineWidth = r.lineWidth * astrolabePulse;
+                    ctx.beginPath();
+                    ctx.arc(cx, cy, maxD * 0.42 * r.radiusRatio * astrolabePulse, r.phase + engine.epicycleRotation,
+                        0, Math.PI * 2);
+                    ctx.stroke();
+                });
+                ctx.setLineDash([]);
+
+                // --- Crosshair ---
+                ctx.strokeStyle = isCritical ?
+                    'rgba(255,51,102,0.12)' :
+                    'rgba(181,148,91,0.09)';
+                ctx.lineWidth = 0.5;
+                ctx.beginPath();
+                ctx.moveTo(cx, 0);
+                ctx.lineTo(cx, canvas.height);
+                ctx.moveTo(0, cy);
+                ctx.lineTo(canvas.width, cy);
+                ctx.stroke();
+
+                // --- Historical trails ---
+                nodes.forEach(n => {
+                    if (n.historicalTrail.length > 1) {
+                        const trailColor = isCritical ?
+                            'rgba(255,51,102,' :
+                            'rgba(181,148,91,';
+                        ctx.beginPath();
+                        ctx.lineWidth = 1.2;
+                        for (let t = 0; t < n.historicalTrail.length; t++) {
+                            const pt = n.historicalTrail[t];
+                            const alpha = (t / n.historicalTrail.length) * 0.35;
+                            ctx.strokeStyle = trailColor + alpha.toFixed(3) + ')';
+                            if (t === 0) ctx.moveTo(pt.x, pt.y);
+                            else ctx.lineTo(pt.x, pt.y);
+                        }
+                        ctx.stroke();
+
+                        // Ghost echo dots at older positions
+                        for (let t = 0; t < n.historicalTrail.length; t += 4) {
+                            const pt = n.historicalTrail[t];
+                            const alpha = (t / n.historicalTrail.length) * 0.5;
+                            ctx.fillStyle = trailColor + alpha.toFixed(3) + ')';
+                            ctx.beginPath();
+                            ctx.arc(pt.x, pt.y, 1.8 * (t / n.historicalTrail.length), 0, Math.PI * 2);
+                            ctx.fill();
+                        }
+                    }
+                });
+
+                // --- Cage interior fill ---
+                const localIntensity = Math.min(engine.totalUs / 600, 1);
+                ctx.beginPath();
+                ctx.moveTo(nodes[0].x, nodes[0].y);
+                ctx.lineTo(nodes[1].x, nodes[1].y);
+                ctx.lineTo(nodes[2].x, nodes[2].y);
+                ctx.lineTo(nodes[3].x, nodes[3].y);
+                ctx.closePath();
+                if (isCritical) {
+                    ctx.fillStyle =
+                        `rgba(255,51,102,${0.07 + localIntensity * 0.22 + Math.sin(engine.breathPhase * 4) * 0.03})`;
+                } else {
+                    ctx.fillStyle =
+                        `rgba(181,148,91,${0.04 + localIntensity * 0.14 + Math.sin(engine.breathPhase) * 0.02})`;
+                }
+                ctx.fill();
+
+                // --- Chromatic aberration offsets ---
+                const offsets = isCritical ?
+                    [
+                        { x: -4.5, color: 'rgba(255,51,102,0.85)' },
+                        { x: 4.5, color: 'rgba(0,229,255,0.75)' },
+                        { x: 0, color: '#b5945b' },
+                    ] :
+                    [
+                        { x: -1.5, color: 'rgba(181,148,91,0.5)' },
+                        { x: 1.5, color: 'rgba(200,170,120,0.4)' },
+                        { x: 0, color: '#b5945b' },
+                    ];
+
+                // --- Render springs ---
+                offsets.forEach(off => {
+                    ctx.save();
+                    ctx.translate(off.x, 0);
+
+                    springs.forEach(s => {
+                        ctx.beginPath();
+                        ctx.moveTo(s.a.x, s.a.y);
+                        ctx.lineTo(s.b.x, s.b.y);
+
+                        const strain = Math.min(s.currentUs / 40, 1);
+
+                        if (s.isDiagonal) {
+                            const diagAlpha = off.x !== 0 ? 0.18 + strain * 0.45 : 0.25 + strain * 0.55;
+                            ctx.strokeStyle = off.x !== 0 ?
+                                `rgba(255,170,0,${diagAlpha.toFixed(3)})` :
+                                `rgba(255,170,0,${diagAlpha.toFixed(3)})`;
+                            ctx.lineWidth = 0.5 + strain * 1.6;
+                            ctx.setLineDash([3, 5]);
+                            ctx.shadowColor = 'transparent';
+                            ctx.shadowBlur = 0;
+                        } else {
+                            const baseAlpha = off.x !== 0 ? 0.38 + strain * 0.4 : 0.55 + strain * 0.45;
+                            let colorStr = off.color;
+                            // Replace alpha in rgba strings
+                            if (colorStr.startsWith('rgba')) {
+                                colorStr = colorStr.replace(/[\d.]+\)$/, baseAlpha.toFixed(3) + ')');
+                            }
+                            ctx.strokeStyle = colorStr;
+                            ctx.lineWidth = 1.5 + strain * 3.2;
+                            ctx.setLineDash([]);
+                            if (isCritical && off.x === 0) {
+                                ctx.shadowColor = `rgba(255,51,102,${0.5 + strain * 0.5})`;
+                                ctx.shadowBlur = 10 + strain * 16;
+                            } else if (isCritical && off.x !== 0) {
+                                ctx.shadowColor = off.color.replace(/[\d.]+\)$/, (0.35 + strain * 0.4).toFixed(3) +
+                                    ')');
+                                ctx.shadowBlur = 5 + strain * 8;
+                            } else if (!isCritical && off.x === 0 && strain > 0.5) {
+                                ctx.shadowColor = `rgba(181,148,91,${strain * 0.5})`;
+                                ctx.shadowBlur = 4 + strain * 8;
+                            } else {
+                                ctx.shadowColor = 'transparent';
+                                ctx.shadowBlur = 0;
+                            }
+                        }
+                        ctx.stroke();
+
+                        // Tension indicator dot at midpoint for highly stressed springs
+                        if (s.currentUs > 60 && off.x === 0) {
+                            const dotAlpha = Math.min(1, s.currentUs / 200);
+                            ctx.fillStyle = isCritical ?
+                                `rgba(255,51,102,${dotAlpha})` :
+                                `rgba(255,170,0,${dotAlpha})`;
+                            ctx.shadowColor = ctx.fillStyle;
+                            ctx.shadowBlur = 5 * dotAlpha;
+                            ctx.beginPath();
+                            ctx.arc(s.midX, s.midY, 1.5 + strain * 2.5, 0, Math.PI * 2);
+                            ctx.fill();
+                            ctx.shadowBlur = 0;
+                        }
+                    });
+
+                    ctx.restore();
+                });
+
+                // --- Resonance pulses ---
+                engine.resonancePulses.forEach(p => p.draw(ctx));
+
+                // --- Wisps ---
+                wisps.forEach(w => w.draw(ctx));
+
+                // --- Sparks ---
+                sparks.forEach(s => s.draw(ctx));
+
+                // --- Nodes ---
+                nodes.forEach(n => {
+                    const isGrabbed = engine.pointer.targetNode === n;
+                    const nodeStress = springs
+                        .filter(s => s.a === n || s.b === n)
+                        .reduce((sum, s) => sum + s.currentUs, 0);
+                    const nodeGlow = Math.min(nodeStress / 300, 1);
+
+                    // Outer glow
+                    if (nodeGlow > 0.15 && !isGrabbed) {
+                        const glowColor = isCritical ?
+                            `rgba(255,51,102,${nodeGlow * 0.6})` :
+                            `rgba(255,170,0,${nodeGlow * 0.5})`;
+                        ctx.fillStyle = glowColor;
+                        ctx.shadowColor = glowColor;
+                        ctx.shadowBlur = 8 + nodeGlow * 18;
+                        ctx.beginPath();
+                        ctx.arc(n.x, n.y, 6 + nodeGlow * 8, 0, Math.PI * 2);
+                        ctx.fill();
+                        ctx.shadowBlur = 0;
+                    }
+
+                    // Core
+                    ctx.fillStyle = isGrabbed ? '#ffffff' : isCritical ? '#ff3366' : 'var(--brass)';
+                    ctx.shadowColor = ctx.fillStyle;
+                    ctx.shadowBlur = isGrabbed ? 16 : (isCritical ? 11 : 5);
+                    ctx.beginPath();
+                    ctx.arc(n.x, n.y, isGrabbed ? 5.5 : 3.8, 0, Math.PI * 2);
+                    ctx.fill();
+                    ctx.shadowBlur = 0;
+
+                    // Grab indicator ring
+                    if (isGrabbed) {
+                        ctx.strokeStyle = '#ffffff';
+                        ctx.lineWidth = 1.5;
+                        ctx.setLineDash([3, 2]);
+                        ctx.beginPath();
+                        ctx.arc(n.x, n.y, 10, 0, Math.PI * 2);
+                        ctx.stroke();
+                        ctx.setLineDash([]);
+                    }
+                });
+
+                ctx.restore(); // End shake
+
+                // --- Vignette overlay ---
+                ctx.globalCompositeOperation = 'source-over';
+                const vignetteGrad = ctx.createRadialGradient(cx, cy, maxD * 0.35, cx, cy, maxD * 0.75);
+                vignetteGrad.addColorStop(0, 'rgba(0,0,0,0)');
+                vignetteGrad.addColorStop(0.5, 'rgba(0,0,0,0)');
+                vignetteGrad.addColorStop(1, 'rgba(2,3,6,0.65)');
+                ctx.fillStyle = vignetteGrad;
+                ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+                // --- CSS glitch skew ---
+                if (isCritical && Math.random() < 0.2) {
+                    container.style.transform =
+                        `skewX(${(Math.random() - 0.5) * 3.5}deg) skewY(${(Math.random() - 0.5) * 1.2}deg) scale(1.008)`;
+                } else if (!isCritical || Math.random() < 0.35) {
+                    container.style.transform = 'none';
+                }
+
+                // --- HUD updates ---
+                // Periodically sync slider to decayed k value
+                if (Math.random() < 0.12) {
+                    kSlider.value = engine.k;
+                    elKVal.textContent = engine.k.toFixed(2);
+                    elKReadout.textContent = engine.k.toFixed(2);
+                    elDecayReadout.textContent = engine.decay_rate.toFixed(4);
+                }
+
+                const usDisplay = (Math.random() > 0.92 && engine.k < 0.35) ?
+                    'ERROR' :
+                    `${engine.totalUs.toFixed(1)} J`;
+                elUs.textContent = usDisplay;
+
+                if (isCritical) {
+                    elIntegrity.textContent = engine.k < 0.35 ? 'FRACTURE_IMMINENT' : 'CRITICAL_BREACH';
+                    elIntegrity.style.color = '#ff3366';
+                    elIntegrity.className = 'crit';
+                    elUs.style.color = '#ff3366';
+                    elUs.className = 'crit';
+                    telemetryEl.classList.add('critical-telemetry');
+                } else {
+                    elIntegrity.textContent = 'NOMINAL';
+                    elIntegrity.style.color = 'var(--brass)';
+                    elIntegrity.className = 'brass-text';
+                    elUs.style.color = 'var(--surge)';
+                    elUs.className = 'warn';
+                    telemetryEl.classList.remove('critical-telemetry');
+                }
+
+                // --- Height graph (seismograph style) ---
+                {
+                    const mw = mmCanvas.width;
+                    const mh = mmCanvas.height;
+                    mmCtx.clearRect(0, 0, mw, mh);
+
+                    const padL = 22, padR = 6, padT = 6, padB = 14;
+                    const gw = mw - padL - padR;
+                    const gh = mh - padT - padB;
+
+                    const centY = nodes.reduce((s, n) => s + n.y, 0) / nodes.length;
+
+                    // Record height history (store real centY values)
+                    if (!engine.heightHistory) engine.heightHistory = [];
+                    engine.heightHistory.push(centY);
+                    if (engine.heightHistory.length > 120) engine.heightHistory.shift();
+
+                    const history = engine.heightHistory;
+
+                    // Y axis range: always includes canvas (0 to canvas.height),
+                    // but expands to contain off-screen values
+                    const minVal = Math.min(...history, 0) - 20;
+                    const maxVal = Math.max(...history, canvas.height) + 20;
+                    const range = maxVal - minVal;
+
+                    // Convert real Y to graph Y (invert: lower real Y = higher on screen = higher on graph)
+                    const toGY = (ry) => padT + ((ry - minVal) / range) * gh;
+                    const toGX = (i)  => padL + (i / (history.length - 1 || 1)) * gw;
+
+                    // Grid lines
+                    mmCtx.strokeStyle = 'rgba(181,148,91,0.08)';
+                    mmCtx.lineWidth = 0.5;
+                    // Ground line (canvas.height in real = bottom of screen)
+                    const groundY = toGY(canvas.height);
+                    mmCtx.beginPath();
+                    mmCtx.moveTo(padL, groundY);
+                    mmCtx.lineTo(padL + gw, groundY);
+                    mmCtx.stroke();
+                    // Zero line (top of screen)
+                    const topY = toGY(0);
+                    mmCtx.strokeStyle = 'rgba(181,148,91,0.05)';
+                    mmCtx.beginPath();
+                    mmCtx.moveTo(padL, topY);
+                    mmCtx.lineTo(padL + gw, topY);
+                    mmCtx.stroke();
+
+                    // Ground label
+                    mmCtx.fillStyle = 'rgba(181,148,91,0.4)';
+                    mmCtx.font = '6px Fira Code, monospace';
+                    mmCtx.textAlign = 'right';
+                    mmCtx.fillText('GND', padL - 2, groundY + 2);
+
+                    // Trace fill under curve
+                    mmCtx.beginPath();
+                    history.forEach((v, i) => {
+                        const x = toGX(i), y = toGY(v);
+                        i === 0 ? mmCtx.moveTo(x, y) : mmCtx.lineTo(x, y);
+                    });
+                    mmCtx.lineTo(toGX(history.length - 1), padT + gh);
+                    mmCtx.lineTo(padL, padT + gh);
+                    mmCtx.closePath();
+                    mmCtx.fillStyle = isCritical
+                        ? 'rgba(255,51,102,0.06)'
+                        : 'rgba(181,148,91,0.06)';
+                    mmCtx.fill();
+
+                    // Trace line
+                    mmCtx.beginPath();
+                    history.forEach((v, i) => {
+                        const x = toGX(i), y = toGY(v);
+                        i === 0 ? mmCtx.moveTo(x, y) : mmCtx.lineTo(x, y);
+                    });
+                    mmCtx.strokeStyle = isCritical ? 'rgba(255,51,102,0.85)' : 'rgba(181,148,91,0.75)';
+                    mmCtx.lineWidth = 1;
+                    mmCtx.stroke();
+
+                    // Live dot at right edge
+                    const liveX = toGX(history.length - 1);
+                    const liveY = toGY(centY);
+                    mmCtx.beginPath();
+                    mmCtx.arc(liveX, liveY, 2.5, 0, Math.PI * 2);
+                    mmCtx.fillStyle = isCritical ? '#ff3366' : '#ffffff';
+                    mmCtx.shadowColor = isCritical ? '#ff3366' : '#ffffff';
+                    mmCtx.shadowBlur = 7;
+                    mmCtx.fill();
+                    mmCtx.shadowBlur = 0;
+
+                    // Height readout next to dot (real offset from ground)
+                    const heightAboveGround = Math.round(canvas.height - centY);
+                    const isAbove = centY < 0;
+                    const label = isAbove
+                        ? `+${Math.abs(Math.round(centY))}px`
+                        : (heightAboveGround > 5 ? `${heightAboveGround}` : 'GND');
+                    mmCtx.fillStyle = isCritical ? '#ff3366' : (centY < 0 ? '#ffffff' : 'rgba(181,148,91,0.9)');
+                    mmCtx.font = `bold 6px Fira Code, monospace`;
+                    mmCtx.textAlign = liveX > mw - 30 ? 'right' : 'left';
+                    mmCtx.fillText(label, liveX + (liveX > mw - 30 ? -4 : 4), liveY + 2);
+
+                    // Y axis
+                    mmCtx.strokeStyle = 'rgba(181,148,91,0.2)';
+                    mmCtx.lineWidth = 0.5;
+                    mmCtx.beginPath();
+                    mmCtx.moveTo(padL, padT);
+                    mmCtx.lineTo(padL, padT + gh);
+                    mmCtx.stroke();
+                }
+
+                // --- Off-screen arrow (Smash Bros style) ---
+                {
+                    const centX = nodes.reduce((s, n) => s + n.x, 0) / nodes.length;
+                    const centY = nodes.reduce((s, n) => s + n.y, 0) / nodes.length;
+                    const anyOffScreen = nodes.some(n => n.x < 0 || n.x > canvas.width || n.y < 0 || n.y > canvas.height);
+
+                    if (anyOffScreen) {
+                        arrowEl.style.display = 'block';
+                        arrowEl.className = isCritical ? 'critical' : '';
+
+                        const margin = 18;
+                        const aw = 28, ah = 28;
+                        const cw = canvas.width, ch = canvas.height;
+
+                        // Angle from screen center toward centroid
+                        const angle = Math.atan2(centY - ch / 2, centX - cw / 2);
+
+                        // Clamp position to screen edge
+                        const cos = Math.cos(angle), sin = Math.sin(angle);
+                        const scaleToEdge = Math.min(
+                            (cw / 2 - margin) / Math.abs(cos || 0.0001),
+                            (ch / 2 - margin) / Math.abs(sin || 0.0001)
+                        );
+                        const ex = cw / 2 + cos * scaleToEdge;
+                        const ey = ch / 2 + sin * scaleToEdge;
+
+                        arrowEl.style.left = (ex - aw / 2) + 'px';
+                        arrowEl.style.top  = (ey - ah / 2) + 'px';
+                        // Rotate: arrow points up by default, rotate to face centroid
+                        arrowEl.style.transform = `rotate(${angle + Math.PI / 2}rad)`;
+                    } else {
+                        arrowEl.style.display = 'none';
+                    }
+                }
+
+                requestAnimationFrame(loop);
+            }
+
+            // --- Initialize displays ---
+            elKReadout.textContent = '1.10';
+            elKVal.textContent = '1.10';
+            elGReadout.textContent = '1.80';
+            elGVal.textContent = '1.80';
+            elSizeReadout.textContent = '40 px';
+            elSizeVal.textContent = '40';
+            elDecayReadout.textContent = '0.00005';
+
+            requestAnimationFrame(loop);
+        })();
+    </script>
 </body>
 </html>

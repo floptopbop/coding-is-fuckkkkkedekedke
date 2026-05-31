@@ -17,7 +17,7 @@
             --cyan-shift: #00e5ff;
             --deck: #0a0c10;
             --border: #1c1f26;
-            --grid-line: rgba(181, 148, 91, 0.12);
+            --grid-line: rgba(0, 0, 0, 0.12);
         }
 
         * {
@@ -46,7 +46,7 @@
             position: relative;
             width: 100%;
             background: radial-gradient(ellipse at center, #070913 0%, var(--void) 75%);
-            filter: contrast(1.25) brightness(1.08) saturate(1.15);
+            filter: contrast(1.25) brightness(1.4) saturate(1.15);
             overflow: hidden;
             touch-action: none;
             cursor: crosshair;
@@ -57,7 +57,7 @@
             top: 14px;
             right: 14px;
             width: 120px;
-            height: 80px;
+            height: 120px;
             background: rgba(2, 3, 6, 0.92);
             border: 1px solid var(--border);
             border-right: 3px solid var(--brass);
@@ -68,13 +68,15 @@
         }
         #minimap canvas {
             position: absolute;
-            top: 0; left: 0;
-            width: 100%; height: 100%;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
         }
         #offscreen-arrow {
             position: absolute;
-            width: 28px;
-            height: 28px;
+            width: 8px;
+            height: 8px;
             pointer-events: none;
             z-index: 20;
             transform-origin: center center;
@@ -85,12 +87,12 @@
             inset: 0;
             background: var(--brass);
             clip-path: polygon(50% 0%, 0% 100%, 100% 100%);
-            filter: drop-shadow(0 0 6px rgba(181,148,91,0.8));
-            transition: background 0.2s;
+            filter: drop-shadow(0 0 6px rgba(181, 148, 91, 0.8));
+            transition: background 2s;
         }
         #offscreen-arrow.critical::before {
             background: var(--bleed);
-            filter: drop-shadow(0 0 8px rgba(255,51,102,0.9));
+            filter: drop-shadow(0 0 8px rgba(255, 51, 102, 0.9));
         }
 
         #viewport::before {
@@ -147,7 +149,7 @@
             }
         }
         #telemetry.critical-telemetry {
-            animation: breathe-border-critical .8s ease-in-out infinite;
+            animation: breathe-border-critical 8s ease-in-out infinite;
             border-left-color: var(--bleed);
         }
         @keyframes breathe-border-critical {
@@ -169,12 +171,12 @@
         }
         #telemetry span.warn {
             color: var(--surge);
-            font-weight: 700;
+            font-weight: 400;
             text-shadow: 0 0 6px var(--surge);
         }
         #telemetry span.crit {
             color: var(--bleed);
-            font-weight: 700;
+            font-weight: 500;
             text-shadow: 0 0 8px var(--bleed);
         }
         #telemetry span.brass-text {
@@ -182,7 +184,6 @@
             font-weight: 700;
         }
 
-        /* CRT Scanline Overlay */
         #viewport::after {
             content: " ";
             display: block;
@@ -198,9 +199,9 @@
         }
         @keyframes scanline-flicker {
             0%,
-            99.5%,
+            95%,
             100% {
-                opacity: 0.7;
+                opacity: 0.35;
             }
             99.6% {
                 opacity: 0.55;
@@ -223,7 +224,50 @@
             padding: 12px 16px 16px;
             gap: 10px;
             z-index: 10;
-            box-shadow: 0 -4px 20px rgba(0, 0, 0, 0.8);
+            box-shadow: 0 -24px 20px rgba(0, 0, 0, 0.8);
+            transition: padding 0.05s ease;
+        }
+        #control-deck.collapsed {
+            padding: 8px 16px;
+            gap: 0;
+        }
+        #collapsible-content {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            overflow: hidden;
+            max-height: 400px;
+            transition: max-height 0.25s ease, opacity 0.2s ease;
+            opacity: 1;
+        }
+        #control-deck.collapsed #collapsible-content {
+            max-height: 0;
+            opacity: 0;
+        }
+        #collapse-btn {
+            background: #0f1115;
+            border: 1px solid var(--border);
+            color: var(--brass);
+            font-family: 'Fira Code', monospace;
+            font-size: 16px;
+            cursor: pointer;
+            padding: 14px 16px;
+            line-height: 1;
+            transition: color 0.15s, background 0.15s;
+            border-radius: 2px;
+            touch-action: manipulation;
+            flex: 0 0 auto;
+            min-width: 44px;
+            text-align: center;
+        }
+        #collapse-btn:hover {
+            background: #161a20;
+            color: var(--brass-glow);
+        }
+        #control-deck-inner {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
         }
 
         .hud-row {
@@ -237,7 +281,7 @@
         }
         .hud-row span {
             color: var(--brass);
-            font-weight: 700;
+            font-weight: 500;
         }
 
         .slider-group {
@@ -320,6 +364,7 @@
             touch-action: manipulation;
             position: relative;
             overflow: hidden;
+            min-width: 44px;
         }
         .btn:hover {
             background: #161a20;
@@ -351,8 +396,6 @@
             box-shadow: 0 0 32px rgba(255, 51, 102, 0.7);
             transform: scale(0.95);
         }
-
-        /* Subtle pulsing dot on slam button */
         #slam-trigger::after {
             content: '';
             position: absolute;
@@ -405,14 +448,15 @@
 
     <div id="viewport">
         <div id="telemetry">
-            ORRERY_STATE: <span class="highlight">UNBOUND_KINEMATICS</span><br>
-            ROOF_STATUS: <span class="warn">BREACHED</span><br>
-            STIFFNESS (k): <span id="k-readout" class="brass-text">1.10</span><br>
-            GRAVITY: <span id="g-readout" class="highlight">1.80</span><br>
-            ORBIT_RADIUS: <span id="size-readout" class="brass-text">40 px</span><br>
+            STIFFNESS (k): <span id="k-readout" class="brass-text">1.00</span><br>
+            GRAVITY: <span id="g-readout" class="highlight">1.00</span><br>
+            ORBIT_RADIUS: <span id="size-readout" class="brass-text">35 px</span><br>
             POTENTIAL_ENG: <span id="us-val" class="warn">0.00 J</span><br>
             INTEGRITY: <span id="integrity" class="warn">NOMINAL</span><br>
-            DECAY_RATE: <span id="decay-readout" style="color:#666;">0.00005</span>
+            DECAY_RATE: <span id="decay-readout" style="color:#666;">0.00005</span><br>
+            VELOCITY: <span id="vel-readout" class="brass-text">0.00</span><br>
+            MAX_ALT: <span id="maxalt-readout" class="highlight">0 px</span><br>
+            JUGGLE_MULT: <span id="combo-readout" class="brass-text">x1.0</span>
         </div>
         <canvas id="mainCanvas"></canvas>
         <div id="minimap">
@@ -422,32 +466,60 @@
     </div>
 
     <div id="control-deck">
-        <div class="hud-row">
-            <div>EPHEMERIS: <span>GEOCENTRIC_MECHANICS</span></div>
-            <div>GYRO_STATE: <span id="gyro-status" style="color:#555;">DISCONNECTED</span></div>
-        </div>
+        <div id="control-deck-inner">
+            <div id="collapsible-content">
+                <div class="hud-row">
+                    <div>EPHEMERIS: <span>GEOCENTRIC_MECHANICS</span></div>
+                </div>
 
-        <div class="slider-group">
-            <span class="label">ORBITAL_STIFF (k)</span>
-            <input type="range" id="k-slider" min="0.05" max="5.00" step="0.05" value="1.10">
-            <span class="val" id="k-val">1.10</span>
-        </div>
+                <div class="slider-group">
+                    <span class="label">ORBITAL_STIFF (k)</span>
+                    <input type="range" id="k-slider" min="0.20" max="4.00" step="0.05" value="1">
+                    <span class="val" id="k-val">1.00</span>
+                </div>
 
-        <div class="slider-group">
-            <span class="label">GRAVITATIONAL (g)</span>
-            <input type="range" id="g-slider" min="0.05" max="6.00" step="0.05" value="1.80">
-            <span class="val" id="g-val">1.80</span>
-        </div>
+                <div class="slider-group">
+                    <span class="label">GRAVITATIONAL (g)</span>
+                    <input type="range" id="g-slider" min="0.01" max="1.50" step="0.02" value="0.30">
+                    <span class="val" id="g-val">1.00</span>
+                </div>
 
-        <div class="slider-group">
-            <span class="label">ORBIT_RADIUS (px)</span>
-            <input type="range" id="size-slider" min="8" max="420" step="5" value="40">
-            <span class="val" id="size-val">40</span>
-        </div>
+                <div class="slider-group">
+                    <span class="label">ORBIT_RADIUS (px)</span>
+                    <input type="range" id="size-slider" min="1" max="250" step="1" value="35">
+                    <span class="val" id="size-val">35</span>
+                </div>
 
-        <div class="action-container">
-            <button class="btn" id="gyro-toggle">ENGAGE GYRO</button>
-            <button class="btn" id="slam-trigger">KINETIC STRIKE</button>
+                <div class="slider-group">
+                    <span class="label">DAMPING</span>
+                    <input type="range" id="damp-slider" min="0.80" max="0.999" step="0.001" value="0.98">
+                    <span class="val" id="damp-val">0.980</span>
+                </div>
+
+                <div class="slider-group">
+                    <span class="label">SUBSTEPS</span>
+                    <input type="range" id="sub-slider" min="1" max="999" step="1" value="8">
+                    <span class="val" id="sub-val">8</span>
+                </div>
+
+                <div class="slider-group">
+                    <span class="label">BOUNCE</span>
+                    <input type="range" id="bounce-slider" min="0.0" max="1.0" step="0.01" value="0.32">
+                    <span class="val" id="bounce-val">0.32</span>
+                </div>
+
+                <div class="slider-group">
+                    <span class="label">TIME_STEP (1/n)</span>
+                    <input type="range" id="ts-slider" min="2" max="120" step="1" value="4">
+                    <span class="val" id="ts-val">1/4</span>
+                </div>
+            </div>
+
+            <div class="action-container">
+                <button id="collapse-btn">▾</button>
+                <button class="btn" id="slam-trigger">KINETIC STRIKE</button>
+                <button class="btn" id="reset-btn" style="flex:0 0 auto;width:36px;min-width:36px;padding:14px 4px;font-size:9px;letter-spacing:0px;opacity:0.6;">↺</button>
+            </div>
         </div>
     </div>
 
@@ -458,19 +530,17 @@
             const ctx = canvas.getContext('2d');
             const telemetryEl = document.getElementById('telemetry');
 
-            // --- Minimap ---
             const mmCanvas = document.getElementById('minimapCanvas');
             const mmCtx = mmCanvas.getContext('2d');
+
             function resizeMinimap() {
                 const mmEl = document.getElementById('minimap');
                 mmCanvas.width = mmEl.clientWidth;
                 mmCanvas.height = mmEl.clientHeight;
             }
 
-            // --- Off-screen arrow tracker ---
             const arrowEl = document.getElementById('offscreen-arrow');
 
-            // --- DOM refs ---
             const elUs = document.getElementById('us-val');
             const elIntegrity = document.getElementById('integrity');
             const elKReadout = document.getElementById('k-readout');
@@ -479,22 +549,35 @@
             const elGVal = document.getElementById('g-val');
             const elSizeReadout = document.getElementById('size-readout');
             const elSizeVal = document.getElementById('size-val');
-            const elGyroStatus = document.getElementById('gyro-status');
             const elDecayReadout = document.getElementById('decay-readout');
+            const elVelReadout = document.getElementById('vel-readout');
+            const elMaxAltReadout = document.getElementById('maxalt-readout');
+            const elComboReadout = document.getElementById('combo-readout');
             const kSlider = document.getElementById('k-slider');
             const gSlider = document.getElementById('g-slider');
             const sizeSlider = document.getElementById('size-slider');
-            const gyroBtn = document.getElementById('gyro-toggle');
+            const dampSlider = document.getElementById('damp-slider');
+            const subSlider = document.getElementById('sub-slider');
+            const bounceSlider = document.getElementById('bounce-slider');
             const slamBtn = document.getElementById('slam-trigger');
 
-            // --- Engine state ---
+            // ─────────────────────────────────────
+            // FIXED TIMESTEP CONSTANTS
+            // TIME_STEP is unitless, tuned to match the physics constants.
+            // ─────────────────────────────────────
+            let TIME_STEP = 1 / 4; // ~0.25, tunable via slider
+
+            let accumulator = 0;
+            let lastTime = performance.now();
+
             let engine = {
-                k: 1.10,
-                damping: 0.94,
-                gravity: 1.80,
-                cageSize: 40,
+                k: 1.00,
+                damping: 0.98,
+                bounce: 0.32,
+                gravity: 0.30,
+                cageSize: 35,
+                subSteps: 8,
                 totalUs: 0,
-                gyro: { x: 0, y: 0, active: false },
                 pointer: { x: 0, y: 0, active: false, targetNode: null },
                 shake: 0,
                 entropy: 0,
@@ -502,26 +585,59 @@
                 epicycleRotation: 0,
                 resonancePulses: [],
                 breathPhase: 0,
+                heightHistory: [],
+                velocityHistory: [],
+                prevCentY: null,
+                maxAlt: 0,
+                hitStop: 0,
+                impactFlashes: [],
+                combo: 0,
+                comboMult: 1.0,
+                lastTouchedByPlayer: false,
+                comboEligible: false,
+                grabFrames: 0,
+                groundedFrames: 0,
             };
 
-            // --- Classes ---
+            const CRITICAL_US = 4000;
+
+            // ─────────────────────────────────────
+            // NODE (with force accumulators)
+            // ─────────────────────────────────────
             class Node {
                 constructor(x, y) {
                     this.x = x;
                     this.y = y;
                     this.vx = 0;
                     this.vy = 0;
+                    this.fx = 0;
+                    this.fy = 0;
+                    this.mass = 1.0;
+                    this.grounded = false;
                     this.historicalTrail = [];
                     this.ghostEchoes = [];
                 }
+
+                clearForces() {
+                    this.fx = 0;
+                    this.fy = 0;
+                }
+
+                applyForce(x, y) {
+                    this.fx += x;
+                    this.fy += y;
+                }
+
                 recordPosition() {
                     this.historicalTrail.push({ x: this.x, y: this.y, age: 0 });
-                    if (this.historicalTrail.length > 28) this.historicalTrail.shift();
-                    // Update ages
+                    if (this.historicalTrail.length > 60) this.historicalTrail.shift();
                     this.historicalTrail.forEach(p => p.age++);
                 }
             }
 
+            // ─────────────────────────────────────
+            // PURE SPRING
+            // ─────────────────────────────────────
             class PureSpring {
                 constructor(nodeA, nodeB, restLength, isDiagonal = false) {
                     this.a = nodeA;
@@ -532,24 +648,30 @@
                     this.midX = 0;
                     this.midY = 0;
                 }
-                evaluate() {
+
+                accumulateForces() {
+                    const heatMultiplier = 0.9;
+                    const dynamicRestLength = this.restLength * (1 + (engine.entropy * heatMultiplier));
                     const dx = this.b.x - this.a.x;
                     const dy = this.b.y - this.a.y;
                     const len = Math.hypot(dx, dy) || 0.001;
-                    const displacement = len - this.restLength;
+                    const displacement = len - dynamicRestLength;
                     this.currentUs = 0.5 * engine.k * (displacement * displacement);
                     const force = displacement * engine.k;
                     const fx = (dx / len) * force;
                     const fy = (dy / len) * force;
-                    this.a.vx += fx;
-                    this.a.vy += fy;
-                    this.b.vx -= fx;
-                    this.b.vy -= fy;
+                    this.a.fx += fx;
+                    this.a.fy += fy;
+                    this.b.fx -= fx;
+                    this.b.fy -= fy;
                     this.midX = (this.a.x + this.b.x) / 2;
                     this.midY = (this.a.y + this.b.y) / 2;
                 }
             }
 
+            // ─────────────────────────────────────
+            // SPARK
+            // ─────────────────────────────────────
             class Spark {
                 constructor(x, y, vx, vy, colorType) {
                     this.x = x;
@@ -558,12 +680,12 @@
                     this.vy = vy;
                     this.life = 1.0;
                     this.colorType = colorType;
-                    this.size = 0.8 + Math.random() * 2.2;
+                    this.size = 0.5 + Math.random() * 11.2;
                 }
                 update() {
                     this.x += this.vx;
                     this.y += this.vy;
-                    this.vy += engine.gravity * 0.04;
+                    this.vy += engine.gravity * 0.02;
                     this.life -= 0.018;
                     this.size *= 0.995;
                 }
@@ -583,17 +705,62 @@
                     ctx.fill();
                     ctx.shadowBlur = 0;
                 }
+                reset(x, y, vx, vy, colorType) {
+                    this.x = x;
+                    this.y = y;
+                    this.vx = vx;
+                    this.vy = vy;
+                    this.life = 1.0;
+                    this.colorType = colorType;
+                    this.size = 0.5 + Math.random() * 1.2;
+                }
             }
 
+            // ─────────────────────────────────────
+            // PARTICLE POOL
+            // ─────────────────────────────────────
+            class ParticlePool {
+                constructor(maxSize) {
+                    this.pool = new Array(maxSize).fill(null).map(() => new Spark(0, 0, 0, 0, ''));
+                    this.activeCount = 0;
+                }
+
+                spawn(x, y, vx, vy, type) {
+                    if (this.activeCount >= this.pool.length) return;
+                    const p = this.pool[this.activeCount++];
+                    p.reset(x, y, vx, vy, type);
+                }
+
+                updateAndRender(ctx) {
+                    for (let i = this.activeCount - 1; i >= 0; i--) {
+                        const p = this.pool[i];
+                        p.update();
+                        if (p.life <= 0) {
+                            this.pool[i] = this.pool[this.activeCount - 1];
+                            this.pool[this.activeCount - 1] = p;
+                            this.activeCount--;
+                        } else {
+                            p.draw(ctx);
+                        }
+                    }
+                }
+
+                get count() { return this.activeCount; }
+                clear() { this.activeCount = 0; }
+            }
+
+            // ─────────────────────────────────────
+            // RESONANCE PULSE
+            // ─────────────────────────────────────
             class ResonancePulse {
                 constructor(x, y, intensity) {
                     this.x = x;
                     this.y = y;
                     this.radius = 0;
-                    this.maxRadius = 80 + intensity * 2.5;
+                    this.maxRadius = 40 + intensity * 1.5;
                     this.life = 1.0;
                     this.intensity = intensity;
-                    this.speed = 3 + intensity * 3;
+                    this.speed = 1 + intensity * 1;
                 }
                 update() {
                     this.radius += this.speed;
@@ -602,7 +769,7 @@
                 }
                 draw(ctx) {
                     if (this.life <= 0) return;
-                    const alpha = this.life * 0.55;
+                    const alpha = this.life * 0.05;
                     ctx.beginPath();
                     ctx.arc(this.x, this.y, this.radius, 0, Math.PI * 2);
                     ctx.strokeStyle = `rgba(181,148,91,${alpha})`;
@@ -614,15 +781,18 @@
                 }
             }
 
+            // ─────────────────────────────────────
+            // WISP
+            // ─────────────────────────────────────
             class Wisp {
                 constructor(node, intensity) {
                     this.node = node;
                     this.angle = Math.random() * Math.PI * 2;
-                    this.dist = 8 + Math.random() * 18;
+                    this.dist = 20 + Math.random() * 180;
                     this.speed = (0.02 + Math.random() * 0.06) * (Math.random() > 0.5 ? 1 : -1);
-                    this.life = 0.6 + Math.random() * 0.4;
+                    this.life = 0.6 + Math.random() * 0.2;
                     this.intensity = intensity;
-                    this.size = 0.6 + Math.random() * 2;
+                    this.size = 0.2 + Math.random() * 10;
                 }
                 update() {
                     this.angle += this.speed;
@@ -646,21 +816,23 @@
                 get alive() { return this.life > 0; }
             }
 
-            // --- Data ---
-            let nodes = [];
-            let springs = [];
-            let sparks = [];
-            let backgroundAstrolabe = [];
-            let wisps = [];
+            // ─────────────────────────────────────
+            // GLOBALS
+            // ─────────────────────────────────────
+            let nodes = [],
+                springs = [],
+                sparkPool = new ParticlePool(600),
+                backgroundAstrolabe = [],
+                wisps = [];
 
             function buildAstrolabe() {
                 backgroundAstrolabe = [];
                 for (let i = 1; i <= 7; i++) {
                     backgroundAstrolabe.push({
-                        radiusRatio: i / 7,
+                        radiusRatio: i / 2,
                         dashConfig: i % 2 === 0 ? [4, 8] : [2, 5],
                         lineWidth: i === 7 ? 1.0 : 0.35,
-                        phase: Math.random() * Math.PI * 2,
+                        phase: Math.random() * Math.PI * 9,
                     });
                 }
             }
@@ -668,24 +840,25 @@
             function buildCage() {
                 nodes = [];
                 springs = [];
-                sparks = [];
+                sparkPool.clear();
                 wisps = [];
                 engine.resonancePulses = [];
-                const cx = canvas.width / 2;
-                const cy = canvas.height / 2;
-                const half = engine.cageSize / 2;
-                const size = engine.cageSize;
-
-                nodes.push(new Node(cx - half, cy - half)); // TL
-                nodes.push(new Node(cx + half, cy - half)); // TR
-                nodes.push(new Node(cx + half, cy + half)); // BR
-                nodes.push(new Node(cx - half, cy + half)); // BL
-
+                engine.heightHistory = [];
+                engine.velocityHistory = [];
+                engine.prevCentY = null;
+                engine.maxAlt = 0;
+                const cx = canvas.width / 2,
+                    cy = canvas.height / 2;
+                const half = engine.cageSize / 2,
+                    size = engine.cageSize;
+                nodes.push(new Node(cx - half, cy - half));
+                nodes.push(new Node(cx + half, cy - half));
+                nodes.push(new Node(cx + half, cy + half));
+                nodes.push(new Node(cx - half, cy + half));
                 springs.push(new PureSpring(nodes[0], nodes[1], size, false));
                 springs.push(new PureSpring(nodes[1], nodes[2], size, false));
                 springs.push(new PureSpring(nodes[2], nodes[3], size, false));
                 springs.push(new PureSpring(nodes[3], nodes[0], size, false));
-
                 const diagDist = size * Math.sqrt(2);
                 springs.push(new PureSpring(nodes[0], nodes[2], diagDist, true));
                 springs.push(new PureSpring(nodes[1], nodes[3], diagDist, true));
@@ -698,10 +871,15 @@
                 buildCage();
                 resizeMinimap();
             }
+
+            const viewportObserver = new ResizeObserver(() => { resize(); });
+            viewportObserver.observe(container);
             window.addEventListener('resize', resize);
             resize();
 
-            // --- Slider handlers ---
+            // ─────────────────────────────────────
+            // UI SLIDERS
+            // ─────────────────────────────────────
             kSlider.oninput = (e) => {
                 engine.k = parseFloat(e.target.value);
                 elKReadout.textContent = engine.k.toFixed(2);
@@ -718,59 +896,90 @@
                 elSizeVal.textContent = engine.cageSize;
                 buildCage();
             };
+            dampSlider.oninput = (e) => {
+                engine.damping = parseFloat(e.target.value);
+                document.getElementById('damp-val').textContent = engine.damping.toFixed(3);
+            };
+            subSlider.oninput = (e) => {
+                engine.subSteps = parseInt(e.target.value);
+                document.getElementById('sub-val').textContent = engine.subSteps;
+            };
+            bounceSlider.oninput = (e) => {
+                engine.bounce = parseFloat(e.target.value);
+                document.getElementById('bounce-val').textContent = engine.bounce.toFixed(2);
+            };
+            document.getElementById('ts-slider').oninput = (e) => {
+                const n = parseInt(e.target.value);
+                TIME_STEP = 1 / n;
+                document.getElementById('ts-val').textContent = '1/' + n;
+            };
 
-            // --- Kinetic Strike ---
+            // ─────────────────────────────────────
+            // KINETIC STRIKE
+            // ─────────────────────────────────────
             const executeTrauma = (e) => {
                 if (e) e.preventDefault();
-                const cx = canvas.width / 2;
-                const cy = canvas.height / 2;
-                nodes.forEach(n => {
-                    n.vx += (Math.random() - 0.5) * 90;
-                    n.vy -= (Math.random() * 65) + 35;
-                });
-                engine.shake = Math.min(engine.shake + 130, 138);
-                engine.resonancePulses.push(new ResonancePulse(cx, cy, 25));
-                nodes.forEach((n) => {
-                    for (let i = 0; i < 80; i++) {
-                        const angle = Math.random() * Math.PI * 1;
-                        const vel = Math.random() * 1 + 3;
-                        const cType = i % 3 === 0 ? 'bleed' : (i % 2 === 0 ? 'surge' : 'brass');
-                        sparks.push(new Spark(n.x, n.y, Math.cos(angle) * vel, Math.sin(angle) * vel, cType));
-                    }
-                });
+                engine.hitStop = 0;
+                const cx = canvas.width / 2,
+                    cy = canvas.height / 2;
+                const mult = engine.comboMult;
+                const empowered = mult > 2.0;
+                if (empowered) {
+                    nodes.forEach(n => {
+                        n.vx += (Math.random() - 0.5) * 14 * mult;
+                        n.vy -= (Math.random() * 10 + 55) * mult;
+                    });
+                    engine.shake = Math.min(engine.shake + 20, 20);
+                    engine.hitStop = Math.max(engine.hitStop, 4 + Math.floor(mult * mult));
+                    nodes.forEach(n => { engine.impactFlashes.push({ x: n.x, y: n.y, life: 1.0, strength: mult * mult }); });
+                    engine.resonancePulses.push(new ResonancePulse(cx, cy, 38 * mult));
+                    nodes.forEach((n) => {
+                        const sparkCount = Math.floor(140 * mult);
+                        for (let i = 0; i < sparkCount; i++) {
+                            const angle = Math.random() * Math.PI * 2;
+                            const vel = (Math.random() * 2.5 + 55) * Math.sqrt(mult);
+                            const cType = i % 3 === 0 ? 'bleed' : (i % 2 === 0 ? 'surge' : 'cyan');
+                            sparkPool.spawn(n.x, n.y, Math.cos(angle) * vel, Math.sin(angle) * vel, cType);
+                        }
+                    });
+                } else {
+                    nodes.forEach(n => {
+                        n.vx += (Math.random() - 0.5) * 30;
+                        n.vy -= (Math.random() * 18) + 14;
+                    });
+                    engine.shake = Math.min(engine.shake + 22, 40);
+                    nodes.forEach(n => { engine.impactFlashes.push({ x: n.x, y: n.y, life: 0.5, strength: mult }); });
+                    nodes.forEach((n) => {
+                        for (let i = 0; i < 15; i++) {
+                            const angle = Math.random() * Math.PI * 0.8;
+                            const vel = Math.random() * 1.4 + mult;
+                            sparkPool.spawn(n.x, n.y, Math.cos(angle) * vel, Math.sin(angle) * vel, 'brass');
+                        }
+                    });
+                }
             };
+            document.getElementById('reset-btn').addEventListener('click', buildCage);
+            document.getElementById('reset-btn').addEventListener('touchend', (e) => { e.preventDefault(); buildCage(); });
+
             slamBtn.addEventListener('mousedown', executeTrauma);
             slamBtn.addEventListener('touchstart', executeTrauma, { passive: false });
 
-            // --- Gyro ---
-            gyroBtn.onclick = async () => {
-                if (
-                    typeof DeviceOrientationEvent !== 'undefined' &&
-                    typeof DeviceOrientationEvent.requestPermission === 'function'
-                ) {
-                    try {
-                        const res = await DeviceOrientationEvent.requestPermission();
-                        if (res === 'granted') activateGyro();
-                    } catch (err) {
-                        console.error('Gyro permission error:', err);
-                    }
-                } else {
-                    activateGyro();
-                }
-            };
+            const collapseBtn = document.getElementById('collapse-btn');
+            const controlDeck = document.getElementById('control-deck');
+            collapseBtn.addEventListener('click', () => {
+                const collapsed = controlDeck.classList.toggle('collapsed');
+                collapseBtn.textContent = collapsed ? '▴' : '▾';
+            });
+            collapseBtn.addEventListener('touchend', (e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                const collapsed = controlDeck.classList.toggle('collapsed');
+                collapseBtn.textContent = collapsed ? '▴' : '▾';
+            });
 
-            function activateGyro() {
-                window.addEventListener('deviceorientation', (e) => {
-                    engine.gyro.x = (e.gamma || 0) * 0.28;
-                    engine.gyro.y = (e.beta || 0) * 0.28;
-                });
-                engine.gyro.active = true;
-                gyroBtn.classList.add('active');
-                elGyroStatus.textContent = 'LINKED';
-                elGyroStatus.style.color = 'var(--brass)';
-            }
-
-            // --- Pointer / Touch handling ---
+            // ─────────────────────────────────────
+            // POINTER / GRAB
+            // ─────────────────────────────────────
             function getPointerPos(e) {
                 const rect = canvas.getBoundingClientRect();
                 const clientX = e.touches ? e.touches[0].clientX : e.clientX;
@@ -778,22 +987,28 @@
                 return { x: clientX - rect.left, y: clientY - rect.top };
             }
 
+            function isControlDeckTarget(e) {
+                const target = e.target;
+                return target.closest && target.closest('#control-deck');
+            }
+
             function onPointerDown(e) {
                 if (e.touches && e.touches.length > 1) return;
+                if (isControlDeckTarget(e)) return;
                 const pos = getPointerPos(e);
                 engine.pointer.active = true;
-                let closest = null;
-                let minDist = 70;
+                engine.grabFrames = 0;
+                let closest = null, minDist = 70;
                 nodes.forEach(n => {
                     const d = Math.hypot(n.x - pos.x, n.y - pos.y);
-                    if (d < minDist) { minDist = d;
-                        closest = n; }
+                    if (d < minDist) { minDist = d; closest = n; }
                 });
                 engine.pointer.targetNode = closest;
             }
 
             function onPointerMove(e) {
                 if (!engine.pointer.active) return;
+                if (isControlDeckTarget(e)) return;
                 const pos = getPointerPos(e);
                 if (engine.pointer.targetNode) {
                     engine.pointer.targetNode.x = pos.x;
@@ -804,8 +1019,11 @@
                 engine.pointer.x = pos.x;
                 engine.pointer.y = pos.y;
             }
-
             const drop = () => {
+                if (engine.pointer.targetNode) {
+                    if (engine.grabFrames <= 30) { engine.lastTouchedByPlayer = true; engine.comboEligible = true; }
+                }
+                engine.grabFrames = 0;
                 engine.pointer.active = false;
                 engine.pointer.targetNode = null;
             };
@@ -813,160 +1031,180 @@
             canvas.addEventListener('mousedown', onPointerDown);
             window.addEventListener('mousemove', onPointerMove);
             window.addEventListener('mouseup', drop);
-            canvas.addEventListener('touchstart', (e) => { e.preventDefault();
-                onPointerDown(e); }, { passive: false });
-            window.addEventListener('touchmove', (e) => { if (engine.pointer.active) e.preventDefault();
-                onPointerMove(e); }, { passive: false });
-            window.addEventListener('touchend', (e) => { e.preventDefault();
-                drop(); }, { passive: false });
-            window.addEventListener('touchcancel', (e) => { e.preventDefault();
-                drop(); }, { passive: false });
+            canvas.addEventListener('touchstart', (e) => { if (isControlDeckTarget(e)) return; e.preventDefault(); onPointerDown(e); }, { passive: false });
+            window.addEventListener('touchmove', (e) => { if (engine.pointer.active && !isControlDeckTarget(e)) e.preventDefault(); onPointerMove(e); }, { passive: false });
+            window.addEventListener('touchend', (e) => { if (isControlDeckTarget(e)) return; e.preventDefault(); drop(); }, { passive: false });
+            window.addEventListener('touchcancel', (e) => { if (isControlDeckTarget(e)) return; e.preventDefault(); drop(); }, { passive: false });
 
-            // --- Constants ---
-            const SUB_STEPS = 8;
-            const DT = 0.12;
-            const CRITICAL_US = 800;
+            // ─────────────────────────────────────
+            // FIXED-TIMESTEP PHYSICS STEP
+            // dt is in ms, forces/velocities are tuned to that scale
+            // ─────────────────────────────────────
+            function stepPhysics(dt) {
+                nodes.forEach(n => n.clearForces());
+                springs.forEach(s => s.accumulateForces());
+                engine.totalUs = springs.reduce((sum, s) => sum + s.currentUs, 0);
 
-            // --- Main loop ---
-            function loop() {
-                // Entropy decay
+                if (engine.pointer.targetNode) {
+                    engine.pointer.targetNode.clearForces();
+                }
+
+                nodes.forEach(n => {
+                    if (n !== engine.pointer.targetNode) {
+                        n.fy += engine.gravity;
+                        n.vx += (n.fx / n.mass) * dt;
+                        n.vy += (n.fy / n.mass) * dt;
+                        n.vx *= Math.pow(engine.damping, dt);
+                        n.vy *= Math.pow(engine.damping, dt);
+                        n.x += n.vx * dt;
+                        n.y += n.vy * dt;
+
+                        if (isNaN(n.x) || isNaN(n.y) || !isFinite(n.x) || !isFinite(n.y)) {
+                            n.x = canvas.width / 2;
+                            n.y = canvas.height / 2;
+                            n.vx = 0;
+                            n.vy = 0;
+                            n.clearForces();
+                        }
+                    }
+                });
+
+                const r = 8;
+                nodes.forEach(n => {
+                    if (n.y < canvas.height - r - 2) n.grounded = false;
+                    if (n.x < r) { n.x = r; n.vx *= -engine.bounce; }
+                    if (n.x > canvas.width - r) { n.x = canvas.width - r; n.vx *= -engine.bounce; }
+                    if (n.y > canvas.height - r) {
+                        const wasAirborne = !n.grounded;
+                        n.y = canvas.height - r;
+                        n.grounded = true;
+                        if (wasAirborne && n.vy > 4 && engine.comboEligible) {
+                            const m = engine.comboMult;
+                            engine.hitStop = Math.max(engine.hitStop, Math.min(Math.round(m * 4), 2));
+                            engine.impactFlashes.push({ x: n.x, y: n.y, life: 1.0, strength: Math.min((n.vy / 18) * m, 4.0) });
+                            n.vy *= -(engine.bounce + Math.min(m * 1, 1));
+                            const extraSparks = Math.floor(m * 24);
+                            for (let i = 0; i < extraSparks; i++) {
+                                const angle = Math.random() * Math.PI;
+                                const vel = (2.5 + m * 5) * Math.sqrt(m);
+                                const cType = i % 3 === 0 ? 'bleed' : (i % 2 === 0 ? 'surge' : 'cyan');
+                                sparkPool.spawn(n.x, n.y, Math.cos(angle) * vel, -Math.abs(Math.sin(angle) * vel), cType);
+                            }
+                            engine.lastTouchedByPlayer = false;
+                        } else if (wasAirborne && n.vy > 4) {
+                            engine.hitStop = Math.max(engine.hitStop, 1);
+                            engine.impactFlashes.push({ x: n.x, y: n.y, life: 1.0, strength: Math.min(n.vy / 4, 0.8) });
+                            n.vy *= -engine.bounce;
+                        } else {
+                            n.vy *= -engine.bounce;
+                        }
+                    }
+                });
+            }
+
+            // ─────────────────────────────────────
+            // PER-FRAME UPDATES (non-physics)
+            // ─────────────────────────────────────
+            function updatePerFrame() {
                 engine.k = Math.max(0.15, engine.k - engine.decay_rate);
                 engine.entropy = Math.min(engine.entropy + 0.00008, 2.8);
                 engine.epicycleRotation += 0.0035;
                 engine.breathPhase += 0.025;
 
-                // Phosphor trail persistence
-                ctx.globalCompositeOperation = 'source-over';
-                ctx.fillStyle = 'rgba(2, 3, 6, 0.28)';
-                ctx.fillRect(0, 0, canvas.width, canvas.height);
-
-                engine.totalUs = 0;
-                const jitterX = (Math.random() - 0.5) * engine.entropy * 0;
-                const jitterY = (Math.random() - 0.5) * engine.entropy * 0;
-
-                // --- Physics sub-steps ---
-                for (let step = 0; step < SUB_STEPS; step++) {
-                    springs.forEach(s => {
-                        s.evaluate();
-                        if (step === 0) engine.totalUs += s.currentUs;
-                    });
-
-                    nodes.forEach(n => {
-                        if (n !== engine.pointer.targetNode) {
-                            n.vx += (engine.gyro.active ? engine.gyro.x : 0) * DT + jitterX;
-                            n.vy += (engine.gyro.active ? engine.gyro.y : engine.gravity) * DT + jitterY;
-                            n.x += n.vx * DT;
-                            n.y += n.vy * DT;
-                        }
-
-                        const r = 8;
-                        // NO ROOF — only walls and floor
-                        if (n.x < r) { n.x = r;
-                            n.vx *= -0.3; }
-                        if (n.x > canvas.width - r) { n.x = canvas.width - r;
-                            n.vx *= -0.3; }
-                        if (n.y > canvas.height - r) { n.y = canvas.height - r;
-                            n.vy *= -0.3; }
-
-                        n.vx *= Math.pow(engine.damping, DT);
-                        n.vy *= Math.pow(engine.damping, DT);
-                    });
+                if (engine.pointer.targetNode !== null) {
+                    engine.grabFrames++;
+                    if (engine.grabFrames > 30) { engine.comboEligible = false; engine.combo = 0; engine.comboMult = 1.0; }
                 }
 
-                // --- Record trails ---
+                const isHeld = engine.pointer.targetNode !== null;
+                const allGrounded = nodes.every(n => n.y >= canvas.height - 9);
+                const anyOffScreen = nodes.some(n => n.x < 0 || n.x > canvas.width || n.y < 0 || n.y > canvas.height);
+
+                const RESET_FRAMES = 30;
+                if (allGrounded) { engine.groundedFrames++; } else { engine.groundedFrames = 0; }
+
+                if (anyOffScreen) {
+                    engine.comboEligible = false;
+                    engine.combo = 0;
+                    engine.comboMult = 1.0;
+                    engine.groundedFrames = 0;
+                } else if (isHeld && engine.grabFrames > RESET_FRAMES) {
+                    engine.combo = 0;
+                    engine.comboMult = 1.0;
+                    engine.comboEligible = false;
+                } else if (engine.groundedFrames > RESET_FRAMES) {
+                    engine.combo = 0;
+                    engine.comboMult = 1.0;
+                    engine.comboEligible = false;
+                    engine.groundedFrames = 0;
+                } else if (engine.comboEligible && !isHeld) {
+                    engine.combo++;
+                    engine.comboMult = 1.0 + Math.min(engine.combo / 60, 4.0);
+                }
+
                 nodes.forEach(n => n.recordPosition());
 
-                // --- Critical state detection ---
-                const isCritical = engine.totalUs > CRITICAL_US || engine.k < 0.55;
+                const isCritical = engine.totalUs > CRITICAL_US || engine.k < 0.30;
 
-                // --- Spawn resonance pulses on critical transition ---
                 if (isCritical && engine.resonancePulses.length === 0 && Math.random() < 0.3) {
-                    const cx = canvas.width / 2;
-                    const cy = canvas.height / 2;
+                    const cx = canvas.width / 2, cy = canvas.height / 2;
                     engine.resonancePulses.push(new ResonancePulse(cx, cy, engine.totalUs / 30));
                 }
 
-                // --- Shake ---
                 if (isCritical) {
                     engine.shake = Math.min(engine.shake + 2.2, 18);
                     nodes.forEach(n => {
-                        if (Math.random() < 0.25) {
-                            sparks.push(new Spark(n.x, n.y, (Math.random() - 0.5) * 11, (Math.random() - 0.5) * 11,
-                                'surge'));
-                        }
+                        if (Math.random() < 0.25) sparkPool.spawn(n.x, n.y, (Math.random() - 0.5) * 11, (Math.random() - 0.5) * 11, 'surge');
                     });
                     springs.forEach(s => {
-                        if (Math.random() < 0.1 && s.currentUs > 100) {
-                            sparks.push(new Spark(s.midX, s.midY, (Math.random() - 0.5) * 8, (Math.random() -
-                                0.5) * 8, 'cyan'));
-                        }
+                        if (Math.random() < 0.1 && s.currentUs > 100) sparkPool.spawn(s.midX, s.midY, (Math.random() - 0.5) * 8, (Math.random() - 0.5) * 8, 'cyan');
                     });
-                    // Spawn wisps around stressed nodes
                     nodes.forEach(n => {
-                        const nodeStress = springs
-                            .filter(s => s.a === n || s.b === n)
-                            .reduce((sum, s) => sum + s.currentUs, 0);
-                        if (nodeStress > 200 && Math.random() < 0.3 && wisps.length < 20) {
-                            wisps.push(new Wisp(n, nodeStress / 200));
-                        }
+                        const nodeStress = springs.filter(s => s.a === n || s.b === n).reduce((sum, s) => sum + s.currentUs, 0);
+                        if (nodeStress > 200 && Math.random() < 0.3 && wisps.length < 20) wisps.push(new Wisp(n, nodeStress / 200));
                     });
                 }
                 if (engine.shake > 0) engine.shake *= 0.87;
                 if (engine.shake < 0.3) engine.shake = 0;
 
-                // --- Update resonance pulses ---
                 engine.resonancePulses = engine.resonancePulses.filter(p => p.update());
-
-                // --- Update wisps ---
                 wisps.forEach(w => w.update());
                 wisps = wisps.filter(w => w.alive);
-                // Prune excess wisps
                 if (wisps.length > 25) wisps.splice(0, wisps.length - 25);
+            }
 
-                // --- Update sparks ---
-                for (let i = sparks.length - 1; i >= 0; i--) {
-                    sparks[i].update();
-                    if (sparks[i].life <= 0) sparks.splice(i, 1);
-                }
-                // Limit sparks
-                if (sparks.length > 500) sparks.splice(0, sparks.length - 500);
+            // ─────────────────────────────────────
+            // RENDER FRAME
+            // ─────────────────────────────────────
+            function renderFrame() {
+                ctx.globalCompositeOperation = 'source-over';
+                ctx.fillStyle = 'rgba(2, 3, 6, 0.28)';
+                ctx.fillRect(0, 0, canvas.width, canvas.height);
 
-                // --- Rendering ---
+                const isCritical = engine.totalUs > CRITICAL_US || engine.k < 0.30;
+
                 ctx.save();
                 if (engine.shake > 0.4) {
-                    ctx.translate(
-                        (Math.random() - 0.5) * engine.shake * 1.6,
-                        (Math.random() - 0.5) * engine.shake * 1.6
-                    );
+                    ctx.translate((Math.random() - 0.5) * engine.shake * 1.6, (Math.random() - 0.5) * engine.shake * 1.6);
                 }
 
                 ctx.globalCompositeOperation = 'lighter';
-
-                const cx = canvas.width / 2;
-                const cy = canvas.height / 2;
+                const cx = canvas.width / 2, cy = canvas.height / 2;
                 const maxD = Math.max(canvas.width, canvas.height);
 
-                // --- Astrolabe background ---
-                const astrolabePulse = 1 + (isCritical ? Math.sin(engine.breathPhase * 3) * 0.15 : Math.sin(engine
-                    .breathPhase) * 0.04);
+                const astrolabePulse = 1 + (isCritical ? Math.sin(engine.breathPhase * 3) * 0.15 : Math.sin(engine.breathPhase) * 0.04);
                 backgroundAstrolabe.forEach(r => {
                     const baseAlpha = r.radiusRatio * 0.14 * astrolabePulse;
-                    ctx.strokeStyle = isCritical ?
-                        `rgba(255,51,102,${baseAlpha * 1.3})` :
-                        `rgba(181,148,91,${baseAlpha})`;
+                    ctx.strokeStyle = isCritical ? `rgba(255,51,102,${baseAlpha*1.3})` : `rgba(181,148,91,${baseAlpha})`;
                     ctx.setLineDash(r.dashConfig);
                     ctx.lineWidth = r.lineWidth * astrolabePulse;
                     ctx.beginPath();
-                    ctx.arc(cx, cy, maxD * 0.42 * r.radiusRatio * astrolabePulse, r.phase + engine.epicycleRotation,
-                        0, Math.PI * 2);
+                    ctx.arc(cx, cy, maxD * 0.42 * r.radiusRatio * astrolabePulse, r.phase + engine.epicycleRotation, 0, Math.PI * 2);
                     ctx.stroke();
                 });
                 ctx.setLineDash([]);
 
-                // --- Crosshair ---
-                ctx.strokeStyle = isCritical ?
-                    'rgba(255,51,102,0.12)' :
-                    'rgba(181,148,91,0.09)';
+                ctx.strokeStyle = isCritical ? 'rgba(255,51,102,0.12)' : 'rgba(181,148,91,0.09)';
                 ctx.lineWidth = 0.5;
                 ctx.beginPath();
                 ctx.moveTo(cx, 0);
@@ -975,12 +1213,9 @@
                 ctx.lineTo(canvas.width, cy);
                 ctx.stroke();
 
-                // --- Historical trails ---
                 nodes.forEach(n => {
                     if (n.historicalTrail.length > 1) {
-                        const trailColor = isCritical ?
-                            'rgba(255,51,102,' :
-                            'rgba(181,148,91,';
+                        const trailColor = isCritical ? 'rgba(255,51,102,' : 'rgba(181,148,91,';
                         ctx.beginPath();
                         ctx.lineWidth = 1.2;
                         for (let t = 0; t < n.historicalTrail.length; t++) {
@@ -991,8 +1226,6 @@
                             else ctx.lineTo(pt.x, pt.y);
                         }
                         ctx.stroke();
-
-                        // Ghost echo dots at older positions
                         for (let t = 0; t < n.historicalTrail.length; t += 4) {
                             const pt = n.historicalTrail[t];
                             const alpha = (t / n.historicalTrail.length) * 0.5;
@@ -1004,7 +1237,6 @@
                     }
                 });
 
-                // --- Cage interior fill ---
                 const localIntensity = Math.min(engine.totalUs / 600, 1);
                 ctx.beginPath();
                 ctx.moveTo(nodes[0].x, nodes[0].y);
@@ -1012,45 +1244,26 @@
                 ctx.lineTo(nodes[2].x, nodes[2].y);
                 ctx.lineTo(nodes[3].x, nodes[3].y);
                 ctx.closePath();
-                if (isCritical) {
-                    ctx.fillStyle =
-                        `rgba(255,51,102,${0.07 + localIntensity * 0.22 + Math.sin(engine.breathPhase * 4) * 0.03})`;
-                } else {
-                    ctx.fillStyle =
-                        `rgba(181,148,91,${0.04 + localIntensity * 0.14 + Math.sin(engine.breathPhase) * 0.02})`;
-                }
+                ctx.fillStyle = isCritical ?
+                    `rgba(255,51,102,${0.07+localIntensity*0.22+Math.sin(engine.breathPhase*4)*0.03})` :
+                    `rgba(181,148,91,${0.04+localIntensity*0.14+Math.sin(engine.breathPhase)*0.02})`;
                 ctx.fill();
 
-                // --- Chromatic aberration offsets ---
                 const offsets = isCritical ?
-                    [
-                        { x: -4.5, color: 'rgba(255,51,102,0.85)' },
-                        { x: 4.5, color: 'rgba(0,229,255,0.75)' },
-                        { x: 0, color: '#b5945b' },
-                    ] :
-                    [
-                        { x: -1.5, color: 'rgba(181,148,91,0.5)' },
-                        { x: 1.5, color: 'rgba(200,170,120,0.4)' },
-                        { x: 0, color: '#b5945b' },
-                    ];
+                    [{ x: -4.5, color: 'rgba(255,51,102,0.85)' }, { x: 4.5, color: 'rgba(0,229,255,0.75)' }, { x: 0, color: '#b5945b' }] :
+                    [{ x: -1.5, color: 'rgba(181,148,91,0.5)' }, { x: 1.5, color: 'rgba(200,170,120,0.4)' }, { x: 0, color: '#b5945b' }];
 
-                // --- Render springs ---
                 offsets.forEach(off => {
                     ctx.save();
                     ctx.translate(off.x, 0);
-
                     springs.forEach(s => {
                         ctx.beginPath();
                         ctx.moveTo(s.a.x, s.a.y);
                         ctx.lineTo(s.b.x, s.b.y);
-
                         const strain = Math.min(s.currentUs / 40, 1);
-
                         if (s.isDiagonal) {
                             const diagAlpha = off.x !== 0 ? 0.18 + strain * 0.45 : 0.25 + strain * 0.55;
-                            ctx.strokeStyle = off.x !== 0 ?
-                                `rgba(255,170,0,${diagAlpha.toFixed(3)})` :
-                                `rgba(255,170,0,${diagAlpha.toFixed(3)})`;
+                            ctx.strokeStyle = `rgba(255,170,0,${diagAlpha.toFixed(3)})`;
                             ctx.lineWidth = 0.5 + strain * 1.6;
                             ctx.setLineDash([3, 5]);
                             ctx.shadowColor = 'transparent';
@@ -1058,22 +1271,18 @@
                         } else {
                             const baseAlpha = off.x !== 0 ? 0.38 + strain * 0.4 : 0.55 + strain * 0.45;
                             let colorStr = off.color;
-                            // Replace alpha in rgba strings
-                            if (colorStr.startsWith('rgba')) {
-                                colorStr = colorStr.replace(/[\d.]+\)$/, baseAlpha.toFixed(3) + ')');
-                            }
+                            if (colorStr.startsWith('rgba')) colorStr = colorStr.replace(/[\d.]+\)$/, baseAlpha.toFixed(3) + ')');
                             ctx.strokeStyle = colorStr;
                             ctx.lineWidth = 1.5 + strain * 3.2;
                             ctx.setLineDash([]);
                             if (isCritical && off.x === 0) {
-                                ctx.shadowColor = `rgba(255,51,102,${0.5 + strain * 0.5})`;
+                                ctx.shadowColor = `rgba(255,51,102,${0.5+strain*0.5})`;
                                 ctx.shadowBlur = 10 + strain * 16;
                             } else if (isCritical && off.x !== 0) {
-                                ctx.shadowColor = off.color.replace(/[\d.]+\)$/, (0.35 + strain * 0.4).toFixed(3) +
-                                    ')');
+                                ctx.shadowColor = off.color.replace(/[\d.]+\)$/, (0.35 + strain * 0.4).toFixed(3) + ')');
                                 ctx.shadowBlur = 5 + strain * 8;
                             } else if (!isCritical && off.x === 0 && strain > 0.5) {
-                                ctx.shadowColor = `rgba(181,148,91,${strain * 0.5})`;
+                                ctx.shadowColor = `rgba(181,148,91,${strain*0.5})`;
                                 ctx.shadowBlur = 4 + strain * 8;
                             } else {
                                 ctx.shadowColor = 'transparent';
@@ -1081,13 +1290,9 @@
                             }
                         }
                         ctx.stroke();
-
-                        // Tension indicator dot at midpoint for highly stressed springs
                         if (s.currentUs > 60 && off.x === 0) {
                             const dotAlpha = Math.min(1, s.currentUs / 200);
-                            ctx.fillStyle = isCritical ?
-                                `rgba(255,51,102,${dotAlpha})` :
-                                `rgba(255,170,0,${dotAlpha})`;
+                            ctx.fillStyle = isCritical ? `rgba(255,51,102,${dotAlpha})` : `rgba(255,170,0,${dotAlpha})`;
                             ctx.shadowColor = ctx.fillStyle;
                             ctx.shadowBlur = 5 * dotAlpha;
                             ctx.beginPath();
@@ -1096,42 +1301,27 @@
                             ctx.shadowBlur = 0;
                         }
                     });
-
                     ctx.restore();
                 });
 
-                // --- Resonance pulses ---
                 engine.resonancePulses.forEach(p => p.draw(ctx));
-
-                // --- Wisps ---
                 wisps.forEach(w => w.draw(ctx));
+                sparkPool.updateAndRender(ctx);
 
-                // --- Sparks ---
-                sparks.forEach(s => s.draw(ctx));
-
-                // --- Nodes ---
                 nodes.forEach(n => {
                     const isGrabbed = engine.pointer.targetNode === n;
-                    const nodeStress = springs
-                        .filter(s => s.a === n || s.b === n)
-                        .reduce((sum, s) => sum + s.currentUs, 0);
+                    const nodeStress = springs.filter(s => s.a === n || s.b === n).reduce((sum, s) => sum + s.currentUs, 0);
                     const nodeGlow = Math.min(nodeStress / 300, 1);
-
-                    // Outer glow
                     if (nodeGlow > 0.15 && !isGrabbed) {
-                        const glowColor = isCritical ?
-                            `rgba(255,51,102,${nodeGlow * 0.6})` :
-                            `rgba(255,170,0,${nodeGlow * 0.5})`;
+                        const glowColor = isCritical ? `rgba(255,51,102,${nodeGlow*0.6})` : `rgba(255,170,0,${nodeGlow*0.5})`;
                         ctx.fillStyle = glowColor;
                         ctx.shadowColor = glowColor;
-                        ctx.shadowBlur = 8 + nodeGlow * 18;
+                        ctx.shadowBlur = 16 + nodeGlow * 30;
                         ctx.beginPath();
                         ctx.arc(n.x, n.y, 6 + nodeGlow * 8, 0, Math.PI * 2);
                         ctx.fill();
                         ctx.shadowBlur = 0;
                     }
-
-                    // Core
                     ctx.fillStyle = isGrabbed ? '#ffffff' : isCritical ? '#ff3366' : 'var(--brass)';
                     ctx.shadowColor = ctx.fillStyle;
                     ctx.shadowBlur = isGrabbed ? 16 : (isCritical ? 11 : 5);
@@ -1139,8 +1329,6 @@
                     ctx.arc(n.x, n.y, isGrabbed ? 5.5 : 3.8, 0, Math.PI * 2);
                     ctx.fill();
                     ctx.shadowBlur = 0;
-
-                    // Grab indicator ring
                     if (isGrabbed) {
                         ctx.strokeStyle = '#ffffff';
                         ctx.lineWidth = 1.5;
@@ -1152,9 +1340,8 @@
                     }
                 });
 
-                ctx.restore(); // End shake
+                ctx.restore();
 
-                // --- Vignette overlay ---
                 ctx.globalCompositeOperation = 'source-over';
                 const vignetteGrad = ctx.createRadialGradient(cx, cy, maxD * 0.35, cx, cy, maxD * 0.75);
                 vignetteGrad.addColorStop(0, 'rgba(0,0,0,0)');
@@ -1163,16 +1350,12 @@
                 ctx.fillStyle = vignetteGrad;
                 ctx.fillRect(0, 0, canvas.width, canvas.height);
 
-                // --- CSS glitch skew ---
                 if (isCritical && Math.random() < 0.2) {
-                    container.style.transform =
-                        `skewX(${(Math.random() - 0.5) * 3.5}deg) skewY(${(Math.random() - 0.5) * 1.2}deg) scale(1.008)`;
-                } else if (!isCritical || Math.random() < 0.35) {
+                    container.style.transform = `skewX(${(Math.random()-0.5)*1.5}deg) skewY(${(Math.random()-0.5)*1.2}deg) scale(1.008)`;
+                } else if (!isCritical || Math.random() < 0.8) {
                     container.style.transform = 'none';
                 }
 
-                // --- HUD updates ---
-                // Periodically sync slider to decayed k value
                 if (Math.random() < 0.12) {
                     kSlider.value = engine.k;
                     elKVal.textContent = engine.k.toFixed(2);
@@ -1180,13 +1363,26 @@
                     elDecayReadout.textContent = engine.decay_rate.toFixed(4);
                 }
 
-                const usDisplay = (Math.random() > 0.92 && engine.k < 0.35) ?
-                    'ERROR' :
-                    `${engine.totalUs.toFixed(1)} J`;
+                elComboReadout.textContent = `x${engine.comboMult.toFixed(1)}`;
+                if (engine.comboMult >= 4.0) {
+                    elComboReadout.style.color = '#ff3366';
+                    elComboReadout.style.textShadow = '0 0 8px #ff3366';
+                } else if (engine.comboMult >= 2.5) {
+                    elComboReadout.style.color = 'var(--surge)';
+                    elComboReadout.style.textShadow = '0 0 6px var(--surge)';
+                } else if (engine.comboMult > 1.0) {
+                    elComboReadout.style.color = 'var(--cyan-shift)';
+                    elComboReadout.style.textShadow = '0 0 4px var(--cyan-shift)';
+                } else {
+                    elComboReadout.style.color = 'var(--brass)';
+                    elComboReadout.style.textShadow = 'none';
+                }
+
+                const usDisplay = (Math.random() > 0.92 && engine.k < 0.20) ? 'ERROR' : `${engine.totalUs.toFixed(1)} J`;
                 elUs.textContent = usDisplay;
 
                 if (isCritical) {
-                    elIntegrity.textContent = engine.k < 0.35 ? 'FRACTURE_IMMINENT' : 'CRITICAL_BREACH';
+                    elIntegrity.textContent = engine.k < 0.20 ? 'FRACTURE_IMMINENT' : 'CRITICAL_BREACH';
                     elIntegrity.style.color = '#ff3366';
                     elIntegrity.className = 'crit';
                     elUs.style.color = '#ff3366';
@@ -1201,159 +1397,163 @@
                     telemetryEl.classList.remove('critical-telemetry');
                 }
 
-                // --- Height graph (seismograph style) ---
+                // ── MINIMAP ──
                 {
-                    const mw = mmCanvas.width;
-                    const mh = mmCanvas.height;
+                    const mw = mmCanvas.width, mh = mmCanvas.height;
                     mmCtx.clearRect(0, 0, mw, mh);
-
                     const padL = 22, padR = 6, padT = 6, padB = 14;
-                    const gw = mw - padL - padR;
-                    const gh = mh - padT - padB;
-
+                    const gw = mw - padL - padR, gh = mh - padT - padB;
                     const centY = nodes.reduce((s, n) => s + n.y, 0) / nodes.length;
-
-                    // Record height history (store real centY values)
-                    if (!engine.heightHistory) engine.heightHistory = [];
+                    const velocity = engine.prevCentY !== null ? engine.prevCentY - centY : 0;
+                    engine.prevCentY = centY;
+                    const altNow = Math.round(canvas.height - centY);
+                    if (altNow > engine.maxAlt) engine.maxAlt = altNow;
                     engine.heightHistory.push(centY);
                     if (engine.heightHistory.length > 120) engine.heightHistory.shift();
-
-                    const history = engine.heightHistory;
-
-                    // Y axis range: always includes canvas (0 to canvas.height),
-                    // but expands to contain off-screen values
-                    const minVal = Math.min(...history, 0) - 20;
-                    const maxVal = Math.max(...history, canvas.height) + 20;
+                    engine.velocityHistory.push(velocity);
+                    if (engine.velocityHistory.length > 120) engine.velocityHistory.shift();
+                    const history = engine.heightHistory, velHistory = engine.velocityHistory;
+                    const minVal = Math.min(...history, 0) - 20, maxVal = Math.max(...history, canvas.height) + 20;
                     const range = maxVal - minVal;
-
-                    // Convert real Y to graph Y (invert: lower real Y = higher on screen = higher on graph)
                     const toGY = (ry) => padT + ((ry - minVal) / range) * gh;
-                    const toGX = (i)  => padL + (i / (history.length - 1 || 1)) * gw;
-
-                    // Grid lines
+                    const toGX = (i) => padL + (i / (history.length - 1 || 1)) * gw;
+                    const maxVel = Math.max(...velHistory.map(Math.abs), 1);
+                    const velMidY = padT + gh * 0.85, velScale = (gh * 1) / maxVel;
+                    const toVelY = (v) => velMidY - v * velScale;
                     mmCtx.strokeStyle = 'rgba(181,148,91,0.08)';
                     mmCtx.lineWidth = 0.5;
-                    // Ground line (canvas.height in real = bottom of screen)
                     const groundY = toGY(canvas.height);
                     mmCtx.beginPath();
                     mmCtx.moveTo(padL, groundY);
                     mmCtx.lineTo(padL + gw, groundY);
                     mmCtx.stroke();
-                    // Zero line (top of screen)
                     const topY = toGY(0);
                     mmCtx.strokeStyle = 'rgba(181,148,91,0.05)';
                     mmCtx.beginPath();
                     mmCtx.moveTo(padL, topY);
                     mmCtx.lineTo(padL + gw, topY);
                     mmCtx.stroke();
-
-                    // Ground label
-                    mmCtx.fillStyle = 'rgba(181,148,91,0.4)';
+                    const maxAltY = toGY(canvas.height - engine.maxAlt);
+                    mmCtx.strokeStyle = 'rgba(0,229,255,0.25)';
+                    mmCtx.lineWidth = 0.5;
+                    mmCtx.setLineDash([2, 3]);
+                    mmCtx.beginPath();
+                    mmCtx.moveTo(padL, maxAltY);
+                    mmCtx.lineTo(padL + gw, maxAltY);
+                    mmCtx.stroke();
+                    mmCtx.setLineDash([]);
                     mmCtx.font = '6px Fira Code, monospace';
                     mmCtx.textAlign = 'right';
+                    mmCtx.fillStyle = 'rgba(181,148,91,0.4)';
                     mmCtx.fillText('GND', padL - 2, groundY + 2);
-
-                    // Trace fill under curve
+                    mmCtx.fillStyle = 'rgba(0,229,255,0.4)';
+                    mmCtx.fillText('MAX', padL - 2, maxAltY + 2);
                     mmCtx.beginPath();
-                    history.forEach((v, i) => {
-                        const x = toGX(i), y = toGY(v);
-                        i === 0 ? mmCtx.moveTo(x, y) : mmCtx.lineTo(x, y);
-                    });
+                    velHistory.forEach((v, i) => { const x = toGX(i), y = toVelY(v); i === 0 ? mmCtx.moveTo(x, y) : mmCtx.lineTo(x, y); });
+                    mmCtx.strokeStyle = 'rgba(0,229,255,0.4)';
+                    mmCtx.lineWidth = 0.8;
+                    mmCtx.stroke();
+                    mmCtx.beginPath();
+                    history.forEach((v, i) => { const x = toGX(i), y = toGY(v); i === 0 ? mmCtx.moveTo(x, y) : mmCtx.lineTo(x, y); });
                     mmCtx.lineTo(toGX(history.length - 1), padT + gh);
                     mmCtx.lineTo(padL, padT + gh);
                     mmCtx.closePath();
-                    mmCtx.fillStyle = isCritical
-                        ? 'rgba(255,51,102,0.06)'
-                        : 'rgba(181,148,91,0.06)';
+                    mmCtx.fillStyle = isCritical ? 'rgba(255,51,102,0.06)' : 'rgba(181,148,91,0.06)';
                     mmCtx.fill();
-
-                    // Trace line
                     mmCtx.beginPath();
-                    history.forEach((v, i) => {
-                        const x = toGX(i), y = toGY(v);
-                        i === 0 ? mmCtx.moveTo(x, y) : mmCtx.lineTo(x, y);
-                    });
+                    history.forEach((v, i) => { const x = toGX(i), y = toGY(v); i === 0 ? mmCtx.moveTo(x, y) : mmCtx.lineTo(x, y); });
                     mmCtx.strokeStyle = isCritical ? 'rgba(255,51,102,0.85)' : 'rgba(181,148,91,0.75)';
                     mmCtx.lineWidth = 1;
                     mmCtx.stroke();
-
-                    // Live dot at right edge
-                    const liveX = toGX(history.length - 1);
-                    const liveY = toGY(centY);
+                    const liveX = toGX(history.length - 1), liveY = toGY(centY);
                     mmCtx.beginPath();
                     mmCtx.arc(liveX, liveY, 2.5, 0, Math.PI * 2);
                     mmCtx.fillStyle = isCritical ? '#ff3366' : '#ffffff';
-                    mmCtx.shadowColor = isCritical ? '#ff3366' : '#ffffff';
+                    mmCtx.shadowColor = mmCtx.fillStyle;
                     mmCtx.shadowBlur = 7;
                     mmCtx.fill();
                     mmCtx.shadowBlur = 0;
-
-                    // Height readout next to dot (real offset from ground)
                     const heightAboveGround = Math.round(canvas.height - centY);
                     const isAbove = centY < 0;
-                    const label = isAbove
-                        ? `+${Math.abs(Math.round(centY))}px`
-                        : (heightAboveGround > 5 ? `${heightAboveGround}` : 'GND');
+                    const label = isAbove ? `+${Math.abs(Math.round(centY))}px` : (heightAboveGround > 5 ? `${heightAboveGround}` : 'GND');
                     mmCtx.fillStyle = isCritical ? '#ff3366' : (centY < 0 ? '#ffffff' : 'rgba(181,148,91,0.9)');
-                    mmCtx.font = `bold 6px Fira Code, monospace`;
+                    mmCtx.font = 'bold 6px Fira Code, monospace';
                     mmCtx.textAlign = liveX > mw - 30 ? 'right' : 'left';
                     mmCtx.fillText(label, liveX + (liveX > mw - 30 ? -4 : 4), liveY + 2);
-
-                    // Y axis
                     mmCtx.strokeStyle = 'rgba(181,148,91,0.2)';
-                    mmCtx.lineWidth = 0.5;
+                    mmCtx.lineWidth = 8;
                     mmCtx.beginPath();
                     mmCtx.moveTo(padL, padT);
                     mmCtx.lineTo(padL, padT + gh);
                     mmCtx.stroke();
+                    elVelReadout.textContent = Math.abs(velocity).toFixed(2);
+                    elVelReadout.style.color = Math.abs(velocity) > 15 ? 'var(--bleed)' : 'var(--brass)';
+                    elMaxAltReadout.textContent = engine.maxAlt + ' px';
                 }
 
-                // --- Off-screen arrow (Smash Bros style) ---
+                // ── OFFSCREEN ARROW ──
                 {
                     const centX = nodes.reduce((s, n) => s + n.x, 0) / nodes.length;
-                    const centY = nodes.reduce((s, n) => s + n.y, 0) / nodes.length;
+                    const centY2 = nodes.reduce((s, n) => s + n.y, 0) / nodes.length;
                     const anyOffScreen = nodes.some(n => n.x < 0 || n.x > canvas.width || n.y < 0 || n.y > canvas.height);
-
                     if (anyOffScreen) {
                         arrowEl.style.display = 'block';
                         arrowEl.className = isCritical ? 'critical' : '';
-
-                        const margin = 18;
-                        const aw = 28, ah = 28;
-                        const cw = canvas.width, ch = canvas.height;
-
-                        // Angle from screen center toward centroid
-                        const angle = Math.atan2(centY - ch / 2, centX - cw / 2);
-
-                        // Clamp position to screen edge
+                        const margin = 18, aw = 28, ah = 28, cw = canvas.width, ch = canvas.height;
+                        const angle = Math.atan2(centY2 - ch / 2, centX - cw / 2);
                         const cos = Math.cos(angle), sin = Math.sin(angle);
-                        const scaleToEdge = Math.min(
-                            (cw / 2 - margin) / Math.abs(cos || 0.0001),
-                            (ch / 2 - margin) / Math.abs(sin || 0.0001)
-                        );
-                        const ex = cw / 2 + cos * scaleToEdge;
-                        const ey = ch / 2 + sin * scaleToEdge;
-
+                        const scaleToEdge = Math.min((cw / 2 - margin) / Math.abs(cos || 0.0001), (ch / 2 - margin) / Math.abs(sin || 0.0001));
+                        const ex = cw / 2 + cos * scaleToEdge, ey = ch / 2 + sin * scaleToEdge;
                         arrowEl.style.left = (ex - aw / 2) + 'px';
-                        arrowEl.style.top  = (ey - ah / 2) + 'px';
-                        // Rotate: arrow points up by default, rotate to face centroid
-                        arrowEl.style.transform = `rotate(${angle + Math.PI / 2}rad)`;
-                    } else {
-                        arrowEl.style.display = 'none';
-                    }
+                        arrowEl.style.top = (ey - ah / 2) + 'px';
+                        arrowEl.style.transform = `rotate(${angle+Math.PI/2}rad)`;
+                    } else { arrowEl.style.display = 'none'; }
                 }
-
-                requestAnimationFrame(loop);
             }
 
-            // --- Initialize displays ---
-            elKReadout.textContent = '1.10';
-            elKVal.textContent = '1.10';
-            elGReadout.textContent = '1.80';
-            elGVal.textContent = '1.80';
-            elSizeReadout.textContent = '40 px';
-            elSizeVal.textContent = '40';
-            elDecayReadout.textContent = '0.00005';
+            // ─────────────────────────────────────
+            // MAIN LOOP (fixed timestep accumulator)
+            // performance.now() returns milliseconds; TIME_STEP is in ms.
+            // ─────────────────────────────────────
+            function loop(currentTime) {
+                const frameTime = Math.min((currentTime - lastTime) / 1, 1); // unitless, capped to prevent spiral of death
+                lastTime = currentTime;
+
+                // Handle hit-stop
+                if (engine.hitStop > 0) {
+                    engine.hitStop--;
+                    engine.impactFlashes.forEach(f => {
+                        const r = 40 + f.strength * 48;
+                        const grad = ctx.createRadialGradient(f.x, f.y, 0, f.x, f.y, r);
+                        grad.addColorStop(0, `rgba(255,255,180,${f.life * 1 * f.strength})`);
+                        grad.addColorStop(0.4, `rgba(255,160,80,${f.life * 0.35 * f.strength})`);
+                        grad.addColorStop(1, `rgba(255,100,50,0)`);
+                        ctx.globalCompositeOperation = 'lighter';
+                        ctx.fillStyle = grad;
+                        ctx.beginPath();
+                        ctx.arc(f.x, f.y, r, 0, Math.PI * 2);
+                        ctx.fill();
+                        ctx.globalCompositeOperation = 'source-over';
+                        f.life -= 0.4;
+                    });
+                    engine.impactFlashes = engine.impactFlashes.filter(f => f.life > 0);
+                    requestAnimationFrame(loop);
+                    return;
+                }
+
+                // Drain accumulator in fixed TIME_STEP increments, capped by subSteps
+                accumulator += frameTime;
+                let steps = 0;
+                while (accumulator >= TIME_STEP && steps < engine.subSteps) {
+                    stepPhysics(TIME_STEP);
+                    accumulator -= TIME_STEP; // ← correct drain
+                    steps++;
+                }
+
+                updatePerFrame();
+                renderFrame();
+                requestAnimationFrame(loop);
+            }
 
             requestAnimationFrame(loop);
         })();

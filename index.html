@@ -469,7 +469,7 @@
         <div id="control-deck-inner">
             <div id="collapsible-content">
                 <div class="hud-row">
-                    <div>EPHEMERIS: <span>GEOCENTRIC_MECHANICS</span></div>
+                   
                 </div>
 
                 <div class="slider-group">
@@ -498,20 +498,20 @@
 
                 <div class="slider-group">
                     <span class="label">SUBSTEPS</span>
-                    <input type="range" id="sub-slider" min="1" max="999" step="1" value="8">
-                    <span class="val" id="sub-val">8</span>
+                    <input type="range" id="sub-slider" min="1" max="120" step="1" value="60">
+                    <span class="val" id="sub-val">60</span>
                 </div>
 
                 <div class="slider-group">
                     <span class="label">BOUNCE</span>
-                    <input type="range" id="bounce-slider" min="0.0" max="1.0" step="0.01" value="0.32">
-                    <span class="val" id="bounce-val">0.32</span>
+                    <input type="range" id="bounce-slider" min="0.0" max="1.0" step="0.01" value="0.10">
+                    <span class="val" id="bounce-val">0.10</span>
                 </div>
 
                 <div class="slider-group">
-                    <span class="label">TIME_STEP (1/n)</span>
-                    <input type="range" id="ts-slider" min="2" max="120" step="1" value="4">
-                    <span class="val" id="ts-val">1/4</span>
+                    <span class="label">TIME_STEP</span>
+                    <input type="range" id="ts-slider" min="1" max="120" step="1" value="60">
+                    <span class="val" id="ts-val">60</span>
                 </div>
             </div>
 
@@ -664,8 +664,8 @@
                     this.a.fy += fy;
                     this.b.fx -= fx;
                     this.b.fy -= fy;
-                    this.midX = (this.a.x + this.b.x) / 2;
-                    this.midY = (this.a.y + this.b.y) / 2;
+                    this.midX = (this.a.x + this.b.x) / 1;
+                    this.midY = (this.a.y + this.b.y) / 1;
                 }
             }
 
@@ -680,7 +680,7 @@
                     this.vy = vy;
                     this.life = 1.0;
                     this.colorType = colorType;
-                    this.size = 0.5 + Math.random() * 11.2;
+                    this.size = 0.1 + Math.random() * 3.2;
                 }
                 update() {
                     this.x += this.vx;
@@ -920,8 +920,8 @@
             const executeTrauma = (e) => {
                 if (e) e.preventDefault();
                 engine.hitStop = 0;
-                const cx = canvas.width / 2,
-                    cy = canvas.height / 2;
+                const cx = canvas.width / 20,
+                    cy = canvas.height / 20;
                 const mult = engine.comboMult;
                 const empowered = mult > 2.0;
                 if (empowered) {
@@ -1397,99 +1397,145 @@
                     telemetryEl.classList.remove('critical-telemetry');
                 }
 
-                // ── MINIMAP ──
-                {
-                    const mw = mmCanvas.width, mh = mmCanvas.height;
-                    mmCtx.clearRect(0, 0, mw, mh);
-                    const padL = 22, padR = 6, padT = 6, padB = 14;
-                    const gw = mw - padL - padR, gh = mh - padT - padB;
-                    const centY = nodes.reduce((s, n) => s + n.y, 0) / nodes.length;
-                    const velocity = engine.prevCentY !== null ? engine.prevCentY - centY : 0;
-                    engine.prevCentY = centY;
-                    const altNow = Math.round(canvas.height - centY);
-                    if (altNow > engine.maxAlt) engine.maxAlt = altNow;
-                    engine.heightHistory.push(centY);
-                    if (engine.heightHistory.length > 120) engine.heightHistory.shift();
-                    engine.velocityHistory.push(velocity);
-                    if (engine.velocityHistory.length > 120) engine.velocityHistory.shift();
-                    const history = engine.heightHistory, velHistory = engine.velocityHistory;
-                    const minVal = Math.min(...history, 0) - 20, maxVal = Math.max(...history, canvas.height) + 20;
-                    const range = maxVal - minVal;
-                    const toGY = (ry) => padT + ((ry - minVal) / range) * gh;
-                    const toGX = (i) => padL + (i / (history.length - 1 || 1)) * gw;
-                    const maxVel = Math.max(...velHistory.map(Math.abs), 1);
-                    const velMidY = padT + gh * 0.85, velScale = (gh * 1) / maxVel;
-                    const toVelY = (v) => velMidY - v * velScale;
-                    mmCtx.strokeStyle = 'rgba(181,148,91,0.08)';
-                    mmCtx.lineWidth = 0.5;
-                    const groundY = toGY(canvas.height);
-                    mmCtx.beginPath();
-                    mmCtx.moveTo(padL, groundY);
-                    mmCtx.lineTo(padL + gw, groundY);
-                    mmCtx.stroke();
-                    const topY = toGY(0);
-                    mmCtx.strokeStyle = 'rgba(181,148,91,0.05)';
-                    mmCtx.beginPath();
-                    mmCtx.moveTo(padL, topY);
-                    mmCtx.lineTo(padL + gw, topY);
-                    mmCtx.stroke();
-                    const maxAltY = toGY(canvas.height - engine.maxAlt);
-                    mmCtx.strokeStyle = 'rgba(0,229,255,0.25)';
-                    mmCtx.lineWidth = 0.5;
-                    mmCtx.setLineDash([2, 3]);
-                    mmCtx.beginPath();
-                    mmCtx.moveTo(padL, maxAltY);
-                    mmCtx.lineTo(padL + gw, maxAltY);
-                    mmCtx.stroke();
-                    mmCtx.setLineDash([]);
-                    mmCtx.font = '6px Fira Code, monospace';
-                    mmCtx.textAlign = 'right';
-                    mmCtx.fillStyle = 'rgba(181,148,91,0.4)';
-                    mmCtx.fillText('GND', padL - 2, groundY + 2);
-                    mmCtx.fillStyle = 'rgba(0,229,255,0.4)';
-                    mmCtx.fillText('MAX', padL - 2, maxAltY + 2);
-                    mmCtx.beginPath();
-                    velHistory.forEach((v, i) => { const x = toGX(i), y = toVelY(v); i === 0 ? mmCtx.moveTo(x, y) : mmCtx.lineTo(x, y); });
-                    mmCtx.strokeStyle = 'rgba(0,229,255,0.4)';
-                    mmCtx.lineWidth = 0.8;
-                    mmCtx.stroke();
-                    mmCtx.beginPath();
-                    history.forEach((v, i) => { const x = toGX(i), y = toGY(v); i === 0 ? mmCtx.moveTo(x, y) : mmCtx.lineTo(x, y); });
-                    mmCtx.lineTo(toGX(history.length - 1), padT + gh);
-                    mmCtx.lineTo(padL, padT + gh);
-                    mmCtx.closePath();
-                    mmCtx.fillStyle = isCritical ? 'rgba(255,51,102,0.06)' : 'rgba(181,148,91,0.06)';
-                    mmCtx.fill();
-                    mmCtx.beginPath();
-                    history.forEach((v, i) => { const x = toGX(i), y = toGY(v); i === 0 ? mmCtx.moveTo(x, y) : mmCtx.lineTo(x, y); });
-                    mmCtx.strokeStyle = isCritical ? 'rgba(255,51,102,0.85)' : 'rgba(181,148,91,0.75)';
-                    mmCtx.lineWidth = 1;
-                    mmCtx.stroke();
-                    const liveX = toGX(history.length - 1), liveY = toGY(centY);
-                    mmCtx.beginPath();
-                    mmCtx.arc(liveX, liveY, 2.5, 0, Math.PI * 2);
-                    mmCtx.fillStyle = isCritical ? '#ff3366' : '#ffffff';
-                    mmCtx.shadowColor = mmCtx.fillStyle;
-                    mmCtx.shadowBlur = 7;
-                    mmCtx.fill();
-                    mmCtx.shadowBlur = 0;
-                    const heightAboveGround = Math.round(canvas.height - centY);
-                    const isAbove = centY < 0;
-                    const label = isAbove ? `+${Math.abs(Math.round(centY))}px` : (heightAboveGround > 5 ? `${heightAboveGround}` : 'GND');
-                    mmCtx.fillStyle = isCritical ? '#ff3366' : (centY < 0 ? '#ffffff' : 'rgba(181,148,91,0.9)');
-                    mmCtx.font = 'bold 6px Fira Code, monospace';
-                    mmCtx.textAlign = liveX > mw - 30 ? 'right' : 'left';
-                    mmCtx.fillText(label, liveX + (liveX > mw - 30 ? -4 : 4), liveY + 2);
-                    mmCtx.strokeStyle = 'rgba(181,148,91,0.2)';
-                    mmCtx.lineWidth = 8;
-                    mmCtx.beginPath();
-                    mmCtx.moveTo(padL, padT);
-                    mmCtx.lineTo(padL, padT + gh);
-                    mmCtx.stroke();
-                    elVelReadout.textContent = Math.abs(velocity).toFixed(2);
-                    elVelReadout.style.color = Math.abs(velocity) > 15 ? 'var(--bleed)' : 'var(--brass)';
-                    elMaxAltReadout.textContent = engine.maxAlt + ' px';
-                }
+// ── MINIMAP ──
+{
+    const mw = mmCanvas.width, mh = mmCanvas.height;
+    mmCtx.clearRect(0, 0, mw, mh);
+    const padL = 22, padR = 6, padT = 6, padB = 14;
+    const gw = mw - padL - padR, gh = mh - padT - padB;
+    
+    // -- STATE & TRACKING --
+    const centX = nodes.reduce((s, n) => s + n.x, 0) / nodes.length;
+    const centY = nodes.reduce((s, n) => s + n.y, 0) / nodes.length;
+    const velocity = engine.prevCentY !== null ? engine.prevCentY - centY : 0;
+    engine.prevCentY = centY;
+    
+    const altNow = Math.round(canvas.height - centY);
+    if (altNow > engine.maxAlt) engine.maxAlt = altNow;
+    
+    engine.heightHistory.push(centY);
+    if (engine.heightHistory.length > 120) engine.heightHistory.shift();
+    engine.velocityHistory.push(velocity);
+    if (engine.velocityHistory.length > 120) engine.velocityHistory.shift();
+    
+    // Auto-scaling spatial path memory
+    if (!engine.pathHistory) engine.pathHistory = [];
+    engine.pathHistory.push({ x: centX, y: centY });
+    if (engine.pathHistory.length > 300) engine.pathHistory.shift();
+
+    // -- SCALING LOGIC --
+    const history = engine.heightHistory, velHistory = engine.velocityHistory;
+    const minVal = Math.min(...history, 0) - 20, maxVal = Math.max(...history, canvas.height) + 20;
+    const range = maxVal - minVal;
+    const toGY = (ry) => padT + ((ry - minVal) / range) * gh;
+    const toGX = (i) => padL + (i / (history.length - 1 || 1)) * gw;
+    const maxVel = Math.max(...velHistory.map(Math.abs), 1);
+    const velMidY = padT + gh * 0.85, velScale = (gh * 1) / maxVel;
+    const toVelY = (v) => velMidY - v * velScale;
+
+     // -- DRAW LAYER 1: SPATIAL TRAIL (NEW) --
+    // 1. Extract X bounds from the spatial state
+    const xs = engine.pathHistory.map(p => p.x);
+    
+    // 2. Establish a baseline scale (canvas width) but expand if nodes exceed it
+    const minX = Math.min(...xs, 0) - 20; 
+    const maxX = Math.max(...xs, canvas.width) + 20; 
+    const rangeX = maxX - minX;
+
+    mmCtx.beginPath();
+    mmCtx.strokeStyle = 'rgba(255,170,0,0.5)'; // Boosted opacity slightly for visibility
+    mmCtx.lineWidth = 1;
+    
+    engine.pathHistory.forEach((p, i) => {
+        // 3. Information flow: Dynamic X scaling replaces the rigid canvas.width constraint
+        const x = padL + ((p.x - minX) / rangeX) * gw; 
+        const y = toGY(p.y);                        
+        i === 0 ? mmCtx.moveTo(x, y) : mmCtx.lineTo(x, y);
+    });
+    mmCtx.stroke();
+
+    // -- DRAW LAYER 2: TELEMETRY (YOUR EXACT ORIGINAL CODE) --
+    mmCtx.strokeStyle = 'rgba(181,148,91,0.08)';
+    mmCtx.lineWidth = 0.5;
+    const groundY = toGY(canvas.height);
+    mmCtx.beginPath();
+    mmCtx.moveTo(padL, groundY);
+    mmCtx.lineTo(padL + gw, groundY);
+    mmCtx.stroke();
+    
+    const topY = toGY(0);
+    mmCtx.strokeStyle = 'rgba(181,148,91,0.05)';
+    mmCtx.beginPath();
+    mmCtx.moveTo(padL, topY);
+    mmCtx.lineTo(padL + gw, topY);
+    mmCtx.stroke();
+    
+    const maxAltY = toGY(canvas.height - engine.maxAlt);
+    mmCtx.strokeStyle = 'rgba(0,229,255,0.25)';
+    mmCtx.lineWidth = 0.5;
+    mmCtx.setLineDash([2, 3]);
+    mmCtx.beginPath();
+    mmCtx.moveTo(padL, maxAltY);
+    mmCtx.lineTo(padL + gw, maxAltY);
+    mmCtx.stroke();
+    mmCtx.setLineDash([]);
+    
+    mmCtx.font = '6px Fira Code, monospace';
+    mmCtx.textAlign = 'right';
+    mmCtx.fillStyle = 'rgba(181,148,91,0.4)';
+    mmCtx.fillText('GND', padL - 2, groundY + 2);
+    mmCtx.fillStyle = 'rgba(0,229,255,0.4)';
+    mmCtx.fillText('MAX', padL - 2, maxAltY + 2);
+    
+    mmCtx.beginPath();
+    velHistory.forEach((v, i) => { const x = toGX(i), y = toVelY(v); i === 0 ? mmCtx.moveTo(x, y) : mmCtx.lineTo(x, y); });
+    mmCtx.strokeStyle = 'rgba(0,229,255,0.4)';
+    mmCtx.lineWidth = 0.8;
+    mmCtx.stroke();
+    
+    mmCtx.beginPath();
+    history.forEach((v, i) => { const x = toGX(i), y = toGY(v); i === 0 ? mmCtx.moveTo(x, y) : mmCtx.lineTo(x, y); });
+    mmCtx.lineTo(toGX(history.length - 1), padT + gh);
+    mmCtx.lineTo(padL, padT + gh);
+    mmCtx.closePath();
+    mmCtx.fillStyle = isCritical ? 'rgba(255,51,102,0.06)' : 'rgba(181,148,91,0.06)';
+    mmCtx.fill();
+    
+    mmCtx.beginPath();
+    history.forEach((v, i) => { const x = toGX(i), y = toGY(v); i === 0 ? mmCtx.moveTo(x, y) : mmCtx.lineTo(x, y); });
+    mmCtx.strokeStyle = isCritical ? 'rgba(255,51,102,0.85)' : 'rgba(181,148,91,0.75)';
+    mmCtx.lineWidth = 1;
+    mmCtx.stroke();
+    
+    const liveX = toGX(history.length - 1), liveY = toGY(centY);
+    mmCtx.beginPath();
+    mmCtx.arc(liveX, liveY, 2.5, 0, Math.PI * 2);
+    mmCtx.fillStyle = isCritical ? '#ff3366' : '#ffffff';
+    mmCtx.shadowColor = mmCtx.fillStyle;
+    mmCtx.shadowBlur = 7;
+    mmCtx.fill();
+    mmCtx.shadowBlur = 0;
+    
+    const heightAboveGround = Math.round(canvas.height - centY);
+    const isAbove = centY < 0;
+    const label = isAbove ? `+${Math.abs(Math.round(centY))}px` : (heightAboveGround > 5 ? `${heightAboveGround}` : 'GND');
+    mmCtx.fillStyle = isCritical ? '#ff3366' : (centY < 0 ? '#ffffff' : 'rgba(181,148,91,0.9)');
+    mmCtx.font = 'bold 6px Fira Code, monospace';
+    mmCtx.textAlign = liveX > mw - 30 ? 'right' : 'left';
+    mmCtx.fillText(label, liveX + (liveX > mw - 30 ? -4 : 4), liveY + 2);
+    
+    mmCtx.strokeStyle = 'rgba(181,148,91,0.2)';
+    mmCtx.lineWidth = 8;
+    mmCtx.beginPath();
+    mmCtx.moveTo(padL, padT);
+    mmCtx.lineTo(padL, padT + gh);
+    mmCtx.stroke();
+    
+    elVelReadout.textContent = Math.abs(velocity).toFixed(2);
+    elVelReadout.style.color = Math.abs(velocity) > 15 ? 'var(--bleed)' : 'var(--brass)';
+    elMaxAltReadout.textContent = engine.maxAlt + ' px';
+}
+
 
                 // ── OFFSCREEN ARROW ──
                 {

@@ -1,1608 +1,535 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>ISO_CAGE // VENOM_SYNTHESIS</title>
-    <style>
-        @import url('https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;700&display=swap');
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>FLOPTOPBOP // INDEX</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#161616;
+    --surface:#262626;
+    --surface-2:#1c1c1c;
+    --line:#393939;
+    --line-2:#525252;
+    --fg:#f4f4f4;
+    --fg-dim:#a8a8a8;
+    --blue:#0f62fe;
+    --blue-hi:#4589ff;
+    --amber:#f1c21b;
+    --amber-dim:#a37f00;
+    --green:#42be65;
+    --green-dim:#198038;
+    --purple:#be95ff;
+    --purple-dim:#8a3ffc;
+    --mono:'IBM Plex Mono',ui-monospace,SFMono-Regular,Menlo,monospace;
+    --sans:'IBM Plex Sans',system-ui,-apple-system,sans-serif;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  html{-webkit-text-size-adjust:100%}
+  body{
+    background:var(--bg);
+    color:var(--fg);
+    font-family:var(--sans);
+    line-height:1.5;
+    -webkit-font-smoothing:antialiased;
+    padding:0 20px 80px;
+    max-width:1180px;
+    margin:0 auto;
+  }
 
-        :root {
-            --void: #020306;
-            --phosphor: #729d72;
-            --brass: #b5945b;
-            --brass-glow: #d4b87a;
-            --bleed: #ff3366;
-            --surge: #ffaa00;
-            --cyan-shift: #00e5ff;
-            --deck: #0a0c10;
-            --border: #1c1f26;
-            --grid-line: rgba(0, 0, 0, 0.12);
-        }
+  /* ---------- masthead ---------- */
+  .masthead{padding:44px 0 26px;border-bottom:1px solid var(--line)}
+  .eyebrow{
+    font-family:var(--mono);
+    font-size:12px;
+    letter-spacing:.18em;
+    color:var(--fg-dim);
+    display:flex;
+    gap:14px;
+    align-items:center;
+    margin-bottom:22px;
+  }
+  .mark{
+    width:34px;height:20px;flex:none;
+    background:repeating-linear-gradient(to bottom,
+      var(--blue) 0,var(--blue) 2px,transparent 2px,transparent 5px);
+  }
+  .wordmark{
+    font-family:var(--sans);
+    font-weight:700;
+    font-size:clamp(2.5rem,13vw,5.4rem);
+    line-height:.92;
+    letter-spacing:-.03em;
+    color:transparent;
+    background:repeating-linear-gradient(to bottom,
+      var(--fg) 0,var(--fg) 5px,transparent 5px,transparent 7px);
+    -webkit-background-clip:text;
+    background-clip:text;
+  }
+  .tagline{
+    font-family:var(--mono);
+    font-size:13px;
+    color:var(--fg-dim);
+    margin-top:18px;
+    max-width:52ch;
+  }
+  .tagline b{color:var(--fg);font-weight:500}
 
-        * {
-            box-sizing: border-box;
-            -webkit-tap-highlight-color: transparent;
-            user-select: none;
-        }
+  /* ---------- controls ---------- */
+  .controls{
+    padding:18px 0;
+    border-bottom:1px solid var(--line);
+    display:flex;
+    gap:12px;
+    align-items:center;
+    flex-wrap:wrap;
+  }
+  .search-wrap{
+    position:relative;
+    flex:1;
+    min-width:180px;
+    max-width:340px;
+  }
+  .search-wrap .ico{
+    position:absolute;left:11px;top:50%;transform:translateY(-50%);
+    font-size:13px;color:var(--fg-dim);pointer-events:none;
+  }
+  #search{
+    width:100%;
+    background:var(--surface-2);
+    border:1px solid var(--line);
+    color:var(--fg);
+    font-family:var(--mono);
+    font-size:12px;
+    letter-spacing:.08em;
+    padding:9px 12px 9px 32px;
+    outline:none;
+    transition:border-color .15s;
+  }
+  #search::placeholder{color:var(--fg-dim)}
+  #search:focus{border-color:var(--blue)}
 
-        body,
-        html {
-            margin: 0;
-            padding: 0;
-            width: 100%;
-            height: 100%;
-            background: var(--void);
-            color: #c8cdd8;
-            font-family: 'Fira Code', monospace;
-            overflow: hidden;
-            touch-action: none;
-            display: flex;
-            flex-direction: column;
-        }
+  .filter-row{display:flex;gap:6px;flex-wrap:wrap;align-items:center}
+  .filter-label{font-family:var(--mono);font-size:11px;color:var(--fg-dim);letter-spacing:.12em;margin-right:2px}
+  .ftag{
+    font-family:var(--mono);font-size:10px;letter-spacing:.1em;
+    color:var(--fg-dim);border:1px solid var(--line);padding:4px 9px;
+    background:none;cursor:pointer;transition:all .15s;
+  }
+  .ftag:hover{color:var(--fg);border-color:var(--line-2)}
+  .ftag.active{color:var(--bg);background:var(--blue);border-color:var(--blue)}
 
-        #viewport {
-            flex-grow: 1;
-            position: relative;
-            width: 100%;
-            background: radial-gradient(ellipse at center, #070913 0%, var(--void) 75%);
-            filter: contrast(1.25) brightness(1.4) saturate(1.15);
-            overflow: hidden;
-            touch-action: none;
-            cursor: crosshair;
-        }
+  /* ---------- section headers ---------- */
+  .section{margin-top:0}
+  .section-head{
+    display:flex;align-items:center;gap:14px;
+    padding:18px 0 0;
+    border-top:1px solid var(--line);
+    margin-bottom:1px;
+  }
+  .section-pip{width:8px;height:8px;flex:none}
+  .section-label{
+    font-family:var(--mono);font-size:11px;letter-spacing:.18em;
+    color:var(--fg-dim);
+  }
+  .section-count{
+    font-family:var(--mono);font-size:11px;color:var(--line-2);
+    margin-left:auto;
+  }
 
-        #minimap {
-            position: absolute;
-            top: 14px;
-            right: 14px;
-            width: 120px;
-            height: 120px;
-            background: rgba(2, 3, 6, 0.92);
-            border: 1px solid var(--border);
-            border-right: 3px solid var(--brass);
-            border-radius: 4px 0 0 4px;
-            box-shadow: 0 4px 18px rgba(0, 0, 0, 0.85);
-            pointer-events: none;
-            z-index: 5;
-        }
-        #minimap canvas {
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-        }
-        #offscreen-arrow {
-            position: absolute;
-            width: 8px;
-            height: 8px;
-            pointer-events: none;
-            z-index: 20;
-            transform-origin: center center;
-        }
-        #offscreen-arrow::before {
-            content: '';
-            position: absolute;
-            inset: 0;
-            background: var(--brass);
-            clip-path: polygon(50% 0%, 0% 100%, 100% 100%);
-            filter: drop-shadow(0 0 6px rgba(181, 148, 91, 0.8));
-            transition: background 2s;
-        }
-        #offscreen-arrow.critical::before {
-            background: var(--bleed);
-            filter: drop-shadow(0 0 8px rgba(255, 51, 102, 0.9));
-        }
+  /* section accent colors */
+  .section[data-cat="camera"] .section-pip{background:var(--blue-hi)}
+  .section[data-cat="camera"] .section-label{color:var(--blue-hi)}
+  .section[data-cat="image"] .section-pip{background:var(--green)}
+  .section[data-cat="image"] .section-label{color:var(--green)}
+  .section[data-cat="3d"] .section-pip{background:var(--purple)}
+  .section[data-cat="3d"] .section-label{color:var(--purple)}
+  .section[data-cat="ascii"] .section-pip{background:var(--amber)}
+  .section[data-cat="ascii"] .section-label{color:var(--amber)}
+  .section[data-cat="audio"] .section-pip{background:#ff7eb6}
+  .section[data-cat="audio"] .section-label{color:#ff7eb6}
 
-        #viewport::before {
-            content: "";
-            position: absolute;
-            inset: 0;
-            background-image: radial-gradient(var(--brass), rgba(181, 148, 91, 0.18) 1px, transparent 38px);
-            background-size: 380px 380px;
-            opacity: 0.08;
-            pointer-events: none;
-            z-index: 1;
-        }
+  /* ---------- grid ---------- */
+  .grid{
+    display:grid;
+    grid-template-columns:1fr;
+    gap:1px;
+    background:var(--line);
+    border:1px solid var(--line);
+    margin-bottom:0;
+  }
+  @media(min-width:680px){.grid{grid-template-columns:1fr 1fr}}
+  @media(min-width:1000px){.grid{grid-template-columns:1fr 1fr 1fr}}
 
-        canvas {
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            touch-action: none;
-            mix-blend-mode: screen;
-            z-index: 0;
-        }
+  .card{background:var(--bg);display:flex;flex-direction:column}
+  .card.hidden{display:none}
 
-        #telemetry {
-            position: absolute;
-            top: 14px;
-            left: 14px;
-            background: rgba(2, 3, 6, 0.92);
-            padding: 13px 16px;
-            border: 1px solid var(--border);
-            font-size: 10px;
-            pointer-events: none;
-            line-height: 1.7;
-            border-left: 3px solid var(--brass);
-            text-shadow: 0 0 4px rgba(181, 148, 91, 0.4);
-            z-index: 5;
-            letter-spacing: 0.5px;
-            box-shadow: 0 4px 18px rgba(0, 0, 0, 0.85);
-            border-radius: 0 4px 4px 0;
-            animation: breathe-border 3.5s ease-in-out infinite;
-            transition: border-left-color 0.6s ease;
-        }
+  .frame{
+    position:relative;
+    aspect-ratio:16/10;
+    background:var(--surface-2);
+    border-bottom:1px solid var(--line);
+    overflow:hidden;
+  }
+  .frame::before{
+    content:"";position:absolute;inset:0;
+    background-image:
+      linear-gradient(var(--line) 1px,transparent 1px),
+      linear-gradient(90deg,var(--line) 1px,transparent 1px);
+    background-size:22px 22px;
+    opacity:.4;
+  }
+  .load{
+    position:absolute;inset:0;width:100%;height:100%;
+    display:flex;flex-direction:column;align-items:center;justify-content:center;
+    gap:10px;
+    background:transparent;border:0;cursor:pointer;
+    font-family:var(--mono);color:var(--fg-dim);
+    font-size:12px;letter-spacing:.14em;
+    transition:color .15s,background .15s;
+  }
+  .load:hover,.load:focus-visible{color:var(--fg);background:rgba(15,98,254,.06);outline:none}
+  .load .play{
+    width:44px;height:44px;flex:none;
+    border:1px solid var(--line-2);
+    display:flex;align-items:center;justify-content:center;
+    font-size:15px;color:var(--blue-hi);
+    transition:border-color .15s;
+  }
+  .load:hover .play,.load:focus-visible .play{border-color:var(--blue)}
+  .frame iframe{position:absolute;inset:0;width:100%;height:100%;border:0;background:#000}
+  .unload{
+    position:absolute;top:0;right:0;z-index:2;
+    width:30px;height:30px;
+    background:var(--bg);border:1px solid var(--line);border-top:0;border-right:0;
+    color:var(--fg-dim);font-family:var(--mono);font-size:14px;
+    cursor:pointer;display:none;align-items:center;justify-content:center;
+  }
+  .unload:hover{color:var(--fg);background:var(--surface)}
 
-        @keyframes breathe-border {
-            0%,
-            100% {
-                border-left-color: var(--brass);
-                box-shadow: 0 4px 18px rgba(0, 0, 0, 0.85), 0 0 10px rgba(181, 148, 91, 0.25);
-            }
-            50% {
-                border-left-color: var(--brass-glow);
-                box-shadow: 0 4px 18px rgba(0, 0, 0, 0.85), 0 0 20px rgba(181, 148, 91, 0.45);
-            }
-        }
-        #telemetry.critical-telemetry {
-            animation: breathe-border-critical 8s ease-in-out infinite;
-            border-left-color: var(--bleed);
-        }
-        @keyframes breathe-border-critical {
-            0%,
-            100% {
-                border-left-color: var(--bleed);
-                box-shadow: 0 4px 18px rgba(0, 0, 0, 0.85), 0 0 14px rgba(255, 51, 102, 0.5);
-            }
-            50% {
-                border-left-color: #ff5c85;
-                box-shadow: 0 4px 18px rgba(0, 0, 0, 0.85), 0 0 28px rgba(255, 51, 102, 0.7);
-            }
-        }
+  .meta{padding:16px 18px 18px;display:flex;gap:14px;flex:1}
+  .idx{
+    font-family:var(--mono);font-size:12px;color:var(--blue-hi);
+    letter-spacing:.05em;padding-top:2px;flex:none;
+  }
+  .body{flex:1;min-width:0}
+  .name{
+    font-family:var(--sans);font-weight:600;font-size:15px;
+    letter-spacing:-.01em;margin-bottom:5px;
+    display:flex;align-items:center;gap:8px;flex-wrap:wrap;
+  }
+  .badge-wip{
+    font-family:var(--mono);font-size:9px;letter-spacing:.12em;
+    color:var(--amber);border:1px solid var(--amber-dim);padding:1px 5px;
+    vertical-align:middle;
+  }
+  .desc{font-size:13px;color:var(--fg-dim);font-weight:400;line-height:1.45}
+  .tags{margin-top:10px;display:flex;gap:6px;flex-wrap:wrap}
+  .tag{
+    font-family:var(--mono);font-size:10px;letter-spacing:.1em;
+    color:var(--fg-dim);border:1px solid var(--line);padding:2px 7px;
+  }
+  .tag.cam{color:var(--blue-hi);border-color:var(--blue)}
+  .tag.audio{color:#ff7eb6;border-color:#ff7eb6}
+  .open{
+    display:flex;align-items:center;justify-content:space-between;
+    font-family:var(--mono);font-size:12px;letter-spacing:.1em;
+    color:var(--fg);text-decoration:none;
+    padding:13px 18px;border-top:1px solid var(--line);
+    transition:background .15s,color .15s;
+  }
+  .open:hover,.open:focus-visible{background:var(--blue);color:#fff;outline:none}
+  .open .arw{transition:transform .15s}
+  .open:hover .arw{transform:translate(2px,-2px)}
 
-        #telemetry span.highlight {
-            color: #fff;
-            font-weight: 700;
-            text-shadow: 0 0 6px #fff;
-        }
-        #telemetry span.warn {
-            color: var(--surge);
-            font-weight: 400;
-            text-shadow: 0 0 6px var(--surge);
-        }
-        #telemetry span.crit {
-            color: var(--bleed);
-            font-weight: 500;
-            text-shadow: 0 0 8px var(--bleed);
-        }
-        #telemetry span.brass-text {
-            color: var(--brass);
-            font-weight: 700;
-        }
+  /* ---------- empty state ---------- */
+  .empty{
+    display:none;
+    font-family:var(--mono);font-size:13px;color:var(--fg-dim);
+    padding:40px 0;text-align:center;
+    border:1px solid var(--line);
+    letter-spacing:.1em;
+  }
 
-        #viewport::after {
-            content: " ";
-            display: block;
-            position: absolute;
-            inset: 0;
-            background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.3) 50%),
-                linear-gradient(90deg, rgba(255, 0, 0, 0.04), rgba(0, 255, 0, 0.015), rgba(0, 0, 255, 0.04));
-            z-index: 2;
-            background-size: 100% 4px, 6px 100%;
-            pointer-events: none;
-            opacity: 0.7;
-            animation: scanline-flicker 8s linear infinite;
-        }
-        @keyframes scanline-flicker {
-            0%,
-            95%,
-            100% {
-                opacity: 0.35;
-            }
-            99.6% {
-                opacity: 0.55;
-            }
-            99.7% {
-                opacity: 0.85;
-            }
-            99.8% {
-                opacity: 0.5;
-            }
-        }
+  /* ---------- footer ---------- */
+  footer{
+    margin-top:40px;padding-top:22px;border-top:1px solid var(--line);
+    font-family:var(--mono);font-size:12px;color:var(--fg-dim);
+    display:flex;justify-content:space-between;flex-wrap:wrap;gap:12px;
+  }
+  footer b{color:var(--fg);font-weight:500}
 
-        #control-deck {
-            flex-shrink: 0;
-            width: 100%;
-            background: var(--deck);
-            border-top: 1px solid var(--border);
-            display: flex;
-            flex-direction: column;
-            padding: 12px 16px 16px;
-            gap: 10px;
-            z-index: 10;
-            box-shadow: 0 -24px 20px rgba(0, 0, 0, 0.8);
-            transition: padding 0.05s ease;
-        }
-        #control-deck.collapsed {
-            padding: 8px 16px;
-            gap: 0;
-        }
-        #collapsible-content {
-            display: flex;
-            flex-direction: column;
-            gap: 10px;
-            overflow: hidden;
-            max-height: 400px;
-            transition: max-height 0.25s ease, opacity 0.2s ease;
-            opacity: 1;
-        }
-        #control-deck.collapsed #collapsible-content {
-            max-height: 0;
-            opacity: 0;
-        }
-        #collapse-btn {
-            background: #0f1115;
-            border: 1px solid var(--border);
-            color: var(--brass);
-            font-family: 'Fira Code', monospace;
-            font-size: 16px;
-            cursor: pointer;
-            padding: 14px 16px;
-            line-height: 1;
-            transition: color 0.15s, background 0.15s;
-            border-radius: 2px;
-            touch-action: manipulation;
-            flex: 0 0 auto;
-            min-width: 44px;
-            text-align: center;
-        }
-        #collapse-btn:hover {
-            background: #161a20;
-            color: var(--brass-glow);
-        }
-        #control-deck-inner {
-            display: flex;
-            flex-direction: column;
-            gap: 8px;
-        }
-
-        .hud-row {
-            display: flex;
-            justify-content: space-between;
-            font-size: 10px;
-            letter-spacing: 0.5px;
-            border-bottom: 1px solid rgba(255, 255, 255, 0.04);
-            padding-bottom: 5px;
-            color: #8a92a6;
-        }
-        .hud-row span {
-            color: var(--brass);
-            font-weight: 500;
-        }
-
-        .slider-group {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            gap: 10px;
-        }
-        .slider-group span.label {
-            font-size: 10px;
-            width: 120px;
-            flex-shrink: 0;
-            letter-spacing: 0.3px;
-            color: #8a92a6;
-        }
-        .slider-group .val {
-            width: 48px;
-            text-align: right;
-            font-size: 11px;
-            color: var(--brass);
-            font-weight: 700;
-            flex-shrink: 0;
-            text-shadow: 0 0 4px rgba(181, 148, 91, 0.5);
-        }
-
-        input[type=range] {
-            appearance: none;
-            -webkit-appearance: none;
-            background: #060709;
-            height: 4px;
-            flex-grow: 1;
-            border: 1px solid #14171c;
-            border-radius: 2px;
-            cursor: pointer;
-        }
-        input[type=range]::-webkit-slider-thumb {
-            -webkit-appearance: none;
-            width: 16px;
-            height: 24px;
-            background: var(--brass);
-            cursor: pointer;
-            border: 1px solid #fff;
-            border-radius: 2px;
-            box-shadow: 0 0 12px rgba(181, 148, 91, 0.55);
-            transition: box-shadow 0.2s ease;
-        }
-        input[type=range]::-webkit-slider-thumb:hover {
-            box-shadow: 0 0 20px rgba(181, 148, 91, 0.8);
-        }
-        input[type=range]::-moz-range-thumb {
-            width: 16px;
-            height: 24px;
-            background: var(--brass);
-            cursor: pointer;
-            border: 1px solid #fff;
-            border-radius: 2px;
-            box-shadow: 0 0 12px rgba(181, 148, 91, 0.55);
-        }
-
-        .action-container {
-            display: flex;
-            gap: 10px;
-            margin-top: 4px;
-        }
-        .btn {
-            background: #0f1115;
-            border: 1px solid var(--border);
-            color: rgba(212, 212, 212, 0.8);
-            font-family: 'Fira Code', monospace;
-            font-size: 10px;
-            padding: 14px 8px;
-            cursor: pointer;
-            flex: 1;
-            text-align: center;
-            font-weight: bold;
-            text-transform: uppercase;
-            letter-spacing: 1px;
-            transition: all 0.18s ease;
-            border-radius: 2px;
-            touch-action: manipulation;
-            position: relative;
-            overflow: hidden;
-            min-width: 44px;
-        }
-        .btn:hover {
-            background: #161a20;
-            border-color: #2a2f38;
-        }
-        .btn:active {
-            background: #1a1e24;
-            transform: scale(0.97);
-        }
-        .btn.active {
-            background: var(--brass);
-            color: #000;
-            box-shadow: 0 0 18px rgba(181, 148, 91, 0.5);
-            border-color: var(--brass);
-        }
-        #slam-trigger {
-            color: var(--bleed);
-            border-color: rgba(255, 51, 102, 0.35);
-            text-shadow: 0 0 4px rgba(255, 51, 102, 0.4);
-        }
-        #slam-trigger:hover {
-            background: rgba(255, 51, 102, 0.1);
-            box-shadow: 0 0 22px rgba(255, 51, 102, 0.5);
-            border-color: var(--bleed);
-            color: #fff;
-        }
-        #slam-trigger:active {
-            background: rgba(255, 51, 102, 0.2);
-            box-shadow: 0 0 32px rgba(255, 51, 102, 0.7);
-            transform: scale(0.95);
-        }
-        #slam-trigger::after {
-            content: '';
-            position: absolute;
-            top: 6px;
-            right: 8px;
-            width: 5px;
-            height: 5px;
-            border-radius: 50%;
-            background: var(--bleed);
-            box-shadow: 0 0 6px var(--bleed);
-            animation: pulse-dot 2s ease-in-out infinite;
-            pointer-events: none;
-        }
-        @keyframes pulse-dot {
-            0%,
-            100% {
-                opacity: 0.5;
-                transform: scale(1);
-            }
-            50% {
-                opacity: 1;
-                transform: scale(1.8);
-            }
-        }
-
-        @media (max-width: 500px) {
-            #telemetry {
-                font-size: 9px;
-                padding: 10px 12px;
-                top: 8px;
-                left: 8px;
-            }
-            .slider-group span.label {
-                width: 90px;
-                font-size: 9px;
-            }
-            .btn {
-                font-size: 9px;
-                padding: 12px 6px;
-                letter-spacing: 0.5px;
-            }
-            #control-deck {
-                padding: 10px 10px 14px;
-                gap: 7px;
-            }
-        }
-    </style>
+  @media(prefers-reduced-motion:reduce){*{transition:none!important}}
+</style>
 </head>
 <body>
 
-    <div id="viewport">
-        <div id="telemetry">
-            STIFFNESS (k): <span id="k-readout" class="brass-text">1.00</span><br>
-            GRAVITY: <span id="g-readout" class="highlight">1.00</span><br>
-            ORBIT_RADIUS: <span id="size-readout" class="brass-text">35 px</span><br>
-            POTENTIAL_ENG: <span id="us-val" class="warn">0.00 J</span><br>
-            INTEGRITY: <span id="integrity" class="warn">NOMINAL</span><br>
-            DECAY_RATE: <span id="decay-readout" style="color:#666;">0.00005</span><br>
-            VELOCITY: <span id="vel-readout" class="brass-text">0.00</span><br>
-            MAX_ALT: <span id="maxalt-readout" class="highlight">0 px</span><br>
-            JUGGLE_MULT: <span id="combo-readout" class="brass-text">x1.0</span>
+<header class="masthead">
+  <div class="eyebrow"><span class="mark"></span> INDEX / 001 — LIVE DIRECTORY</div>
+  <h1 class="wordmark">FLOPTOPBOP</h1>
+  <p class="tagline">Field directory of <b>on-device builds</b> — generative filters, voxel worlds, ASCII simulations, and audio engines. Everything runs in the browser. Tap a frame to run it in place.</p>
+</header>
+
+<div class="controls">
+  <div class="search-wrap">
+    <span class="ico">⌕</span>
+    <input id="search" type="search" placeholder="SEARCH BUILDS..." autocomplete="off" spellcheck="false">
+  </div>
+  <div class="filter-row">
+    <span class="filter-label">FILTER:</span>
+    <button class="ftag active" data-filter="all">ALL</button>
+    <button class="ftag" data-filter="camera">CAM</button>
+    <button class="ftag" data-filter="image">IMAGE</button>
+    <button class="ftag" data-filter="3d">3D</button>
+    <button class="ftag" data-filter="ascii">ASCII</button>
+    <button class="ftag" data-filter="audio">AUDIO</button>
+  </div>
+</div>
+
+<main id="main"></main>
+
+<div class="empty" id="empty">NO BUILDS MATCH — TRY ANOTHER QUERY</div>
+
+<footer>
+  <span>FLOPTOPBOP — <b id="count">9</b> live builds</span>
+  <span>github.io // built on phone</span>
+</footer>
+
+<script>
+const BASE = "https://floptopbop.github.io/";
+const ALLOW = "camera;microphone;gyroscope;accelerometer;fullscreen;xr-spatial-tracking;autoplay";
+
+const CATEGORIES = [
+  {
+    id: "camera",
+    label: "LIVE INPUT // CAMERA",
+    projects: [
+      {
+        id: "scanderlydarklied",
+        name: "TRINITY ENGINE",
+        desc: "Live camera suite: Monklin warp × Razor edge × Bayer dither. Freeze-frame capture with real-time compositing.",
+        tags: ["WEBGL","CAM"],
+        wip: false
+      },
+      {
+        id: "Wavy",
+        name: "SUMI-E DAEMON",
+        desc: "Ink-wash camera filter — ghost wash, mid bloom & black strokes with a draggable hanko seal.",
+        tags: ["CANVAS","CAM"],
+        wip: false
+      },
+      {
+        id: "Syntheticstiv",
+        name: "SYNESTHESIA ENGINE",
+        desc: "Live image-to-audio translation — maps visual input to synthesized sound in real time. Camera feed drives the music.",
+        tags: ["AUDIO","CAM"],
+        wip: false
+      },
+    ]
+  },
+  {
+    id: "image",
+    label: "IMAGE PROCESSING",
+    projects: [
+      {
+        id: "nonenage",
+        name: "PANDRA_OS // SHARD RECON",
+        desc: "Dual-scanline edge & skeleton extraction with commit-to-stack layering. Decompose any image into structural geometry.",
+        tags: ["CANVAS","TOOL"],
+        wip: false
+      },
+      {
+        id: "Ascci",
+        name: "PYFORGE",
+        desc: "Unified browser-based image effects engine — ten Python processing scripts ported to JS as a single HTML tool.",
+        tags: ["CANVAS","TOOL"],
+        wip: true
+      },
+    ]
+  },
+  {
+    id: "3d",
+    label: "3D // TRAVERSAL",
+    projects: [
+      {
+        id: "Voxel",
+        name: "PANDRA_OS // MONUMENT",
+        desc: "Voxel monument explorer — grapple, jetpack & walk traversal across monument-scale architecture. Octree SDF with tri-directional image projection.",
+        tags: ["THREE.JS","3D"],
+        wip: false
+      },
+      {
+        id: "OHhHHh_fishyfishyfishyfis",
+        name: "VOLUMETRIC NANO SWARM",
+        desc: "TrueColor volumetric particle swarm — dense agent flocking rendered in real time with instanced geometry.",
+        tags: ["WEBGL","3D"],
+        wip: false
+      },
+    ]
+  },
+  {
+    id: "ascii",
+    label: "ASCII // SIMULATION",
+    projects: [
+      {
+        id: "Beach-day",
+        name: "ASCII OCEAN",
+        desc: "Finite-difference wave sim with shoreline wash-up and a wandering bear. Full character-cell fluid dynamics.",
+        tags: ["ASCII","SIM"],
+        wip: false
+      },
+      {
+        id: "Water",
+        name: "ASCII WATER",
+        desc: "Character-cell fluid study — wave buffer rendered in pure text. Minimal, hypnotic.",
+        tags: ["ASCII","SIM"],
+        wip: false
+      },
+    ]
+  },
+];
+
+const main = document.getElementById("main");
+const emptyEl = document.getElementById("empty");
+const countEl = document.getElementById("count");
+
+let activeFilter = "all";
+let searchQuery = "";
+
+// Build DOM
+CATEGORIES.forEach(cat => {
+  const section = document.createElement("section");
+  section.className = "section";
+  section.dataset.cat = cat.id;
+
+  const head = document.createElement("div");
+  head.className = "section-head";
+  head.innerHTML = `
+    <span class="section-pip"></span>
+    <span class="section-label">${cat.label}</span>
+    <span class="section-count" id="count-${cat.id}">${cat.projects.length}</span>
+  `;
+  section.appendChild(head);
+
+  const grid = document.createElement("div");
+  grid.className = "grid";
+  grid.id = `grid-${cat.id}`;
+  section.appendChild(grid);
+
+  cat.projects.forEach((p, i) => {
+    const url = BASE + p.id + "/";
+    const tags = p.tags.map(t => {
+      const isCam = t === "CAM";
+      const isAudio = t === "AUDIO";
+      const cls = isCam ? " cam" : isAudio ? " audio" : "";
+      const label = isCam ? "◉ CAM" : isAudio ? "♪ AUDIO" : t;
+      return `<span class="tag${cls}">${label}</span>`;
+    }).join("");
+
+    const el = document.createElement("article");
+    el.className = "card";
+    el.dataset.name = p.name.toLowerCase();
+    el.dataset.desc = p.desc.toLowerCase();
+    el.dataset.tags = p.tags.join(" ").toLowerCase();
+    el.dataset.cat = cat.id;
+
+    el.innerHTML = `
+      <div class="frame" data-src="${url}">
+        <button class="unload" title="Stop preview">✕</button>
+        <button class="load">
+          <span class="play">▶</span>
+          RUN PREVIEW
+        </button>
+      </div>
+      <div class="meta">
+        <div class="body">
+          <div class="name">${p.name}${p.wip ? '<span class="badge-wip">WIP</span>' : ''}</div>
+          <div class="desc">${p.desc}</div>
+          <div class="tags">${tags}</div>
         </div>
-        <canvas id="mainCanvas"></canvas>
-        <div id="minimap">
-            <canvas id="minimapCanvas"></canvas>
-        </div>
-        <div id="offscreen-arrow" style="display:none;"></div>
-    </div>
-
-    <div id="control-deck">
-        <div id="control-deck-inner">
-            <div id="collapsible-content">
-                <div class="hud-row">
-                   
-                </div>
-
-                <div class="slider-group">
-                    <span class="label">ORBITAL_STIFF (k)</span>
-                    <input type="range" id="k-slider" min="0.20" max="4.00" step="0.05" value="1">
-                    <span class="val" id="k-val">1.00</span>
-                </div>
-
-                <div class="slider-group">
-                    <span class="label">GRAVITATIONAL (g)</span>
-                    <input type="range" id="g-slider" min="0.01" max="1.50" step="0.02" value="0.30">
-                    <span class="val" id="g-val">1.00</span>
-                </div>
-
-                <div class="slider-group">
-                    <span class="label">ORBIT_RADIUS (px)</span>
-                    <input type="range" id="size-slider" min="1" max="250" step="1" value="35">
-                    <span class="val" id="size-val">35</span>
-                </div>
-
-                <div class="slider-group">
-                    <span class="label">DAMPING</span>
-                    <input type="range" id="damp-slider" min="0.80" max="0.999" step="0.001" value="0.98">
-                    <span class="val" id="damp-val">0.980</span>
-                </div>
-
-                <div class="slider-group">
-                    <span class="label">SUBSTEPS</span>
-                    <input type="range" id="sub-slider" min="1" max="120" step="1" value="60">
-                    <span class="val" id="sub-val">60</span>
-                </div>
-
-                <div class="slider-group">
-                    <span class="label">BOUNCE</span>
-                    <input type="range" id="bounce-slider" min="0.0" max="1.0" step="0.01" value="0.10">
-                    <span class="val" id="bounce-val">0.10</span>
-                </div>
-
-                <div class="slider-group">
-                    <span class="label">TIME_STEP</span>
-                    <input type="range" id="ts-slider" min="1" max="120" step="1" value="60">
-                    <span class="val" id="ts-val">60</span>
-                </div>
-            </div>
-
-            <div class="action-container">
-                <button id="collapse-btn">▾</button>
-                <button class="btn" id="slam-trigger">KINETIC STRIKE</button>
-                <button class="btn" id="reset-btn" style="flex:0 0 auto;width:36px;min-width:36px;padding:14px 4px;font-size:9px;letter-spacing:0px;opacity:0.6;">↺</button>
-            </div>
-        </div>
-    </div>
-
-    <script>
-        (function() {
-            const canvas = document.getElementById('mainCanvas');
-            const container = document.getElementById('viewport');
-            const ctx = canvas.getContext('2d');
-            const telemetryEl = document.getElementById('telemetry');
-
-            const mmCanvas = document.getElementById('minimapCanvas');
-            const mmCtx = mmCanvas.getContext('2d');
-
-            function resizeMinimap() {
-                const mmEl = document.getElementById('minimap');
-                mmCanvas.width = mmEl.clientWidth;
-                mmCanvas.height = mmEl.clientHeight;
-            }
-
-            const arrowEl = document.getElementById('offscreen-arrow');
-
-            const elUs = document.getElementById('us-val');
-            const elIntegrity = document.getElementById('integrity');
-            const elKReadout = document.getElementById('k-readout');
-            const elKVal = document.getElementById('k-val');
-            const elGReadout = document.getElementById('g-readout');
-            const elGVal = document.getElementById('g-val');
-            const elSizeReadout = document.getElementById('size-readout');
-            const elSizeVal = document.getElementById('size-val');
-            const elDecayReadout = document.getElementById('decay-readout');
-            const elVelReadout = document.getElementById('vel-readout');
-            const elMaxAltReadout = document.getElementById('maxalt-readout');
-            const elComboReadout = document.getElementById('combo-readout');
-            const kSlider = document.getElementById('k-slider');
-            const gSlider = document.getElementById('g-slider');
-            const sizeSlider = document.getElementById('size-slider');
-            const dampSlider = document.getElementById('damp-slider');
-            const subSlider = document.getElementById('sub-slider');
-            const bounceSlider = document.getElementById('bounce-slider');
-            const slamBtn = document.getElementById('slam-trigger');
-
-            // ─────────────────────────────────────
-            // FIXED TIMESTEP CONSTANTS
-            // TIME_STEP is unitless, tuned to match the physics constants.
-            // ─────────────────────────────────────
-            let TIME_STEP = 1 / 4; // ~0.25, tunable via slider
-
-            let accumulator = 0;
-            let lastTime = performance.now();
-
-            let engine = {
-                k: 1.00,
-                damping: 0.98,
-                bounce: 0.32,
-                gravity: 0.30,
-                cageSize: 35,
-                subSteps: 8,
-                totalUs: 0,
-                pointer: { x: 0, y: 0, active: false, targetNode: null },
-                shake: 0,
-                entropy: 0,
-                decay_rate: 0.00005,
-                epicycleRotation: 0,
-                resonancePulses: [],
-                breathPhase: 0,
-                heightHistory: [],
-                velocityHistory: [],
-                prevCentY: null,
-                maxAlt: 0,
-                hitStop: 0,
-                impactFlashes: [],
-                combo: 0,
-                comboMult: 1.0,
-                lastTouchedByPlayer: false,
-                comboEligible: false,
-                grabFrames: 0,
-                groundedFrames: 0,
-            };
-
-            const CRITICAL_US = 4000;
-
-            // ─────────────────────────────────────
-            // NODE (with force accumulators)
-            // ─────────────────────────────────────
-            class Node {
-                constructor(x, y) {
-                    this.x = x;
-                    this.y = y;
-                    this.vx = 0;
-                    this.vy = 0;
-                    this.fx = 0;
-                    this.fy = 0;
-                    this.mass = 1.0;
-                    this.grounded = false;
-                    this.historicalTrail = [];
-                    this.ghostEchoes = [];
-                }
-
-                clearForces() {
-                    this.fx = 0;
-                    this.fy = 0;
-                }
-
-                applyForce(x, y) {
-                    this.fx += x;
-                    this.fy += y;
-                }
-
-                recordPosition() {
-                    this.historicalTrail.push({ x: this.x, y: this.y, age: 0 });
-                    if (this.historicalTrail.length > 60) this.historicalTrail.shift();
-                    this.historicalTrail.forEach(p => p.age++);
-                }
-            }
-
-            // ─────────────────────────────────────
-            // PURE SPRING
-            // ─────────────────────────────────────
-            class PureSpring {
-                constructor(nodeA, nodeB, restLength, isDiagonal = false) {
-                    this.a = nodeA;
-                    this.b = nodeB;
-                    this.restLength = restLength;
-                    this.isDiagonal = isDiagonal;
-                    this.currentUs = 0;
-                    this.midX = 0;
-                    this.midY = 0;
-                }
-
-                accumulateForces() {
-                    const heatMultiplier = 0.9;
-                    const dynamicRestLength = this.restLength * (1 + (engine.entropy * heatMultiplier));
-                    const dx = this.b.x - this.a.x;
-                    const dy = this.b.y - this.a.y;
-                    const len = Math.hypot(dx, dy) || 0.001;
-                    const displacement = len - dynamicRestLength;
-                    this.currentUs = 0.5 * engine.k * (displacement * displacement);
-                    const force = displacement * engine.k;
-                    const fx = (dx / len) * force;
-                    const fy = (dy / len) * force;
-                    this.a.fx += fx;
-                    this.a.fy += fy;
-                    this.b.fx -= fx;
-                    this.b.fy -= fy;
-                    this.midX = (this.a.x + this.b.x) / 1;
-                    this.midY = (this.a.y + this.b.y) / 1;
-                }
-            }
-
-            // ─────────────────────────────────────
-            // SPARK
-            // ─────────────────────────────────────
-            class Spark {
-                constructor(x, y, vx, vy, colorType) {
-                    this.x = x;
-                    this.y = y;
-                    this.vx = vx;
-                    this.vy = vy;
-                    this.life = 1.0;
-                    this.colorType = colorType;
-                    this.size = 0.1 + Math.random() * 3.2;
-                }
-                update() {
-                    this.x += this.vx;
-                    this.y += this.vy;
-                    this.vy += engine.gravity * 0.02;
-                    this.life -= 0.018;
-                    this.size *= 0.995;
-                }
-                draw(ctx) {
-                    if (this.life <= 0) return;
-                    const alpha = Math.max(0, this.life);
-                    let color;
-                    if (this.colorType === 'bleed') color = `rgba(255,51,102,${alpha})`;
-                    else if (this.colorType === 'surge') color = `rgba(255,170,0,${alpha})`;
-                    else if (this.colorType === 'cyan') color = `rgba(0,229,255,${alpha})`;
-                    else color = `rgba(181,148,91,${alpha})`;
-                    ctx.fillStyle = color;
-                    ctx.shadowColor = color;
-                    ctx.shadowBlur = this.size * 2 * alpha;
-                    ctx.beginPath();
-                    ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
-                    ctx.fill();
-                    ctx.shadowBlur = 0;
-                }
-                reset(x, y, vx, vy, colorType) {
-                    this.x = x;
-                    this.y = y;
-                    this.vx = vx;
-                    this.vy = vy;
-                    this.life = 1.0;
-                    this.colorType = colorType;
-                    this.size = 0.5 + Math.random() * 1.2;
-                }
-            }
-
-            // ─────────────────────────────────────
-            // PARTICLE POOL
-            // ─────────────────────────────────────
-            class ParticlePool {
-                constructor(maxSize) {
-                    this.pool = new Array(maxSize).fill(null).map(() => new Spark(0, 0, 0, 0, ''));
-                    this.activeCount = 0;
-                }
-
-                spawn(x, y, vx, vy, type) {
-                    if (this.activeCount >= this.pool.length) return;
-                    const p = this.pool[this.activeCount++];
-                    p.reset(x, y, vx, vy, type);
-                }
-
-                updateAndRender(ctx) {
-                    for (let i = this.activeCount - 1; i >= 0; i--) {
-                        const p = this.pool[i];
-                        p.update();
-                        if (p.life <= 0) {
-                            this.pool[i] = this.pool[this.activeCount - 1];
-                            this.pool[this.activeCount - 1] = p;
-                            this.activeCount--;
-                        } else {
-                            p.draw(ctx);
-                        }
-                    }
-                }
-
-                get count() { return this.activeCount; }
-                clear() { this.activeCount = 0; }
-            }
-
-            // ─────────────────────────────────────
-            // RESONANCE PULSE
-            // ─────────────────────────────────────
-            class ResonancePulse {
-                constructor(x, y, intensity) {
-                    this.x = x;
-                    this.y = y;
-                    this.radius = 0;
-                    this.maxRadius = 40 + intensity * 1.5;
-                    this.life = 1.0;
-                    this.intensity = intensity;
-                    this.speed = 1 + intensity * 1;
-                }
-                update() {
-                    this.radius += this.speed;
-                    this.life = 1 - (this.radius / this.maxRadius);
-                    return this.life > 0;
-                }
-                draw(ctx) {
-                    if (this.life <= 0) return;
-                    const alpha = this.life * 0.05;
-                    ctx.beginPath();
-                    ctx.arc(this.x, this.y, this.radius, 0, Math.PI * 2);
-                    ctx.strokeStyle = `rgba(181,148,91,${alpha})`;
-                    ctx.lineWidth = 2.5 * this.life;
-                    ctx.shadowColor = `rgba(255,170,0,${alpha * 0.6})`;
-                    ctx.shadowBlur = 8 * this.life;
-                    ctx.stroke();
-                    ctx.shadowBlur = 0;
-                }
-            }
-
-            // ─────────────────────────────────────
-            // WISP
-            // ─────────────────────────────────────
-            class Wisp {
-                constructor(node, intensity) {
-                    this.node = node;
-                    this.angle = Math.random() * Math.PI * 2;
-                    this.dist = 20 + Math.random() * 180;
-                    this.speed = (0.02 + Math.random() * 0.06) * (Math.random() > 0.5 ? 1 : -1);
-                    this.life = 0.6 + Math.random() * 0.2;
-                    this.intensity = intensity;
-                    this.size = 0.2 + Math.random() * 10;
-                }
-                update() {
-                    this.angle += this.speed;
-                    this.dist += (Math.random() - 0.5) * 0.4;
-                    this.dist = Math.max(5, Math.min(30, this.dist));
-                    this.life -= 0.008;
-                }
-                draw(ctx) {
-                    if (this.life <= 0) return;
-                    const x = this.node.x + Math.cos(this.angle) * this.dist;
-                    const y = this.node.y + Math.sin(this.angle) * this.dist;
-                    const alpha = this.life * 0.7;
-                    ctx.fillStyle = `rgba(255,170,0,${alpha})`;
-                    ctx.shadowColor = `rgba(255,170,0,${alpha})`;
-                    ctx.shadowBlur = 4;
-                    ctx.beginPath();
-                    ctx.arc(x, y, this.size, 0, Math.PI * 2);
-                    ctx.fill();
-                    ctx.shadowBlur = 0;
-                }
-                get alive() { return this.life > 0; }
-            }
-
-            // ─────────────────────────────────────
-            // GLOBALS
-            // ─────────────────────────────────────
-            let nodes = [],
-                springs = [],
-                sparkPool = new ParticlePool(600),
-                backgroundAstrolabe = [],
-                wisps = [];
-
-            function buildAstrolabe() {
-                backgroundAstrolabe = [];
-                for (let i = 1; i <= 7; i++) {
-                    backgroundAstrolabe.push({
-                        radiusRatio: i / 2,
-                        dashConfig: i % 2 === 0 ? [4, 8] : [2, 5],
-                        lineWidth: i === 7 ? 1.0 : 0.35,
-                        phase: Math.random() * Math.PI * 9,
-                    });
-                }
-            }
-
-            function buildCage() {
-                nodes = [];
-                springs = [];
-                sparkPool.clear();
-                wisps = [];
-                engine.resonancePulses = [];
-                engine.heightHistory = [];
-                engine.velocityHistory = [];
-                engine.prevCentY = null;
-                engine.maxAlt = 0;
-                const cx = canvas.width / 2,
-                    cy = canvas.height / 2;
-                const half = engine.cageSize / 2,
-                    size = engine.cageSize;
-                nodes.push(new Node(cx - half, cy - half));
-                nodes.push(new Node(cx + half, cy - half));
-                nodes.push(new Node(cx + half, cy + half));
-                nodes.push(new Node(cx - half, cy + half));
-                springs.push(new PureSpring(nodes[0], nodes[1], size, false));
-                springs.push(new PureSpring(nodes[1], nodes[2], size, false));
-                springs.push(new PureSpring(nodes[2], nodes[3], size, false));
-                springs.push(new PureSpring(nodes[3], nodes[0], size, false));
-                const diagDist = size * Math.sqrt(2);
-                springs.push(new PureSpring(nodes[0], nodes[2], diagDist, true));
-                springs.push(new PureSpring(nodes[1], nodes[3], diagDist, true));
-            }
-
-            function resize() {
-                canvas.width = container.clientWidth;
-                canvas.height = container.clientHeight;
-                buildAstrolabe();
-                buildCage();
-                resizeMinimap();
-            }
-
-            const viewportObserver = new ResizeObserver(() => { resize(); });
-            viewportObserver.observe(container);
-            window.addEventListener('resize', resize);
-            resize();
-
-            // ─────────────────────────────────────
-            // UI SLIDERS
-            // ─────────────────────────────────────
-            kSlider.oninput = (e) => {
-                engine.k = parseFloat(e.target.value);
-                elKReadout.textContent = engine.k.toFixed(2);
-                elKVal.textContent = engine.k.toFixed(2);
-            };
-            gSlider.oninput = (e) => {
-                engine.gravity = parseFloat(e.target.value);
-                elGReadout.textContent = engine.gravity.toFixed(2);
-                elGVal.textContent = engine.gravity.toFixed(2);
-            };
-            sizeSlider.oninput = (e) => {
-                engine.cageSize = parseInt(e.target.value);
-                elSizeReadout.textContent = engine.cageSize + ' px';
-                elSizeVal.textContent = engine.cageSize;
-                buildCage();
-            };
-            dampSlider.oninput = (e) => {
-                engine.damping = parseFloat(e.target.value);
-                document.getElementById('damp-val').textContent = engine.damping.toFixed(3);
-            };
-            subSlider.oninput = (e) => {
-                engine.subSteps = parseInt(e.target.value);
-                document.getElementById('sub-val').textContent = engine.subSteps;
-            };
-            bounceSlider.oninput = (e) => {
-                engine.bounce = parseFloat(e.target.value);
-                document.getElementById('bounce-val').textContent = engine.bounce.toFixed(2);
-            };
-            document.getElementById('ts-slider').oninput = (e) => {
-                const n = parseInt(e.target.value);
-                TIME_STEP = 1 / n;
-                document.getElementById('ts-val').textContent = '1/' + n;
-            };
-
-            // ─────────────────────────────────────
-            // KINETIC STRIKE
-            // ─────────────────────────────────────
-            const executeTrauma = (e) => {
-                if (e) e.preventDefault();
-                engine.hitStop = 0;
-                const cx = canvas.width / 20,
-                    cy = canvas.height / 20;
-                const mult = engine.comboMult;
-                const empowered = mult > 2.0;
-                if (empowered) {
-                    nodes.forEach(n => {
-                        n.vx += (Math.random() - 0.5) * 14 * mult;
-                        n.vy -= (Math.random() * 10 + 55) * mult;
-                    });
-                    engine.shake = Math.min(engine.shake + 20, 20);
-                    engine.hitStop = Math.max(engine.hitStop, 4 + Math.floor(mult * mult));
-                    nodes.forEach(n => { engine.impactFlashes.push({ x: n.x, y: n.y, life: 1.0, strength: mult * mult }); });
-                    engine.resonancePulses.push(new ResonancePulse(cx, cy, 38 * mult));
-                    nodes.forEach((n) => {
-                        const sparkCount = Math.floor(140 * mult);
-                        for (let i = 0; i < sparkCount; i++) {
-                            const angle = Math.random() * Math.PI * 2;
-                            const vel = (Math.random() * 2.5 + 55) * Math.sqrt(mult);
-                            const cType = i % 3 === 0 ? 'bleed' : (i % 2 === 0 ? 'surge' : 'cyan');
-                            sparkPool.spawn(n.x, n.y, Math.cos(angle) * vel, Math.sin(angle) * vel, cType);
-                        }
-                    });
-                } else {
-                    nodes.forEach(n => {
-                        n.vx += (Math.random() - 0.5) * 30;
-                        n.vy -= (Math.random() * 18) + 14;
-                    });
-                    engine.shake = Math.min(engine.shake + 22, 40);
-                    nodes.forEach(n => { engine.impactFlashes.push({ x: n.x, y: n.y, life: 0.5, strength: mult }); });
-                    nodes.forEach((n) => {
-                        for (let i = 0; i < 15; i++) {
-                            const angle = Math.random() * Math.PI * 0.8;
-                            const vel = Math.random() * 1.4 + mult;
-                            sparkPool.spawn(n.x, n.y, Math.cos(angle) * vel, Math.sin(angle) * vel, 'brass');
-                        }
-                    });
-                }
-            };
-            document.getElementById('reset-btn').addEventListener('click', buildCage);
-            document.getElementById('reset-btn').addEventListener('touchend', (e) => { e.preventDefault(); buildCage(); });
-
-            slamBtn.addEventListener('mousedown', executeTrauma);
-            slamBtn.addEventListener('touchstart', executeTrauma, { passive: false });
-
-            const collapseBtn = document.getElementById('collapse-btn');
-            const controlDeck = document.getElementById('control-deck');
-            collapseBtn.addEventListener('click', () => {
-                const collapsed = controlDeck.classList.toggle('collapsed');
-                collapseBtn.textContent = collapsed ? '▴' : '▾';
-            });
-            collapseBtn.addEventListener('touchend', (e) => {
-                e.preventDefault();
-                e.stopPropagation();
-                const collapsed = controlDeck.classList.toggle('collapsed');
-                collapseBtn.textContent = collapsed ? '▴' : '▾';
-            });
-
-            // ─────────────────────────────────────
-            // POINTER / GRAB
-            // ─────────────────────────────────────
-            function getPointerPos(e) {
-                const rect = canvas.getBoundingClientRect();
-                const clientX = e.touches ? e.touches[0].clientX : e.clientX;
-                const clientY = e.touches ? e.touches[0].clientY : e.clientY;
-                return { x: clientX - rect.left, y: clientY - rect.top };
-            }
-
-            function isControlDeckTarget(e) {
-                const target = e.target;
-                return target.closest && target.closest('#control-deck');
-            }
-
-            function onPointerDown(e) {
-                if (e.touches && e.touches.length > 1) return;
-                if (isControlDeckTarget(e)) return;
-                const pos = getPointerPos(e);
-                engine.pointer.active = true;
-                engine.grabFrames = 0;
-                let closest = null, minDist = 70;
-                nodes.forEach(n => {
-                    const d = Math.hypot(n.x - pos.x, n.y - pos.y);
-                    if (d < minDist) { minDist = d; closest = n; }
-                });
-                engine.pointer.targetNode = closest;
-            }
-
-            function onPointerMove(e) {
-                if (!engine.pointer.active) return;
-                if (isControlDeckTarget(e)) return;
-                const pos = getPointerPos(e);
-                if (engine.pointer.targetNode) {
-                    engine.pointer.targetNode.x = pos.x;
-                    engine.pointer.targetNode.y = pos.y;
-                    engine.pointer.targetNode.vx = 0;
-                    engine.pointer.targetNode.vy = 0;
-                }
-                engine.pointer.x = pos.x;
-                engine.pointer.y = pos.y;
-            }
-            const drop = () => {
-                if (engine.pointer.targetNode) {
-                    if (engine.grabFrames <= 30) { engine.lastTouchedByPlayer = true; engine.comboEligible = true; }
-                }
-                engine.grabFrames = 0;
-                engine.pointer.active = false;
-                engine.pointer.targetNode = null;
-            };
-
-            canvas.addEventListener('mousedown', onPointerDown);
-            window.addEventListener('mousemove', onPointerMove);
-            window.addEventListener('mouseup', drop);
-            canvas.addEventListener('touchstart', (e) => { if (isControlDeckTarget(e)) return; e.preventDefault(); onPointerDown(e); }, { passive: false });
-            window.addEventListener('touchmove', (e) => { if (engine.pointer.active && !isControlDeckTarget(e)) e.preventDefault(); onPointerMove(e); }, { passive: false });
-            window.addEventListener('touchend', (e) => { if (isControlDeckTarget(e)) return; e.preventDefault(); drop(); }, { passive: false });
-            window.addEventListener('touchcancel', (e) => { if (isControlDeckTarget(e)) return; e.preventDefault(); drop(); }, { passive: false });
-
-            // ─────────────────────────────────────
-            // FIXED-TIMESTEP PHYSICS STEP
-            // dt is in ms, forces/velocities are tuned to that scale
-            // ─────────────────────────────────────
-            function stepPhysics(dt) {
-                nodes.forEach(n => n.clearForces());
-                springs.forEach(s => s.accumulateForces());
-                engine.totalUs = springs.reduce((sum, s) => sum + s.currentUs, 0);
-
-                if (engine.pointer.targetNode) {
-                    engine.pointer.targetNode.clearForces();
-                }
-
-                nodes.forEach(n => {
-                    if (n !== engine.pointer.targetNode) {
-                        n.fy += engine.gravity;
-                        n.vx += (n.fx / n.mass) * dt;
-                        n.vy += (n.fy / n.mass) * dt;
-                        n.vx *= Math.pow(engine.damping, dt);
-                        n.vy *= Math.pow(engine.damping, dt);
-                        n.x += n.vx * dt;
-                        n.y += n.vy * dt;
-
-                        if (isNaN(n.x) || isNaN(n.y) || !isFinite(n.x) || !isFinite(n.y)) {
-                            n.x = canvas.width / 2;
-                            n.y = canvas.height / 2;
-                            n.vx = 0;
-                            n.vy = 0;
-                            n.clearForces();
-                        }
-                    }
-                });
-
-                const r = 8;
-                nodes.forEach(n => {
-                    if (n.y < canvas.height - r - 2) n.grounded = false;
-                    if (n.x < r) { n.x = r; n.vx *= -engine.bounce; }
-                    if (n.x > canvas.width - r) { n.x = canvas.width - r; n.vx *= -engine.bounce; }
-                    if (n.y > canvas.height - r) {
-                        const wasAirborne = !n.grounded;
-                        n.y = canvas.height - r;
-                        n.grounded = true;
-                        if (wasAirborne && n.vy > 4 && engine.comboEligible) {
-                            const m = engine.comboMult;
-                            engine.hitStop = Math.max(engine.hitStop, Math.min(Math.round(m * 4), 2));
-                            engine.impactFlashes.push({ x: n.x, y: n.y, life: 1.0, strength: Math.min((n.vy / 18) * m, 4.0) });
-                            n.vy *= -(engine.bounce + Math.min(m * 1, 1));
-                            const extraSparks = Math.floor(m * 24);
-                            for (let i = 0; i < extraSparks; i++) {
-                                const angle = Math.random() * Math.PI;
-                                const vel = (2.5 + m * 5) * Math.sqrt(m);
-                                const cType = i % 3 === 0 ? 'bleed' : (i % 2 === 0 ? 'surge' : 'cyan');
-                                sparkPool.spawn(n.x, n.y, Math.cos(angle) * vel, -Math.abs(Math.sin(angle) * vel), cType);
-                            }
-                            engine.lastTouchedByPlayer = false;
-                        } else if (wasAirborne && n.vy > 4) {
-                            engine.hitStop = Math.max(engine.hitStop, 1);
-                            engine.impactFlashes.push({ x: n.x, y: n.y, life: 1.0, strength: Math.min(n.vy / 4, 0.8) });
-                            n.vy *= -engine.bounce;
-                        } else {
-                            n.vy *= -engine.bounce;
-                        }
-                    }
-                });
-            }
-
-            // ─────────────────────────────────────
-            // PER-FRAME UPDATES (non-physics)
-            // ─────────────────────────────────────
-            function updatePerFrame() {
-                engine.k = Math.max(0.15, engine.k - engine.decay_rate);
-                engine.entropy = Math.min(engine.entropy + 0.00008, 2.8);
-                engine.epicycleRotation += 0.0035;
-                engine.breathPhase += 0.025;
-
-                if (engine.pointer.targetNode !== null) {
-                    engine.grabFrames++;
-                    if (engine.grabFrames > 30) { engine.comboEligible = false; engine.combo = 0; engine.comboMult = 1.0; }
-                }
-
-                const isHeld = engine.pointer.targetNode !== null;
-                const allGrounded = nodes.every(n => n.y >= canvas.height - 9);
-                const anyOffScreen = nodes.some(n => n.x < 0 || n.x > canvas.width || n.y < 0 || n.y > canvas.height);
-
-                const RESET_FRAMES = 30;
-                if (allGrounded) { engine.groundedFrames++; } else { engine.groundedFrames = 0; }
-
-                if (anyOffScreen) {
-                    engine.comboEligible = false;
-                    engine.combo = 0;
-                    engine.comboMult = 1.0;
-                    engine.groundedFrames = 0;
-                } else if (isHeld && engine.grabFrames > RESET_FRAMES) {
-                    engine.combo = 0;
-                    engine.comboMult = 1.0;
-                    engine.comboEligible = false;
-                } else if (engine.groundedFrames > RESET_FRAMES) {
-                    engine.combo = 0;
-                    engine.comboMult = 1.0;
-                    engine.comboEligible = false;
-                    engine.groundedFrames = 0;
-                } else if (engine.comboEligible && !isHeld) {
-                    engine.combo++;
-                    engine.comboMult = 1.0 + Math.min(engine.combo / 60, 4.0);
-                }
-
-                nodes.forEach(n => n.recordPosition());
-
-                const isCritical = engine.totalUs > CRITICAL_US || engine.k < 0.30;
-
-                if (isCritical && engine.resonancePulses.length === 0 && Math.random() < 0.3) {
-                    const cx = canvas.width / 2, cy = canvas.height / 2;
-                    engine.resonancePulses.push(new ResonancePulse(cx, cy, engine.totalUs / 30));
-                }
-
-                if (isCritical) {
-                    engine.shake = Math.min(engine.shake + 2.2, 18);
-                    nodes.forEach(n => {
-                        if (Math.random() < 0.25) sparkPool.spawn(n.x, n.y, (Math.random() - 0.5) * 11, (Math.random() - 0.5) * 11, 'surge');
-                    });
-                    springs.forEach(s => {
-                        if (Math.random() < 0.1 && s.currentUs > 100) sparkPool.spawn(s.midX, s.midY, (Math.random() - 0.5) * 8, (Math.random() - 0.5) * 8, 'cyan');
-                    });
-                    nodes.forEach(n => {
-                        const nodeStress = springs.filter(s => s.a === n || s.b === n).reduce((sum, s) => sum + s.currentUs, 0);
-                        if (nodeStress > 200 && Math.random() < 0.3 && wisps.length < 20) wisps.push(new Wisp(n, nodeStress / 200));
-                    });
-                }
-                if (engine.shake > 0) engine.shake *= 0.87;
-                if (engine.shake < 0.3) engine.shake = 0;
-
-                engine.resonancePulses = engine.resonancePulses.filter(p => p.update());
-                wisps.forEach(w => w.update());
-                wisps = wisps.filter(w => w.alive);
-                if (wisps.length > 25) wisps.splice(0, wisps.length - 25);
-            }
-
-            // ─────────────────────────────────────
-            // RENDER FRAME
-            // ─────────────────────────────────────
-            function renderFrame() {
-                ctx.globalCompositeOperation = 'source-over';
-                ctx.fillStyle = 'rgba(2, 3, 6, 0.28)';
-                ctx.fillRect(0, 0, canvas.width, canvas.height);
-
-                const isCritical = engine.totalUs > CRITICAL_US || engine.k < 0.30;
-
-                ctx.save();
-                if (engine.shake > 0.4) {
-                    ctx.translate((Math.random() - 0.5) * engine.shake * 1.6, (Math.random() - 0.5) * engine.shake * 1.6);
-                }
-
-                ctx.globalCompositeOperation = 'lighter';
-                const cx = canvas.width / 2, cy = canvas.height / 2;
-                const maxD = Math.max(canvas.width, canvas.height);
-
-                const astrolabePulse = 1 + (isCritical ? Math.sin(engine.breathPhase * 3) * 0.15 : Math.sin(engine.breathPhase) * 0.04);
-                backgroundAstrolabe.forEach(r => {
-                    const baseAlpha = r.radiusRatio * 0.14 * astrolabePulse;
-                    ctx.strokeStyle = isCritical ? `rgba(255,51,102,${baseAlpha*1.3})` : `rgba(181,148,91,${baseAlpha})`;
-                    ctx.setLineDash(r.dashConfig);
-                    ctx.lineWidth = r.lineWidth * astrolabePulse;
-                    ctx.beginPath();
-                    ctx.arc(cx, cy, maxD * 0.42 * r.radiusRatio * astrolabePulse, r.phase + engine.epicycleRotation, 0, Math.PI * 2);
-                    ctx.stroke();
-                });
-                ctx.setLineDash([]);
-
-                ctx.strokeStyle = isCritical ? 'rgba(255,51,102,0.12)' : 'rgba(181,148,91,0.09)';
-                ctx.lineWidth = 0.5;
-                ctx.beginPath();
-                ctx.moveTo(cx, 0);
-                ctx.lineTo(cx, canvas.height);
-                ctx.moveTo(0, cy);
-                ctx.lineTo(canvas.width, cy);
-                ctx.stroke();
-
-                nodes.forEach(n => {
-                    if (n.historicalTrail.length > 1) {
-                        const trailColor = isCritical ? 'rgba(255,51,102,' : 'rgba(181,148,91,';
-                        ctx.beginPath();
-                        ctx.lineWidth = 1.2;
-                        for (let t = 0; t < n.historicalTrail.length; t++) {
-                            const pt = n.historicalTrail[t];
-                            const alpha = (t / n.historicalTrail.length) * 0.35;
-                            ctx.strokeStyle = trailColor + alpha.toFixed(3) + ')';
-                            if (t === 0) ctx.moveTo(pt.x, pt.y);
-                            else ctx.lineTo(pt.x, pt.y);
-                        }
-                        ctx.stroke();
-                        for (let t = 0; t < n.historicalTrail.length; t += 4) {
-                            const pt = n.historicalTrail[t];
-                            const alpha = (t / n.historicalTrail.length) * 0.5;
-                            ctx.fillStyle = trailColor + alpha.toFixed(3) + ')';
-                            ctx.beginPath();
-                            ctx.arc(pt.x, pt.y, 1.8 * (t / n.historicalTrail.length), 0, Math.PI * 2);
-                            ctx.fill();
-                        }
-                    }
-                });
-
-                const localIntensity = Math.min(engine.totalUs / 600, 1);
-                ctx.beginPath();
-                ctx.moveTo(nodes[0].x, nodes[0].y);
-                ctx.lineTo(nodes[1].x, nodes[1].y);
-                ctx.lineTo(nodes[2].x, nodes[2].y);
-                ctx.lineTo(nodes[3].x, nodes[3].y);
-                ctx.closePath();
-                ctx.fillStyle = isCritical ?
-                    `rgba(255,51,102,${0.07+localIntensity*0.22+Math.sin(engine.breathPhase*4)*0.03})` :
-                    `rgba(181,148,91,${0.04+localIntensity*0.14+Math.sin(engine.breathPhase)*0.02})`;
-                ctx.fill();
-
-                const offsets = isCritical ?
-                    [{ x: -4.5, color: 'rgba(255,51,102,0.85)' }, { x: 4.5, color: 'rgba(0,229,255,0.75)' }, { x: 0, color: '#b5945b' }] :
-                    [{ x: -1.5, color: 'rgba(181,148,91,0.5)' }, { x: 1.5, color: 'rgba(200,170,120,0.4)' }, { x: 0, color: '#b5945b' }];
-
-                offsets.forEach(off => {
-                    ctx.save();
-                    ctx.translate(off.x, 0);
-                    springs.forEach(s => {
-                        ctx.beginPath();
-                        ctx.moveTo(s.a.x, s.a.y);
-                        ctx.lineTo(s.b.x, s.b.y);
-                        const strain = Math.min(s.currentUs / 40, 1);
-                        if (s.isDiagonal) {
-                            const diagAlpha = off.x !== 0 ? 0.18 + strain * 0.45 : 0.25 + strain * 0.55;
-                            ctx.strokeStyle = `rgba(255,170,0,${diagAlpha.toFixed(3)})`;
-                            ctx.lineWidth = 0.5 + strain * 1.6;
-                            ctx.setLineDash([3, 5]);
-                            ctx.shadowColor = 'transparent';
-                            ctx.shadowBlur = 0;
-                        } else {
-                            const baseAlpha = off.x !== 0 ? 0.38 + strain * 0.4 : 0.55 + strain * 0.45;
-                            let colorStr = off.color;
-                            if (colorStr.startsWith('rgba')) colorStr = colorStr.replace(/[\d.]+\)$/, baseAlpha.toFixed(3) + ')');
-                            ctx.strokeStyle = colorStr;
-                            ctx.lineWidth = 1.5 + strain * 3.2;
-                            ctx.setLineDash([]);
-                            if (isCritical && off.x === 0) {
-                                ctx.shadowColor = `rgba(255,51,102,${0.5+strain*0.5})`;
-                                ctx.shadowBlur = 10 + strain * 16;
-                            } else if (isCritical && off.x !== 0) {
-                                ctx.shadowColor = off.color.replace(/[\d.]+\)$/, (0.35 + strain * 0.4).toFixed(3) + ')');
-                                ctx.shadowBlur = 5 + strain * 8;
-                            } else if (!isCritical && off.x === 0 && strain > 0.5) {
-                                ctx.shadowColor = `rgba(181,148,91,${strain*0.5})`;
-                                ctx.shadowBlur = 4 + strain * 8;
-                            } else {
-                                ctx.shadowColor = 'transparent';
-                                ctx.shadowBlur = 0;
-                            }
-                        }
-                        ctx.stroke();
-                        if (s.currentUs > 60 && off.x === 0) {
-                            const dotAlpha = Math.min(1, s.currentUs / 200);
-                            ctx.fillStyle = isCritical ? `rgba(255,51,102,${dotAlpha})` : `rgba(255,170,0,${dotAlpha})`;
-                            ctx.shadowColor = ctx.fillStyle;
-                            ctx.shadowBlur = 5 * dotAlpha;
-                            ctx.beginPath();
-                            ctx.arc(s.midX, s.midY, 1.5 + strain * 2.5, 0, Math.PI * 2);
-                            ctx.fill();
-                            ctx.shadowBlur = 0;
-                        }
-                    });
-                    ctx.restore();
-                });
-
-                engine.resonancePulses.forEach(p => p.draw(ctx));
-                wisps.forEach(w => w.draw(ctx));
-                sparkPool.updateAndRender(ctx);
-
-                nodes.forEach(n => {
-                    const isGrabbed = engine.pointer.targetNode === n;
-                    const nodeStress = springs.filter(s => s.a === n || s.b === n).reduce((sum, s) => sum + s.currentUs, 0);
-                    const nodeGlow = Math.min(nodeStress / 300, 1);
-                    if (nodeGlow > 0.15 && !isGrabbed) {
-                        const glowColor = isCritical ? `rgba(255,51,102,${nodeGlow*0.6})` : `rgba(255,170,0,${nodeGlow*0.5})`;
-                        ctx.fillStyle = glowColor;
-                        ctx.shadowColor = glowColor;
-                        ctx.shadowBlur = 16 + nodeGlow * 30;
-                        ctx.beginPath();
-                        ctx.arc(n.x, n.y, 6 + nodeGlow * 8, 0, Math.PI * 2);
-                        ctx.fill();
-                        ctx.shadowBlur = 0;
-                    }
-                    ctx.fillStyle = isGrabbed ? '#ffffff' : isCritical ? '#ff3366' : 'var(--brass)';
-                    ctx.shadowColor = ctx.fillStyle;
-                    ctx.shadowBlur = isGrabbed ? 16 : (isCritical ? 11 : 5);
-                    ctx.beginPath();
-                    ctx.arc(n.x, n.y, isGrabbed ? 5.5 : 3.8, 0, Math.PI * 2);
-                    ctx.fill();
-                    ctx.shadowBlur = 0;
-                    if (isGrabbed) {
-                        ctx.strokeStyle = '#ffffff';
-                        ctx.lineWidth = 1.5;
-                        ctx.setLineDash([3, 2]);
-                        ctx.beginPath();
-                        ctx.arc(n.x, n.y, 10, 0, Math.PI * 2);
-                        ctx.stroke();
-                        ctx.setLineDash([]);
-                    }
-                });
-
-                ctx.restore();
-
-                ctx.globalCompositeOperation = 'source-over';
-                const vignetteGrad = ctx.createRadialGradient(cx, cy, maxD * 0.35, cx, cy, maxD * 0.75);
-                vignetteGrad.addColorStop(0, 'rgba(0,0,0,0)');
-                vignetteGrad.addColorStop(0.5, 'rgba(0,0,0,0)');
-                vignetteGrad.addColorStop(1, 'rgba(2,3,6,0.65)');
-                ctx.fillStyle = vignetteGrad;
-                ctx.fillRect(0, 0, canvas.width, canvas.height);
-
-                if (isCritical && Math.random() < 0.2) {
-                    container.style.transform = `skewX(${(Math.random()-0.5)*1.5}deg) skewY(${(Math.random()-0.5)*1.2}deg) scale(1.008)`;
-                } else if (!isCritical || Math.random() < 0.8) {
-                    container.style.transform = 'none';
-                }
-
-                if (Math.random() < 0.12) {
-                    kSlider.value = engine.k;
-                    elKVal.textContent = engine.k.toFixed(2);
-                    elKReadout.textContent = engine.k.toFixed(2);
-                    elDecayReadout.textContent = engine.decay_rate.toFixed(4);
-                }
-
-                elComboReadout.textContent = `x${engine.comboMult.toFixed(1)}`;
-                if (engine.comboMult >= 4.0) {
-                    elComboReadout.style.color = '#ff3366';
-                    elComboReadout.style.textShadow = '0 0 8px #ff3366';
-                } else if (engine.comboMult >= 2.5) {
-                    elComboReadout.style.color = 'var(--surge)';
-                    elComboReadout.style.textShadow = '0 0 6px var(--surge)';
-                } else if (engine.comboMult > 1.0) {
-                    elComboReadout.style.color = 'var(--cyan-shift)';
-                    elComboReadout.style.textShadow = '0 0 4px var(--cyan-shift)';
-                } else {
-                    elComboReadout.style.color = 'var(--brass)';
-                    elComboReadout.style.textShadow = 'none';
-                }
-
-                const usDisplay = (Math.random() > 0.92 && engine.k < 0.20) ? 'ERROR' : `${engine.totalUs.toFixed(1)} J`;
-                elUs.textContent = usDisplay;
-
-                if (isCritical) {
-                    elIntegrity.textContent = engine.k < 0.20 ? 'FRACTURE_IMMINENT' : 'CRITICAL_BREACH';
-                    elIntegrity.style.color = '#ff3366';
-                    elIntegrity.className = 'crit';
-                    elUs.style.color = '#ff3366';
-                    elUs.className = 'crit';
-                    telemetryEl.classList.add('critical-telemetry');
-                } else {
-                    elIntegrity.textContent = 'NOMINAL';
-                    elIntegrity.style.color = 'var(--brass)';
-                    elIntegrity.className = 'brass-text';
-                    elUs.style.color = 'var(--surge)';
-                    elUs.className = 'warn';
-                    telemetryEl.classList.remove('critical-telemetry');
-                }
-
-// ── MINIMAP ──
-{
-    const mw = mmCanvas.width, mh = mmCanvas.height;
-    mmCtx.clearRect(0, 0, mw, mh);
-    const padL = 22, padR = 6, padT = 6, padB = 14;
-    const gw = mw - padL - padR, gh = mh - padT - padB;
-    
-    // -- STATE & TRACKING --
-    const centX = nodes.reduce((s, n) => s + n.x, 0) / nodes.length;
-    const centY = nodes.reduce((s, n) => s + n.y, 0) / nodes.length;
-    const velocity = engine.prevCentY !== null ? engine.prevCentY - centY : 0;
-    engine.prevCentY = centY;
-    
-    const altNow = Math.round(canvas.height - centY);
-    if (altNow > engine.maxAlt) engine.maxAlt = altNow;
-    
-    engine.heightHistory.push(centY);
-    if (engine.heightHistory.length > 120) engine.heightHistory.shift();
-    engine.velocityHistory.push(velocity);
-    if (engine.velocityHistory.length > 120) engine.velocityHistory.shift();
-    
-    // Auto-scaling spatial path memory
-    if (!engine.pathHistory) engine.pathHistory = [];
-    engine.pathHistory.push({ x: centX, y: centY });
-    if (engine.pathHistory.length > 300) engine.pathHistory.shift();
-
-    // -- SCALING LOGIC --
-    const history = engine.heightHistory, velHistory = engine.velocityHistory;
-    const minVal = Math.min(...history, 0) - 20, maxVal = Math.max(...history, canvas.height) + 20;
-    const range = maxVal - minVal;
-    const toGY = (ry) => padT + ((ry - minVal) / range) * gh;
-    const toGX = (i) => padL + (i / (history.length - 1 || 1)) * gw;
-    const maxVel = Math.max(...velHistory.map(Math.abs), 1);
-    const velMidY = padT + gh * 0.85, velScale = (gh * 1) / maxVel;
-    const toVelY = (v) => velMidY - v * velScale;
-
-     // -- DRAW LAYER 1: SPATIAL TRAIL (NEW) --
-    // 1. Extract X bounds from the spatial state
-    const xs = engine.pathHistory.map(p => p.x);
-    
-    // 2. Establish a baseline scale (canvas width) but expand if nodes exceed it
-    const minX = Math.min(...xs, 0) - 20; 
-    const maxX = Math.max(...xs, canvas.width) + 20; 
-    const rangeX = maxX - minX;
-
-    mmCtx.beginPath();
-    mmCtx.strokeStyle = 'rgba(255,170,0,0.5)'; // Boosted opacity slightly for visibility
-    mmCtx.lineWidth = 1;
-    
-    engine.pathHistory.forEach((p, i) => {
-        // 3. Information flow: Dynamic X scaling replaces the rigid canvas.width constraint
-        const x = padL + ((p.x - minX) / rangeX) * gw; 
-        const y = toGY(p.y);                        
-        i === 0 ? mmCtx.moveTo(x, y) : mmCtx.lineTo(x, y);
+      </div>
+      <a class="open" href="${url}" target="_blank" rel="noopener">
+        OPEN FULLSCREEN <span class="arw">↗</span>
+      </a>`;
+
+    const frame = el.querySelector(".frame");
+    const loadBtn = el.querySelector(".load");
+    const unloadBtn = el.querySelector(".unload");
+
+    loadBtn.addEventListener("click", () => {
+      const iframe = document.createElement("iframe");
+      iframe.setAttribute("allow", ALLOW);
+      iframe.setAttribute("loading", "lazy");
+      iframe.src = frame.dataset.src;
+      frame.appendChild(iframe);
+      loadBtn.style.display = "none";
+      unloadBtn.style.display = "flex";
     });
-    mmCtx.stroke();
 
-    // -- DRAW LAYER 2: TELEMETRY (YOUR EXACT ORIGINAL CODE) --
-    mmCtx.strokeStyle = 'rgba(181,148,91,0.08)';
-    mmCtx.lineWidth = 0.5;
-    const groundY = toGY(canvas.height);
-    mmCtx.beginPath();
-    mmCtx.moveTo(padL, groundY);
-    mmCtx.lineTo(padL + gw, groundY);
-    mmCtx.stroke();
-    
-    const topY = toGY(0);
-    mmCtx.strokeStyle = 'rgba(181,148,91,0.05)';
-    mmCtx.beginPath();
-    mmCtx.moveTo(padL, topY);
-    mmCtx.lineTo(padL + gw, topY);
-    mmCtx.stroke();
-    
-    const maxAltY = toGY(canvas.height - engine.maxAlt);
-    mmCtx.strokeStyle = 'rgba(0,229,255,0.25)';
-    mmCtx.lineWidth = 0.5;
-    mmCtx.setLineDash([2, 3]);
-    mmCtx.beginPath();
-    mmCtx.moveTo(padL, maxAltY);
-    mmCtx.lineTo(padL + gw, maxAltY);
-    mmCtx.stroke();
-    mmCtx.setLineDash([]);
-    
-    mmCtx.font = '6px Fira Code, monospace';
-    mmCtx.textAlign = 'right';
-    mmCtx.fillStyle = 'rgba(181,148,91,0.4)';
-    mmCtx.fillText('GND', padL - 2, groundY + 2);
-    mmCtx.fillStyle = 'rgba(0,229,255,0.4)';
-    mmCtx.fillText('MAX', padL - 2, maxAltY + 2);
-    
-    mmCtx.beginPath();
-    velHistory.forEach((v, i) => { const x = toGX(i), y = toVelY(v); i === 0 ? mmCtx.moveTo(x, y) : mmCtx.lineTo(x, y); });
-    mmCtx.strokeStyle = 'rgba(0,229,255,0.4)';
-    mmCtx.lineWidth = 0.8;
-    mmCtx.stroke();
-    
-    mmCtx.beginPath();
-    history.forEach((v, i) => { const x = toGX(i), y = toGY(v); i === 0 ? mmCtx.moveTo(x, y) : mmCtx.lineTo(x, y); });
-    mmCtx.lineTo(toGX(history.length - 1), padT + gh);
-    mmCtx.lineTo(padL, padT + gh);
-    mmCtx.closePath();
-    mmCtx.fillStyle = isCritical ? 'rgba(255,51,102,0.06)' : 'rgba(181,148,91,0.06)';
-    mmCtx.fill();
-    
-    mmCtx.beginPath();
-    history.forEach((v, i) => { const x = toGX(i), y = toGY(v); i === 0 ? mmCtx.moveTo(x, y) : mmCtx.lineTo(x, y); });
-    mmCtx.strokeStyle = isCritical ? 'rgba(255,51,102,0.85)' : 'rgba(181,148,91,0.75)';
-    mmCtx.lineWidth = 1;
-    mmCtx.stroke();
-    
-    const liveX = toGX(history.length - 1), liveY = toGY(centY);
-    mmCtx.beginPath();
-    mmCtx.arc(liveX, liveY, 2.5, 0, Math.PI * 2);
-    mmCtx.fillStyle = isCritical ? '#ff3366' : '#ffffff';
-    mmCtx.shadowColor = mmCtx.fillStyle;
-    mmCtx.shadowBlur = 7;
-    mmCtx.fill();
-    mmCtx.shadowBlur = 0;
-    
-    const heightAboveGround = Math.round(canvas.height - centY);
-    const isAbove = centY < 0;
-    const label = isAbove ? `+${Math.abs(Math.round(centY))}px` : (heightAboveGround > 5 ? `${heightAboveGround}` : 'GND');
-    mmCtx.fillStyle = isCritical ? '#ff3366' : (centY < 0 ? '#ffffff' : 'rgba(181,148,91,0.9)');
-    mmCtx.font = 'bold 6px Fira Code, monospace';
-    mmCtx.textAlign = liveX > mw - 30 ? 'right' : 'left';
-    mmCtx.fillText(label, liveX + (liveX > mw - 30 ? -4 : 4), liveY + 2);
-    
-    mmCtx.strokeStyle = 'rgba(181,148,91,0.2)';
-    mmCtx.lineWidth = 8;
-    mmCtx.beginPath();
-    mmCtx.moveTo(padL, padT);
-    mmCtx.lineTo(padL, padT + gh);
-    mmCtx.stroke();
-    
-    elVelReadout.textContent = Math.abs(velocity).toFixed(2);
-    elVelReadout.style.color = Math.abs(velocity) > 15 ? 'var(--bleed)' : 'var(--brass)';
-    elMaxAltReadout.textContent = engine.maxAlt + ' px';
+    unloadBtn.addEventListener("click", () => {
+      const iframe = frame.querySelector("iframe");
+      if (iframe) iframe.remove();
+      loadBtn.style.display = "flex";
+      unloadBtn.style.display = "none";
+    });
+
+    grid.appendChild(el);
+  });
+
+  main.appendChild(section);
+});
+
+// Filter + search logic
+function applyFilters() {
+  let totalVisible = 0;
+
+  CATEGORIES.forEach(cat => {
+    const section = document.querySelector(`.section[data-cat="${cat.id}"]`);
+    const grid = document.getElementById(`grid-${cat.id}`);
+    const countEl = document.getElementById(`count-${cat.id}`);
+    const cards = grid.querySelectorAll(".card");
+
+    let sectionVisible = 0;
+
+    cards.forEach(card => {
+      const matchesCat = activeFilter === "all" || card.dataset.cat === activeFilter;
+      const matchesSearch = !searchQuery ||
+        card.dataset.name.includes(searchQuery) ||
+        card.dataset.desc.includes(searchQuery) ||
+        card.dataset.tags.includes(searchQuery);
+
+      const show = matchesCat && matchesSearch;
+      card.classList.toggle("hidden", !show);
+      if (show) { sectionVisible++; totalVisible++; }
+    });
+
+    // hide entire section if nothing visible
+    section.style.display = sectionVisible === 0 ? "none" : "";
+    countEl.textContent = sectionVisible;
+  });
+
+  emptyEl.style.display = totalVisible === 0 ? "block" : "none";
+  countEl.textContent = totalVisible;
 }
 
+// Search
+document.getElementById("search").addEventListener("input", e => {
+  searchQuery = e.target.value.trim().toLowerCase();
+  applyFilters();
+});
 
-                // ── OFFSCREEN ARROW ──
-                {
-                    const centX = nodes.reduce((s, n) => s + n.x, 0) / nodes.length;
-                    const centY2 = nodes.reduce((s, n) => s + n.y, 0) / nodes.length;
-                    const anyOffScreen = nodes.some(n => n.x < 0 || n.x > canvas.width || n.y < 0 || n.y > canvas.height);
-                    if (anyOffScreen) {
-                        arrowEl.style.display = 'block';
-                        arrowEl.className = isCritical ? 'critical' : '';
-                        const margin = 18, aw = 28, ah = 28, cw = canvas.width, ch = canvas.height;
-                        const angle = Math.atan2(centY2 - ch / 2, centX - cw / 2);
-                        const cos = Math.cos(angle), sin = Math.sin(angle);
-                        const scaleToEdge = Math.min((cw / 2 - margin) / Math.abs(cos || 0.0001), (ch / 2 - margin) / Math.abs(sin || 0.0001));
-                        const ex = cw / 2 + cos * scaleToEdge, ey = ch / 2 + sin * scaleToEdge;
-                        arrowEl.style.left = (ex - aw / 2) + 'px';
-                        arrowEl.style.top = (ey - ah / 2) + 'px';
-                        arrowEl.style.transform = `rotate(${angle+Math.PI/2}rad)`;
-                    } else { arrowEl.style.display = 'none'; }
-                }
-            }
-
-            // ─────────────────────────────────────
-            // MAIN LOOP (fixed timestep accumulator)
-            // performance.now() returns milliseconds; TIME_STEP is in ms.
-            // ─────────────────────────────────────
-            function loop(currentTime) {
-                const frameTime = Math.min((currentTime - lastTime) / 1, 1); // unitless, capped to prevent spiral of death
-                lastTime = currentTime;
-
-                // Handle hit-stop
-                if (engine.hitStop > 0) {
-                    engine.hitStop--;
-                    engine.impactFlashes.forEach(f => {
-                        const r = 40 + f.strength * 48;
-                        const grad = ctx.createRadialGradient(f.x, f.y, 0, f.x, f.y, r);
-                        grad.addColorStop(0, `rgba(255,255,180,${f.life * 1 * f.strength})`);
-                        grad.addColorStop(0.4, `rgba(255,160,80,${f.life * 0.35 * f.strength})`);
-                        grad.addColorStop(1, `rgba(255,100,50,0)`);
-                        ctx.globalCompositeOperation = 'lighter';
-                        ctx.fillStyle = grad;
-                        ctx.beginPath();
-                        ctx.arc(f.x, f.y, r, 0, Math.PI * 2);
-                        ctx.fill();
-                        ctx.globalCompositeOperation = 'source-over';
-                        f.life -= 0.4;
-                    });
-                    engine.impactFlashes = engine.impactFlashes.filter(f => f.life > 0);
-                    requestAnimationFrame(loop);
-                    return;
-                }
-
-                // Drain accumulator in fixed TIME_STEP increments, capped by subSteps
-                accumulator += frameTime;
-                let steps = 0;
-                while (accumulator >= TIME_STEP && steps < engine.subSteps) {
-                    stepPhysics(TIME_STEP);
-                    accumulator -= TIME_STEP; // ← correct drain
-                    steps++;
-                }
-
-                updatePerFrame();
-                renderFrame();
-                requestAnimationFrame(loop);
-            }
-
-            requestAnimationFrame(loop);
-        })();
-    </script>
+// Filter buttons
+document.querySelectorAll(".ftag").forEach(btn => {
+  btn.addEventListener("click", () => {
+    document.querySelectorAll(".ftag").forEach(b => b.classList.remove("active"));
+    btn.classList.add("active");
+    activeFilter = btn.dataset.filter;
+    applyFilters();
+  });
+});
+</script>
 </body>
 </html>
